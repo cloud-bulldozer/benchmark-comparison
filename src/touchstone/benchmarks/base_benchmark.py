@@ -11,9 +11,9 @@ class BenchmarkBaseClass(metaclass=ABCMeta):
             self._source_type = source_type
         if harness_type:
             self._harness_type = harness_type
-        self._indices_array = None
+        self._indices_map = None
         _logger.debug("Finished initializing BenchmarkBaseClass instance")
 
     @abstractmethod
-    def _emit_indices(self):
+    def emit_search_map(self):
         pass

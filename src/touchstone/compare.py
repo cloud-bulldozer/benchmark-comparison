@@ -97,20 +97,20 @@ def main(args):
     setup_logging(args.loglevel)
     _logger.debug("Instantiating the benchmark instance")
     benchmark_instance = benchmarks.grab(args.benchmark,source_type=args.database,harness_type=args.harness)
-    print(benchmark_instance.emit_search_map())
     database_instance1 = databases.grab(args.database,conn_url=args.conn_url[0])
     database_instance2 = databases.grab(args.database,conn_url=args.conn_url[1])
     d1 = database_instance1.emit_values_dict(uuid=args.uuid[0],search_map=benchmark_instance.emit_search_map())
     d2 = database_instance2.emit_values_dict(uuid=args.uuid[1],search_map=benchmark_instance.emit_search_map())
     _logger.info("Script ends here")
-    _header = ""
+    _header = "{:20} |".format("bucket_name")
     for _bucket in database_instance1._bucket_list:
         _header = _header + " {:20} |".format(_bucket)
-    print(_header)
     print("================================================================================================================================")
     # d1 = {'a': {'b': {'cs': 10}, 'd': {'cs': 20}}}
     # d2 = {'a': {'b': {'cs': 30}, 'd': {'cs': 20}}, 'newa': {'q': {'cs': 50}}}
-    compare_dict(d1,d2,database_instance1._aggs_list,"",database_instance1._bucket_list)
+    _string = "{:20} |".format("bucket_value")
+    for key in d1.keys():
+        compare_dict(d1[key],d2[key],database_instance1._aggs_list, _string, database_instance1._bucket_list, args.uuid[0], args.uuid[1],_header)
 
 
 def render():

@@ -10,7 +10,6 @@ class DatabaseBaseClass(metaclass=ABCMeta):
         if conn_url:
             self._conn_url = conn_url
         self._dict = None
-        print(self._conn_url)
         _logger.debug("Finished initializing DatabaseBaseClass instance")
 
     @abstractmethod

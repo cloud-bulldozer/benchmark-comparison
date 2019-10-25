@@ -87,9 +87,7 @@ class Elasticsearch(DatabaseBaseClass):
         if len(response.hits.hits) > 0:
             for compare in search_map['compare']:
                 _output_dict[compare] = str(response.hits.hits[0]['_source'][compare])
-        print("\n")
-        print(_output_dict)
-        print("\n")
+        _logger.debug("output dictionary with summaries is:".format(_output_dict))
         # _first_level = _queue_buckets.get()
         # _temp_dict[_first_level] = {}
         # _y = [_temp_dict]

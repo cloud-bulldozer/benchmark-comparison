@@ -1,11 +1,6 @@
-==========
-touchstone
-==========
+# Touchstone
 
 Framework to help data comparison between 2 similar datasets.
-
-Description
-===========
 Touchstone is a framework written in python that provides you an apples to apples comparison
 between 2 similar datasets.
 
@@ -15,8 +10,7 @@ Touchstone currently supports comparison of the following docs:
 |----------------|------------------|---------------|
 |      Uperf     |  Elasticsearch   |    Ripsaw     |
 
-Usage
-=====
+## Usage
 
 It is suggested to use a venv to install and run touchstone.
 

@@ -1,5 +1,6 @@
 from importlib import import_module
 import logging
+import traceback
 
 from . base_database import DatabaseBaseClass ## noqa
 
@@ -16,10 +17,11 @@ def grab(database_input_type, *args, **kwargs):
             module_name = database_input_type
             class_name = database_input_type.capitalize()
         database_module = import_module('touchstone.databases.' + module_name,
-                                      package='databases')
+                                        package='databases')
         database_input_class = getattr(database_module, class_name)
         instance = database_input_class(*args, **kwargs)
 
-    except (AttributeError, ModuleNotFoundError):
-        raise ImportError('{} is not part of our database collection!'.format(database_input_type))
+    except Exception:
+        _logger.debug("Hit an error finding the right module")
+        _logger.error(traceback.format_exc())
     return instance

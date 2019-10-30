@@ -21,11 +21,39 @@ class Uperf(BenchmarkBaseClass):
             'elasticsearch': {
                 'ripsaw': {
                     'ripsaw-uperf-results': {
-                        'buckets': ['test_type.keyword', 'protocol.keyword',
-                                    'message_size', 'num_threads'],
-                        'aggregations': ['norm_byte', 'norm_ops', 'norm_ltcy'],
                         'compare': ['uuid', 'user', 'cluster_name',
-                                    'hostnetwork', 'service_ip']
+                            'hostnetwork', 'service_ip'],
+                        'compute': [{
+                            'filter': {
+                                'test_type.keyword': 'rr'
+                            },
+                            'buckets': ['protocol.keyword',
+                                'message_size', 'num_threads'
+                            ],
+                            'aggregations': {
+                                'norm_byte': ['max' 'min', 'avg'],
+                                'norm_ops': ['max' 'min', 'avg'],
+                                'norm_ltcy': ['max' 'min', 'avg'],
+                            }
+                        }, {
+                            'filter': {
+                                'test_type.keyword': 'stream'
+                            },
+                            'buckets': ['protocol.keyword',
+                                'message_size', 'num_threads'
+                            ],
+                            'aggregations': {
+                                'norm_byte': {
+                                    'percentiles': [95, 99]
+                                },
+                                'norm_ops': {
+                                    'percentiles': [95, 99]
+                                },
+                                'norm_ltcy': {
+                                    'percentiles': [95, 99]
+                                }
+                            },
+                        }]
                     }
                 }
             }

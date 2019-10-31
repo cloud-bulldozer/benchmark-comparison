@@ -7,63 +7,66 @@ _logger = logging.getLogger("touchstone")
 def id_dict(obj):
     return obj.__class__.__name__ == 'dict'
 
+def snake(input_str):
+    return input_str.replace('.','_')
 
-def _contains_key_rec(v_key, v_dict):
-    for curKey in v_dict:
-        if curKey == v_key or \
-            (id_dict(v_dict[curKey]) and
-             _contains_key_rec(v_key, v_dict[curKey])):
-            return True
-    return False
-
-
-def _get_value_rec(v_key, v_dict):
-    for curKey in v_dict:
-        if curKey == v_key:
-            return v_dict[curKey]
-        elif id_dict(v_dict[curKey]) and _get_value_rec(v_key, v_dict[curKey]):
-            return _contains_key_rec(v_key, v_dict[curKey])
-    return None
-
-
-def _print_comparison(entry1, entry2, uuid1, uuid2, _message, key):
-    _header = _message + "{:20} | ".format("uuid")
-    if type(entry1) is dict and type(entry2) is dict:
-        _message1 = "{:20} | ".format(uuid1)
-        _message2 = "{:20} | ".format(uuid2)
-        for _key in entry1:
-            _string = str(key) + '({})'.format(_key)
-            _header = _header + "{:20} | ".format(_string)
-            _message1 = _message1 + " {:20} | ".format(str(entry1[_key]))
-            _message2 = _message2 + " {:20} | ".format(str(entry2[_key]))
-        print(_header)
-        print(_message1)
-        print(_message2)
+def dfs_dict_list(input_list, input_dict, max_level, recurse_level=0):
+    _recurse_level = recurse_level + 1
+    if _recurse_level <= max_level:
+        for key, value in input_list[recurse_level].items():
+            _output_dict = {}
+            _output_dict[key] = {}
+            _output_dict[key][value] = {}
+            _output_dict[key][value] = dfs_dict_list(input_list, {}, max_level, _recurse_level)
+            return _output_dict
     else:
-        _header = _header + "{:20} | ".format(key)
-        print(_header)
-        _message1 = "{:20} | ".format(uuid1)
-        _message1 = _message1 + " {:20} | ".format(str(entry1))
-        print(_message1)
-        _message2 = "{:20} | ".format(uuid2)
-        _message2 = _message2 + " {:20} | ".format(str(entry2))
-        print(_message2)
+        return {}
 
 
-def compare_dict(d1, d2, aggs, _message, buckets, uuid1, uuid2, _header):
-    for key in d1:
-        if _contains_key_rec(key, d2):
-            d2_value = _get_value_rec(key, d2)
-            if type(d1[key]) is dict and type(d2_value) is dict and \
-                key not in aggs:
-                if key not in aggs and key not in buckets:
-                    _message = _message + " {:20} |".format(key)
-                compare_dict(d1[key], d2_value, aggs, _message, buckets,
-                             uuid1, uuid2, _header)
-            elif key in aggs:
-                print(_header)
-                print(_message)
-                _print_comparison(d1[key], d2_value, uuid1, uuid2, "", key)
-                print("=" * 128)
+def mergedicts(dict1, dict2):
+    for k in set(dict1.keys()).union(dict2.keys()):
+        if k in dict1 and k in dict2:
+            if isinstance(dict1[k], dict) and isinstance(dict2[k], dict):
+                yield (k, dict(mergedicts(dict1[k], dict2[k])))
+            else:
+                # If one of the values is not a dict, you can't continue merging it.
+                # Value from second dict overrides one in first and we move on.
+                yield (k, dict2[k])
+                # Alternatively, replace this with exception raiser to alert you of value conflicts
+        elif k in dict1:
+            yield (k, dict1[k])
         else:
-            _logger.debug("dict d2 does not contain key: " + str(key))
+            yield (k, dict2[k])
+
+
+def compare_dict(d1, aggs, _message, buckets, uuids, _header, max_level, level=0):
+    for key in d1:
+        if type(d1[key]) is dict and key not in aggs and level < max_level-1:
+            new_level = level + 1
+            if key not in buckets:
+                # this means it's a bucket value
+                new_message = _message + " {:20} |".format(key)
+                compare_dict(d1[key], aggs, new_message, buckets,
+                             uuids, _header, max_level, new_level)
+            else:
+                # this means it's a bucket name
+                new_header = _header + " {:20} |".format(key)
+                compare_dict(d1[key], aggs, _message, buckets,
+                             uuids, new_header, max_level, new_level)
+        else:
+            print(_header)
+            final_message = _message + " {:20} |".format(key)
+            print(final_message)
+            _compare_header = "{:30} |".format("key")
+            for uuid in uuids:
+                _compare_header = _compare_header + " {:20} |".format(uuid[:16])
+            print(_compare_header)
+            for agg_key, agg_dict in d1[key].items():
+                _compare_values = "{:30} |".format(agg_key)
+                for uuid in uuids:
+                    if uuid in agg_dict:
+                        _compare_values = _compare_values + " {:20} |".format(str(agg_dict[uuid]))
+                    else:
+                        _compare_values = _compare_values + " {:20} |".format("no_match")
+                print(_compare_values)
+            print("=" * 128)

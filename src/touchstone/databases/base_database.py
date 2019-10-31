@@ -14,5 +14,9 @@ class DatabaseBaseClass(metaclass=ABCMeta): # noqa
         _logger.debug("Finished initializing DatabaseBaseClass instance")
 
     @abstractmethod
-    def emit_values_dict(self):
+    def emit_compute_dict(self):
+        pass
+
+    @abstractmethod
+    def emit_compare_dict(self):
         pass

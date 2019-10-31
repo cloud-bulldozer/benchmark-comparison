@@ -16,5 +16,13 @@ class BenchmarkBaseClass(metaclass=ABCMeta): # noqa
         _logger.debug("Finished initializing BenchmarkBaseClass instance")
 
     @abstractmethod
-    def emit_search_map(self):
+    def emit_compute_map(self):
+        pass
+
+    @abstractmethod
+    def emit_compare_map(self):
+        pass
+
+    @abstractmethod
+    def emit_indices(self):
         pass

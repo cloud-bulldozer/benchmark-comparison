@@ -24,9 +24,11 @@ class Elasticsearch(DatabaseBaseClass):
         DatabaseBaseClass.__init__(self, conn_url=conn_url)
         self._conn_object = self._create_conn_object()
         self._possible_bucket_keys = {}
+        self._bucket_list = []
+        self._aggs_list = []
         _logger.debug("Finished Initializing Elasticsearch object")
 
-    def _clean_dict(self, _input_dict, _list_buckets, level, aggs):
+    def _clean_dict(self, _input_dict, _list_buckets, level, aggs, uuid):
         _curr_level = level + 1
         _output_dict = {}
         if _curr_level <= len(_list_buckets):
@@ -35,25 +37,33 @@ class Elasticsearch(DatabaseBaseClass):
                 _real_key = _bucket['key']
                 _output_dict[_list_buckets[level]][_real_key] = {}
                 _output_dict[_list_buckets[level]][_real_key] = \
-                    self._clean_dict(_bucket, _list_buckets, _curr_level, aggs)
+                    self._clean_dict(_bucket, _list_buckets, _curr_level, aggs, uuid)
         else:
             _output_dict = {}
             for _aggs in aggs:
                 if 'values' in _input_dict[_aggs]:
-                    _output_dict[_aggs] = _input_dict[_aggs]['values']
+                    # where values is a dictionary
+                    self._remove_aggs.append(_aggs)
+                    for value in  _input_dict[_aggs]['values'].keys():
+                        _agg_str = value+str(_aggs)
+                        self._aggs_list.append(_agg_str)
+                        _output_dict[_agg_str] = {}
+                        _output_dict[_agg_str][uuid] = _input_dict[_aggs]['values'][value]
                 else:
-                    _output_dict[_aggs] = _input_dict[_aggs]['value']
+                    _output_dict[_aggs] = {}
+                    _output_dict[_aggs][uuid] = _input_dict[_aggs]['value']
         return _output_dict
 
-    def _build_dict(self, search_map, index, uuid):
+    def _build_values_dict(self, search_map, index, uuid, input_dict):
         _temp_dict = {}
         buckets = search_map['buckets']
-        self._bucket_list = []
         aggregations = search_map['aggregations']
-        self._aggs_list = []
+        filters = search_map['filter']
         _logger.debug("Initializing search object")
         s = Search(using=self._conn_object,
                    index=str(index)).query("match", uuid=str(uuid))
+        for key, value in filters.items():
+            s = s.filter("term", **{str(key): str(value)})
         _logger.debug("Building query")
         _first_bucket = str(buckets[0].split('.')[0])
         self._bucket_list.append(_first_bucket)
@@ -71,14 +81,26 @@ class Elasticsearch(DatabaseBaseClass):
             # y = y
         _logger.debug("Finished adding buckets to query")
         _logger.debug("Adding aggregations to query")
-        for agg in aggregations:
-            _temp_perc_str = str(agg) + str('_percentiles')
-            self._aggs_list.append(_temp_perc_str)
-            _temp_avg_str = str(agg) + str('_average')
-            self._aggs_list.append(_temp_avg_str)
-            x = x.metric(_temp_perc_str, 'percentiles', field=agg,
-                         percents=[1, 5, 50, 95, 99])
-            x = x.metric(_temp_avg_str, 'avg', field=agg)
+        for key, agg_list in aggregations.items():
+            for aggs in agg_list:
+                if isinstance(aggs,str):
+                    _temp_agg_str = "{}({})".format(aggs, key)
+                    x = x.metric(_temp_agg_str, aggs, field=key)
+                    self._aggs_list.append(_temp_agg_str)
+                elif isinstance(aggs,dict):
+                    for dict_key, dict_value in aggs.items():
+                        _temp_agg_str = "{}({})".format(dict_key, key)
+                        for nested_dict_key, nested_dict_value in dict_value.items():
+                            x = x.metric(_temp_agg_str, dict_key, field=key,
+                                        **{nested_dict_key: nested_dict_value})
+                        self._aggs_list.append(_temp_agg_str)
+                # _temp_perc_str = str(agg_entity) + str('_percentiles')
+                # self._aggs_list.append(_temp_perc_str)
+                # _temp_avg_str = str(agg_entity) + str('_average')
+                # self._aggs_list.append(_temp_avg_str)
+                # x = x.metric(_temp_perc_str, 'percentiles', field=agg_entity,
+                #              percents=[1, 5, 50, 95, 99])
+                # x = x.metric(_temp_avg_str, 'avg', field=agg_entity)
         _logger.debug("Finished adding aggregations to query")
         _logger.debug("Built the following query: \
                         {}".format(json.dumps(s.to_dict(), indent=4)))
@@ -86,18 +108,31 @@ class Elasticsearch(DatabaseBaseClass):
         _logger.debug("Succesfully executed the search query")
         _temp_dict_throw = response.aggregations.__dict__['_d_']
         _temp_dict = copy.deepcopy(_temp_dict_throw)
+        self._remove_aggs = []
         _output_dict = self._clean_dict(_temp_dict, self._bucket_list,
-                                        0, self._aggs_list)
-        if len(response.hits.hits) > 0:
-            for compare in search_map['compare']:
-                _output_dict[compare] = \
-                    str(response.hits.hits[0]['_source'][compare])
+                                        0, copy.deepcopy(self._aggs_list), uuid)
+        self._remove_aggs = set(self._remove_aggs)
+        for element in self._remove_aggs:
+            self._aggs_list.remove(element)
         _logger.debug("output dictionary with summaries is: \
                         ".format(_output_dict))
         return _output_dict
 
-    def emit_values_dict(self, uuid=None, search_map=None):
-        for index in search_map.keys():
-            self._possible_bucket_keys[index] = \
-                self._build_dict(search_map[index], index, uuid)
-        return self._possible_bucket_keys
+    def _build_compare_dict(self, compare_map, index, uuid, input_dict):
+        _logger.debug("Initializing search object")
+        s = Search(using=self._conn_object,
+                   index=str(index)).query("match", uuid=str(uuid))
+        response = s.execute()
+        if len(response.hits.hits) > 0:
+            for compare_key in compare_map:
+                input_dict[compare_key][uuid] = \
+                    str(response.hits.hits[0]['_source'][compare_key])
+        _logger.debug("output dictionary with summaries is: \
+                        ".format(input_dict))
+        return input_dict
+
+    def emit_compute_dict(self, uuid=None, compute_map=None, index=None, input_dict=None):
+        return self._build_values_dict(compute_map, index, uuid, input_dict)
+
+    def emit_compare_dict(self, uuid=None, compare_map=None, index=None, input_dict=None):
+        return self._build_compare_dict(compare_map[index], index, uuid, input_dict)

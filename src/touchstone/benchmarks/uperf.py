@@ -13,6 +13,21 @@ class Uperf(BenchmarkBaseClass):
         _logger.debug("Building search array for uperf")
         return self._search_dict[self._source_type][self._harness_type]
 
+    def _build_compare_keys(self):
+        _logger.debug("Building compare map")
+        _temp_dict = {}
+        for index in self._search_map:
+            _temp_dict[index] = self._search_map[index]['compare']
+        return _temp_dict
+
+    def _build_compute(self):
+        _logger.debug("Building compute map")
+        _temp_dict = {}
+        for index in self._search_map:
+            _temp_dict[index] = self._search_map[index]['compute']
+        return _temp_dict
+
+
     def __init__(self, source_type=None, harness_type=None):
         _logger.debug("Initializing uperf instance")
         BenchmarkBaseClass.__init__(self, source_type=source_type,
@@ -21,21 +36,10 @@ class Uperf(BenchmarkBaseClass):
             'elasticsearch': {
                 'ripsaw': {
                     'ripsaw-uperf-results': {
-                        'compare': ['uuid', 'user', 'cluster_name',
-                            'hostnetwork', 'service_ip'],
+                        'compare': ['user', 'cluster_name',
+                            'hostnetwork', 'service_ip'
+                        ],
                         'compute': [{
-                            'filter': {
-                                'test_type.keyword': 'rr'
-                            },
-                            'buckets': ['protocol.keyword',
-                                'message_size', 'num_threads'
-                            ],
-                            'aggregations': {
-                                'norm_byte': ['max' 'min', 'avg'],
-                                'norm_ops': ['max' 'min', 'avg'],
-                                'norm_ltcy': ['max' 'min', 'avg'],
-                            }
-                        }, {
                             'filter': {
                                 'test_type.keyword': 'stream'
                             },
@@ -43,15 +47,22 @@ class Uperf(BenchmarkBaseClass):
                                 'message_size', 'num_threads'
                             ],
                             'aggregations': {
-                                'norm_byte': {
-                                    'percentiles': [95, 99]
-                                },
-                                'norm_ops': {
-                                    'percentiles': [95, 99]
-                                },
-                                'norm_ltcy': {
-                                    'percentiles': [95, 99]
-                                }
+                                'norm_byte': ['max', 'min', 'avg']
+                            }
+                        }, {
+                            'filter': {
+                                'test_type.keyword': 'rr'
+                            },
+                            'buckets': ['protocol.keyword',
+                                'message_size', 'num_threads'
+                            ],
+                            'aggregations': {
+                                'norm_ops': ['max', 'min', 'avg']
+                                ,
+                                'norm_ltcy':
+                                    [{'percentiles': {
+                                        'percents': [90, 99]
+                                    }}, 'avg']
                             },
                         }]
                     }
@@ -59,10 +70,21 @@ class Uperf(BenchmarkBaseClass):
             }
         }
         self._search_map = self._build_search()
+        self._compute_map = self._build_compute()
+        self._compare_map = self._build_compare_keys()
         _logger.debug("Finished initializing uperf instance")
 
-    def emit_search_map(self):
-        _logger.debug("Emitting built search map ")
-        _logger.info("Search map is {} in the database \
-                     {}".format(self._search_map, self._source_type))
-        return self._search_map
+    def emit_compute_map(self):
+        _logger.debug("Emitting built compute map ")
+        _logger.info("Compute map is {} in the database \
+                     {}".format(self._compute_map, self._source_type))
+        return self._compute_map
+
+    def emit_compare_map(self):
+        _logger.debug("Emitting built compare map ")
+        _logger.info("compare map is {} in the database \
+                     {}".format(self._compare_map, self._source_type))
+        return self._compare_map
+
+    def emit_indices(self):
+        return self._search_map.keys()

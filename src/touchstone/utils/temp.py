@@ -54,19 +54,32 @@ def compare_dict(d1, aggs, _message, buckets, uuids, _header, max_level, level=0
                 compare_dict(d1[key], aggs, _message, buckets,
                              uuids, new_header, max_level, new_level)
         else:
-            print(_header)
+            bool_header = True
+            _output = _header +'\n'
+            #print(_header)
             final_message = _message + " {:20} |".format(key)
-            print(final_message)
+            _output = _output + final_message + '\n'
+            # print(final_message)
+            #print(_output)
             _compare_header = "{:30} |".format("key")
             for uuid in uuids:
                 _compare_header = _compare_header + " {:20} |".format(uuid[:16])
-            print(_compare_header)
+            _output = _output + _compare_header
+            # print(_compare_header)
+            #print(_output)
             for agg_key, agg_dict in d1[key].items():
-                _compare_values = "{:30} |".format(agg_key)
-                for uuid in uuids:
-                    if uuid in agg_dict:
-                        _compare_values = _compare_values + " {:20} |".format(str(agg_dict[uuid]))
-                    else:
-                        _compare_values = _compare_values + " {:20} |".format("no_match")
-                print(_compare_values)
-            print("=" * 128)
+                if len(agg_dict) < 2:
+                    #print("fewer than 2 uuids have the aggregations")
+                    pass
+                else:
+                    if bool_header:
+                        print("=" * 128)
+                        print(_output)
+                        bool_header = False
+                    _compare_values = "{:30} |".format(agg_key)
+                    for uuid in uuids:
+                        if uuid in agg_dict:
+                            _compare_values = _compare_values + " {:20} |".format(str(agg_dict[uuid]))
+                        else:
+                            _compare_values = _compare_values + " {:20} |".format("no_match")
+                    print(_compare_values)

@@ -33,41 +33,41 @@ class Uperf(BenchmarkBaseClass):
         BenchmarkBaseClass.__init__(self, source_type=source_type,
                                     harness_type=harness_type)
         self._search_dict = {
-            'elasticsearch': {
-                'ripsaw': {
-                    'ripsaw-uperf-results': {
-                        'compare': ['user', 'cluster_name',
-                            'hostnetwork', 'service_ip'
-                        ],
-                        'compute': [{
-                            'filter': {
-                                'test_type.keyword': 'stream'
-                            },
-                            'buckets': ['protocol.keyword',
-                                'message_size', 'num_threads'
-                            ],
-                            'aggregations': {
-                                'norm_byte': ['max', 'min', 'avg']
-                            }
-                        }, {
-                            'filter': {
-                                'test_type.keyword': 'rr'
-                            },
-                            'buckets': ['protocol.keyword',
-                                'message_size', 'num_threads'
-                            ],
-                            'aggregations': {
-                                'norm_ops': ['max', 'min', 'avg']
-                                ,
-                                'norm_ltcy':
-                                    [{'percentiles': {
-                                        'percents': [90, 99]
-                                    }}, 'avg']
-                            },
-                        }]
-                    }
-                }
+          'elasticsearch': {
+            'ripsaw': {
+              'ripsaw-uperf-results': {
+                'compare': ['user', 'cluster_name',
+                  'hostnetwork', 'service_ip'
+                ],
+                'compute': [{
+                  'filter': {
+                    'test_type.keyword': 'stream'
+                  },
+                  'buckets': ['protocol.keyword',
+                    'message_size', 'num_threads'
+                  ],
+                  'aggregations': {
+                    'norm_byte': ['max', 'avg']
+                  }
+                }, {
+                  'filter': {
+                    'test_type.keyword': 'rr'
+                  },
+                  'buckets': ['protocol.keyword',
+                    'message_size', 'num_threads'
+                  ],
+                  'aggregations': {
+                    'norm_ops': ['max', 'avg'],
+                    'norm_ltcy': [{
+                      'percentiles': {
+                        'percents': [90, 99]
+                      }
+                    }, 'avg']
+                  },
+                }]
+              }
             }
+          }
         }
         self._search_map = self._build_search()
         self._compute_map = self._build_compute()

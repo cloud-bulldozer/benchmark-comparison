@@ -36,7 +36,7 @@ class Uperf(BenchmarkBaseClass):
           'elasticsearch': {
             'ripsaw': {
               'ripsaw-uperf-results': {
-                'compare': ['user', 'cluster_name',
+                'compare': ['uuid', 'user', 'cluster_name',
                   'hostnetwork', 'service_ip'
                 ],
                 'compute': [{

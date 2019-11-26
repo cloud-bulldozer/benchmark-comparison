@@ -47,7 +47,10 @@ class Uperf(BenchmarkBaseClass):
                     'message_size', 'num_threads'
                   ],
                   'aggregations': {
-                    'norm_byte': ['max', 'avg']
+                    'norm_byte': ['max', 'avg',
+                      {'percentiles': {
+                        'percents': [50]
+                      }}]
                   }
                 }, {
                   'filter': {

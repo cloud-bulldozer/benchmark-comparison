@@ -103,7 +103,6 @@ def main(args):
                                          harness_type=args.harness)
     if len(args.conn_url) < len(args.uuid):
         args.conn_url = [args.conn_url[0]] * len(args.uuid)
-    print("=" * 128)
     for index in benchmark_instance.emit_indices():
         _compare_header = "{:40} |".format("key")
         compare_uuid_dict = {}
@@ -117,13 +116,15 @@ def main(args):
                                                                     compare_map=benchmark_instance.emit_compare_map(),
                                                                     index=index,
                                                                     input_dict=compare_uuid_dict) # noqa
-        print("------Key Metadata ---------- for index {}".format(index))
+        print("{} Key Metadata {}".format(("="*57),("="*57)))
         for key in benchmark_instance.emit_compare_map()[index]:
             _message = "{:40} |".format(key)
             for uuid in args.uuid:
                 _message += " {:40} |".format(compare_uuid_dict[key][uuid])
             print(_message)
-        print("------Bucket aggregations---- for index {}".format(index))
+        print("{} End Metadata {}".format(("="*57),("="*57)))
+        print("")
+        print("")
         for compute in benchmark_instance.emit_compute_map()[index]:
             compute_uuid_dict = {}
             compute_aggs_set = []

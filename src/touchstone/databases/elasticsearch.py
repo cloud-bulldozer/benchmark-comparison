@@ -114,8 +114,8 @@ class Elasticsearch(DatabaseBaseClass):
         self._remove_aggs = set(self._remove_aggs)
         for element in self._remove_aggs:
             self._aggs_list.remove(element)
-        _logger.debug("output dictionary with summaries is: \
-                        ".format(_output_dict))
+        _logger.debug("output compute dictionary with summaries is: {}\
+                        ".format(json.dumps(_output_dict, indent=4)))
         return _output_dict
 
     def _build_compare_dict(self, compare_map, index, uuid, input_dict):
@@ -127,8 +127,8 @@ class Elasticsearch(DatabaseBaseClass):
             for compare_key in compare_map:
                 input_dict[compare_key][uuid] = \
                     str(response.hits.hits[0]['_source'][compare_key])
-        _logger.debug("output dictionary with summaries is: \
-                        ".format(input_dict))
+        _logger.debug("output compare dictionary with summaries is: {}\
+                        ".format(json.dumps(input_dict, indent=4)))
         return input_dict
 
     def emit_compute_dict(self, uuid=None, compute_map=None, index=None, input_dict=None):

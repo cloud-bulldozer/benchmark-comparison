@@ -51,7 +51,8 @@ class Uperf(BenchmarkBaseClass):
                       {'percentiles': {
                         'percents': [50]
                       }}]
-                  }
+                  },
+                  'collate': []
                 }, {
                   'filter': {
                     'test_type.keyword': 'rr'
@@ -67,6 +68,7 @@ class Uperf(BenchmarkBaseClass):
                       }
                     }, 'avg']
                   },
+                  'collate': []
                 }]
               }
             }

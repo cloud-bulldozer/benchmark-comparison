@@ -6,6 +6,7 @@ from elasticsearch_dsl import Search
 
 
 from . import DatabaseBaseClass
+from ..utils.temp import get
 
 
 _logger = logging.getLogger("touchstone")
@@ -28,7 +29,7 @@ class Elasticsearch(DatabaseBaseClass):
         self._aggs_list = []
         _logger.debug("Finished Initializing Elasticsearch object")
 
-    def _clean_dict(self, _input_dict, _list_buckets, level, aggs, uuid):
+    def _clean_dict(self, _input_dict, _list_buckets, level, aggs, uuid, _first_hit, _collate_list):
         _curr_level = level + 1
         _output_dict = {}
         if _curr_level <= len(_list_buckets):
@@ -37,8 +38,9 @@ class Elasticsearch(DatabaseBaseClass):
                 _real_key = _bucket['key']
                 _output_dict[_list_buckets[level]][_real_key] = {}
                 _output_dict[_list_buckets[level]][_real_key] = \
-                    self._clean_dict(_bucket, _list_buckets, _curr_level, aggs, uuid)
+                    self._clean_dict(_bucket, _list_buckets, _curr_level, aggs, uuid, _first_hit, _collate_list)
         else:
+            # this is the last level
             _output_dict = {}
             for _aggs in aggs:
                 if 'values' in _input_dict[_aggs]:
@@ -52,12 +54,21 @@ class Elasticsearch(DatabaseBaseClass):
                 else:
                     _output_dict[_aggs] = {}
                     _output_dict[_aggs][uuid] = _input_dict[_aggs]['value']
+            # Now do the lowest level compare
+            for _collate_key in _collate_list:
+                _output_dict[str(_collate_key)] = {}
+                try:
+                    _output_dict[str(_collate_key)][uuid] = get(_first_hit,_collate_key)
+                except:
+                    _logger.debug("key not exists"+str(_collate_key))
+                    pass
         return _output_dict
 
     def _build_values_dict(self, search_map, index, uuid, input_dict):
         _temp_dict = {}
         buckets = search_map['buckets']
         aggregations = search_map['aggregations']
+        collate = search_map['collate']
         filters = search_map['filter']
         _logger.debug("Initializing search object")
         s = Search(using=self._conn_object,
@@ -109,8 +120,13 @@ class Elasticsearch(DatabaseBaseClass):
         _temp_dict_throw = response.aggregations.__dict__['_d_']
         _temp_dict = copy.deepcopy(_temp_dict_throw)
         self._remove_aggs = []
+        if len(response.hits.hits)==0:
+            return {}
         _output_dict = self._clean_dict(_temp_dict, self._bucket_list,
-                                        0, copy.deepcopy(self._aggs_list), uuid)
+                                        0, copy.deepcopy(self._aggs_list),
+                                        uuid,
+                                        response.hits.hits[0].__dict__['_d_']['_source'],
+                                        collate)
         self._remove_aggs = set(self._remove_aggs)
         for element in self._remove_aggs:
             self._aggs_list.remove(element)
@@ -126,7 +142,7 @@ class Elasticsearch(DatabaseBaseClass):
         if len(response.hits.hits) > 0:
             for compare_key in compare_map:
                 input_dict[compare_key][uuid] = \
-                    str(response.hits.hits[0]['_source'][compare_key])
+                    get(response.hits.hits[0]['_source'],str(compare_key))
         _logger.debug("output compare dictionary with summaries is: {}\
                         ".format(json.dumps(input_dict, indent=4)))
         return input_dict

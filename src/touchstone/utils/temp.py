@@ -4,6 +4,13 @@ import logging
 _logger = logging.getLogger("touchstone")
 
 
+def get(d, keys):
+    if "." in keys:
+        key, rest = keys.split(".", 1)
+        return get(d[key], rest)
+    else:
+        return d[keys]
+
 def id_dict(obj):
     return obj.__class__.__name__ == 'dict'
 
@@ -76,10 +83,10 @@ def compare_dict(d1, aggs, _message, buckets, uuids, _header, max_level, level=0
                         print("=" * 128)
                         print(_output)
                         bool_header = False
-                    _compare_values = "{:30} |".format(agg_key)
+                    _compare_values = "{:40} |".format(agg_key)
                     for uuid in uuids:
                         if uuid in agg_dict:
-                            _compare_values = _compare_values + " {:20} |".format(str(agg_dict[uuid]))
+                            _compare_values = _compare_values + " {:40} |".format(str(agg_dict[uuid]))
                         else:
-                            _compare_values = _compare_values + " {:20} |".format("no_match")
+                            _compare_values = _compare_values + " {:40} |".format("no_match")
                     print(_compare_values)

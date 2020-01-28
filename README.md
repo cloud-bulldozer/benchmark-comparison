@@ -50,6 +50,7 @@ To add a new benchmark, you'll create your the class and define three member fun
 2. Bucket: To facilitate apple to apple comparison, touchstone will put records into buckets
 3. Aggregation: Apply aggregation and the type on the keys
 4. Compare: Compare the keys that help characterize the SUT/benchmark run
+5. Collate: Collates the keys after applying filters, buckets and aggregations.
 
 The member functions are:
 

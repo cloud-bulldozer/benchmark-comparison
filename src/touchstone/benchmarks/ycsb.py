@@ -10,7 +10,7 @@ _logger = logging.getLogger("touchstone")
 class Ycsb(BenchmarkBaseClass):
 
     def _build_search(self):
-        _logger.debug("Building search array for uperf")
+        _logger.debug("Building search array for YCSB")
         return self._search_dict[self._source_type][self._harness_type]
 
     def _build_compare_keys(self):
@@ -109,7 +109,7 @@ class Ycsb(BenchmarkBaseClass):
         self._search_map = self._build_search()
         self._compute_map = self._build_compute()
         self._compare_map = self._build_compare_keys()
-        _logger.debug("Finished initializing uperf instance")
+        _logger.debug("Finished initializing ycsb instance")
 
     def emit_compute_map(self):
         _logger.debug("Emitting built compute map ")

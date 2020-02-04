@@ -8,7 +8,7 @@ import yaml
 from touchstone import __version__
 from . import benchmarks
 from . import databases
-from .utils.temp import compare_dict, dfs_dict_list, mergedicts
+from .utils.temp import compare_dict, dfs_dict_list, mergedicts, dfs_list_dict
 
 __author__ = "aakarshg"
 __copyright__ = "aakarshg"
@@ -123,30 +123,24 @@ def main(args):
                                                                     index=index,
                                                                     input_dict=compare_uuid_dict) # noqa
         if args.output :
-            _data = {}
+            compute_uuid_dict = {}
             for compute in benchmark_instance.emit_compute_map()[index]:
-                compute_uuid_dict = {}
+                current_compute_dict = {}
                 compute_aggs_set = []
-                _key = ""
-                for key, value in compute['filter'].items():
-                    _key = value
-                    break
                 for uuid_index, uuid in enumerate(args.uuid):
                     database_instance = databases.grab(args.database,
                                                        conn_url=args.conn_url[uuid_index])
-                    _current_uuid_dict = database_instance.emit_compute_dict(uuid=uuid,
-                                                                            compute_map=compute,
-                                                                            index=index,
-                                                                            input_dict=compare_uuid_dict) # noqa
-                    compute_aggs_set = compute_aggs_set + database_instance._aggs_list
-                    compute_uuid_dict = dict(mergedicts(compute_uuid_dict, _current_uuid_dict))
-                    if len(compute_uuid_dict) > 0 :
-                        _data[_key] = compute_uuid_dict
-
+                    catch = database_instance.emit_compute_dict(uuid=uuid,
+                                                                compute_map=compute,
+                                                                index=index,
+                                                                input_dict=compare_uuid_dict) # noqa
+                    if catch != {} :
+                        current_compute_dict = dfs_list_dict(list(compute['filter'].items()),compute_uuid_dict,len(compute['filter']),catch)
+                        compute_uuid_dict = dict(mergedicts(compute_uuid_dict, current_compute_dict))
             if args.output == "json" :
-                print(json.dumps(_data,indent=4))
+                print(json.dumps(compute_uuid_dict,indent=4))
             if args.output == "yaml" :
-                print(yaml.dump(_data,allow_unicode=True))
+                print(yaml.dump(compute_uuid_dict,allow_unicode=True))
             exit(0)
 
         print("{} Key Metadata {}".format(("="*57),("="*57)))

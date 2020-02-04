@@ -39,8 +39,8 @@ class Ycsb(BenchmarkBaseClass):
                 'compare': ['uuid', 'user','recordcount','operationcount','driver'],
                 'compute': [{
                   'filter': {
-                    'workload_type': 'workloada',
-                    'phase': 'run'
+                    'phase': 'run',
+                    'workload_type': 'workloada'
                   },
                   'buckets': ['iteration'],
                   'aggregations': {},
@@ -50,8 +50,8 @@ class Ycsb(BenchmarkBaseClass):
                   },
                   {
                     'filter': {
-                      'workload_type': 'workloadb',
-                      'phase': 'run'
+                      'phase': 'run',
+                      'workload_type': 'workloadb'
                     },
                     'buckets': ['iteration'],
                     'aggregations': {},
@@ -61,8 +61,8 @@ class Ycsb(BenchmarkBaseClass):
                   },
                   {
                     'filter': {
-                      'workload_type': 'workloadc',
-                      'phase': 'run'
+                      'phase': 'run',
+                      'workload_type': 'workloadc'
                     },
                     'buckets': ['iteration'],
                     'aggregations': {},
@@ -71,8 +71,8 @@ class Ycsb(BenchmarkBaseClass):
                   },
                   {
                     'filter': {
-                      'workload_type': 'workloadd',
-                      'phase': 'run'
+                      'phase': 'run',
+                      'workload_type': 'workloadd'
                     },
                     'buckets': ['iteration'],
                     'aggregations': {},
@@ -82,8 +82,8 @@ class Ycsb(BenchmarkBaseClass):
                   },
                   {
                     'filter': {
-                      'workload_type': 'workloade',
-                      'phase': 'run'
+                      'phase': 'run',
+                      'workload_type': 'workloade'
                     },
                     'buckets': ['iteration'],
                     'aggregations': {},
@@ -91,8 +91,8 @@ class Ycsb(BenchmarkBaseClass):
                   },
                   {
                     'filter': {
-                      'workload_type': 'workloadf',
-                      'phase': 'run'
+                      'phase': 'run',
+                      'workload_type': 'workloadf'
                     },
                     'buckets': ['iteration'],
                     'aggregations': {},

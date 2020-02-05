@@ -17,6 +17,21 @@ def id_dict(obj):
 def snake(input_str):
     return input_str.replace('.','_')
 
+def dfs_list_dict(input_list, input_dict, max_level, end_value, recurse_level=0):
+    # This function helps with building a dictionary in dfs
+    _recurse_level = recurse_level + 1
+    if _recurse_level <= max_level:
+        key, value = input_list[recurse_level]
+        if key not in input_dict:
+            input_dict[key] = {}
+        if value not in input_dict[key]:
+            input_dict[key][value] = {}
+        input_dict[key][value] = dict(mergedicts(dfs_list_dict(input_list, {}, max_level, end_value, _recurse_level), input_dict[key][value]))
+        return input_dict
+    else:
+        return end_value
+
+
 def dfs_dict_list(input_list, input_dict, max_level, recurse_level=0):
     _recurse_level = recurse_level + 1
     if _recurse_level <= max_level:

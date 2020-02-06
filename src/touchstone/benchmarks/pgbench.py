@@ -27,48 +27,50 @@ class Pgbench(BenchmarkBaseClass):
             _temp_dict[index] = self._search_map[index]['compute']
         return _temp_dict
 
-
     def __init__(self, source_type=None, harness_type=None):
         _logger.debug("Initializing PGBENCH instance")
         BenchmarkBaseClass.__init__(self, source_type=source_type,
                                     harness_type=harness_type)
         self._search_dict = {
-          'elasticsearch': {
-            'ripsaw': {
-              'ripsaw-pgbench-summary': {
-                'compare': ['uuid', 'user','cluster_name','scaling_factor',
-                            'query_mode','number_of_threads','number_of_clients',
-                            'duration_seconds'],
-                'compute': [{
-                  'filter': {
-                    'workload': 'pgbench'
-                  },
-                  'buckets': ['iteration'],
-                  'aggregations': {},
-                  'collate': ['tps_incl_con_est',
-                              'number_of_transactions_actually_processed',
-                              'latency_average_ms']
-                  },
-                ]
-              },
-              'ripsaw-pgbench-results': {
-                'compare': ['transaction_type'],
-                'compute': [{
-                  'filter': {
-                    'workload': 'pgbench'
-                  },
-                  'buckets': ['iteration'],
-                  'aggregations': {
-                    'latency_ms': [{'percentiles': {
-                        'percents': [95]
-                      }}]
-                  },
-                  'collate': []
-                  },
-                ]
-              }
+            'elasticsearch': {
+                'ripsaw': {
+                    'ripsaw-pgbench-summary': {
+                        'compare': ['uuid', 'user', 'cluster_name',
+                                    'scaling_factor', 'query_mode',
+                                    'number_of_threads', 'number_of_clients',
+                                    'duration_seconds'
+                                    ],
+                        'compute': [{
+                            'filter': {
+                                'workload': 'pgbench'
+                            },
+                            'buckets': ['iteration'],
+                            'aggregations': {},
+                            'collate': ['tps_incl_con_est',
+                                        'number_of_transactions_actually_processed', # noqa
+                                        'latency_average_ms'
+                                       ]
+                        }, ]
+                    },
+                    'ripsaw-pgbench-results': {
+                        'compare': ['transaction_type'],
+                        'compute': [{
+                            'filter': {
+                                'workload': 'pgbench'
+                            },
+                            'buckets': ['iteration'],
+                            'aggregations': {
+                                'latency_ms': [{
+                                    'percentiles': {
+                                        'percents': [95]
+                                    }
+                                }]
+                            },
+                            'collate': []
+                        }, ]
+                    }
+                }
             }
-          }
         }
         self._search_map = self._build_search()
         self._compute_map = self._build_compute()

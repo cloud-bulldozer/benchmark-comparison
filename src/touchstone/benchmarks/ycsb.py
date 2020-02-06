@@ -27,84 +27,89 @@ class Ycsb(BenchmarkBaseClass):
             _temp_dict[index] = self._search_map[index]['compute']
         return _temp_dict
 
-
     def __init__(self, source_type=None, harness_type=None):
         _logger.debug("Initializing YCSB instance")
         BenchmarkBaseClass.__init__(self, source_type=source_type,
                                     harness_type=harness_type)
         self._search_dict = {
-          'elasticsearch': {
-            'ripsaw': {
-              'ripsaw-ycsb-summary': {
-                'compare': ['uuid', 'user','recordcount','operationcount','driver'],
-                'compute': [{
-                  'filter': {
-                    'phase': 'run',
-                    'workload_type': 'workloada'
-                  },
-                  'buckets': ['iteration'],
-                  'aggregations': {},
-                  'collate': ['data.READ.95thPercentileLatency(us)',
-                              'data.OVERALL.Throughput(ops/sec)',
-                              'data.UPDATE.95thPercentileLatency(us)']
-                  },
-                  {
-                    'filter': {
-                      'phase': 'run',
-                      'workload_type': 'workloadb'
-                    },
-                    'buckets': ['iteration'],
-                    'aggregations': {},
-                    'collate': ['data.READ.95thPercentileLatency(us)',
-                                'data.OVERALL.Throughput(ops/sec)',
-                                'data.UPDATE.95thPercentileLatency(us)']
-                  },
-                  {
-                    'filter': {
-                      'phase': 'run',
-                      'workload_type': 'workloadc'
-                    },
-                    'buckets': ['iteration'],
-                    'aggregations': {},
-                    'collate': ['data.READ.95thPercentileLatency(us)',
-                                'data.OVERALL.Throughput(ops/sec)']
-                  },
-                  {
-                    'filter': {
-                      'phase': 'run',
-                      'workload_type': 'workloadd'
-                    },
-                    'buckets': ['iteration'],
-                    'aggregations': {},
-                    'collate': ['data.INSERT.95thPercentileLatency(us)',
-                                'data.OVERALL.Throughput(ops/sec)',
-                                'data.READ.95thPercentileLatency(us)']
-                  },
-                  {
-                    'filter': {
-                      'phase': 'run',
-                      'workload_type': 'workloade'
-                    },
-                    'buckets': ['iteration'],
-                    'aggregations': {},
-                    'collate': ['data.OVERALL.Throughput(ops/sec)']
-                  },
-                  {
-                    'filter': {
-                      'phase': 'run',
-                      'workload_type': 'workloadf'
-                    },
-                    'buckets': ['iteration'],
-                    'aggregations': {},
-                    'collate': ['data.READ-MODIFY-WRITE.95thPercentileLatency(us)',
-                                'data.OVERALL.Throughput(ops/sec)',
-                                'data.READ.95thPercentileLatency(us)',
-                                'data.UPDATE.95thPercentileLatency(us)']
-                  },
-                ]
-              }
+            'elasticsearch': {
+                'ripsaw': {
+                    'ripsaw-ycsb-summary': {
+                        'compare': ['uuid', 'user', 'recordcount',
+                                    'operationcount', 'driver'],
+                        'compute': [{
+                            'filter': {
+                                    'phase': 'run',
+                                    'workload_type': 'workloada'
+                                    },
+                            'buckets': ['iteration'],
+                            'aggregations': {},
+                            'collate': ['data.OVERALL.Throughput(ops/sec)',
+                                        'data.READ.95thPercentileLatency(us)',
+                                        'data.UPDATE.95thPercentileLatency(us)'
+                                        ]
+                            },
+                            {
+                            'filter': {
+                                'phase': 'run',
+                                'workload_type': 'workloadb'
+                                },
+                            'buckets': ['iteration'],
+                            'aggregations': {},
+                            'collate': ['data.OVERALL.Throughput(ops/sec)',
+                                        'data.READ.95thPercentileLatency(us)',
+                                        'data.UPDATE.95thPercentileLatency(us)'
+                                        ]
+                            },
+                            {
+                            'filter': {
+                                'phase': 'run',
+                                'workload_type': 'workloadc'
+                                },
+                            'buckets': ['iteration'],
+                            'aggregations': {},
+                            'collate': ['data.OVERALL.Throughput(ops/sec)',
+                                        'data.READ.95thPercentileLatency(us)'
+                                        ]
+                            },
+                            {
+                            'filter': {
+                                'phase': 'run',
+                                'workload_type': 'workloadd'
+                                },
+                            'buckets': ['iteration'],
+                            'aggregations': {},
+                            'collate': ['data.OVERALL.Throughput(ops/sec)',
+                                        'data.INSERT.95thPercentileLatency(us)', # noqa
+                                        'data.READ.95thPercentileLatency(us)'
+                                        ]
+                            },
+                            {
+                            'filter': {
+                                'phase': 'run',
+                                'workload_type': 'workloade'
+                                },
+                            'buckets': ['iteration'],
+                            'aggregations': {},
+                            'collate': ['data.OVERALL.Throughput(ops/sec)']
+                            },
+                            {
+                            'filter': {
+                                'phase': 'run',
+                                'workload_type': 'workloadf'
+                                },
+                            'buckets': ['iteration'],
+                            'aggregations': {},
+                            'collate': ['data.OVERALL.Throughput(ops/sec)',
+                                        'data.READ-MODIFY-WRITE.95thPercentileLatency(us)', # noqa
+                                        'data.READ.95thPercentileLatency(us)',
+                                        'data.UPDATE.95thPercentileLatency(us)'
+                                        ]
+                            },
+                        ]
+                    }
+                }
             }
-          }
         }
         self._search_map = self._build_search()
         self._compute_map = self._build_compute()

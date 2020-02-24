@@ -76,7 +76,7 @@ class Elasticsearch(DatabaseBaseClass):
         filters = search_map['filter']
         _logger.debug("Initializing search object")
         s = Search(using=self._conn_object,
-                   index=str(index)).query("match", uuid=str(uuid))
+                   index=str(index)).query("match", **{"uuid.keyword":str(uuid)})
         for key, value in filters.items():
             s = s.filter("term", **{str(key): str(value)})
         _logger.debug("Building query")
@@ -141,7 +141,7 @@ class Elasticsearch(DatabaseBaseClass):
     def _build_compare_dict(self, compare_map, index, uuid, input_dict):
         _logger.debug("Initializing search object")
         s = Search(using=self._conn_object,
-                   index=str(index)).query("match", uuid=str(uuid))
+                   index=str(index)).query("match", **{"uuid.keyword":str(uuid)})
         response = s.execute()
         if len(response.hits.hits) > 0:
             for compare_key in compare_map:

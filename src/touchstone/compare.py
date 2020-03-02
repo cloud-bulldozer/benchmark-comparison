@@ -17,6 +17,37 @@ __license__ = "mit"
 _logger = logging.getLogger("touchstone")
 
 
+def emit_csv(values,args):
+    """ Present user with CSV of comparison data.
+    Args:
+      values ([dict]): Comparison dictionary.
+      args ([argparse]) : Args passed to 
+
+    Returns:
+      :bool: True : if CSV is presented
+             False: if we are unable to present results
+    """
+    if len(values) > 0 :
+        header="Test Type, Protocol, Message Size, Threads, UUID, Key, Value"
+        print(header)
+    else:
+        print("Error loading values")
+        return False
+    for test_type in values['test_type.keyword'] :
+        for protocol in values['test_type.keyword'][test_type]['protocol'] :
+            for message_size in values['test_type.keyword'][test_type]['protocol'
+                    ][protocol]['message_size'] :
+                for threads in values['test_type.keyword'][test_type]['protocol'
+                        ][protocol]['message_size'][message_size]['num_threads'] :
+                    for metric in values['test_type.keyword'][test_type]['protocol'
+                            ][protocol]['message_size'][message_size]['num_threads'][threads] :
+                        data = "{}, {}, {}, {}".format(test_type,protocol,message_size,threads)
+                        for uid in args.uuid :
+                            print("{}, {}, {}, {}".format(data,uid,metric,values['test_type.keyword'][test_type]
+                                    ['protocol'][protocol]['message_size'][message_size]
+                                    ['num_threads'][threads][metric][uid]))
+    return True
+
 def parse_args(args):
     """Parse command line parameters
 
@@ -61,7 +92,7 @@ def parse_args(args):
         dest="output",
         help="How should touchstone output the result",
         type=str,
-        choices=['json', 'yaml'])
+        choices=['json', 'yaml','csv'])
     parser.add_argument(
         '-url', '--connection-url',
         dest="conn_url",
@@ -150,6 +181,8 @@ def main(args):
                 print(json.dumps(compute_uuid_dict, indent=4))
             if args.output == "yaml":
                 print(yaml.dump(compute_uuid_dict, allow_unicode=True))
+            if args.output == "csv":
+                emit_csv(compute_uuid_dict,args)
             exit(0)
 
         print("{} Key Metadata {}".format(("=" * 57), ("=" * 57)))

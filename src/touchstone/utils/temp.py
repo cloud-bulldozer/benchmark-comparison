@@ -70,44 +70,60 @@ def mergedicts(dict1, dict2):
 
 
 def compare_dict(d1, aggs, _message, buckets, uuids, _header, max_level,
-                 level=0):
+                 csv=False, level=0):
     for key in d1:
         if type(d1[key]) is dict and key not in aggs and level < max_level - 1:
             new_level = level + 1
             if key not in buckets:
                 # this means it's a bucket value
-                new_message = _message + " {:20} |".format(key)
+                if not csv:
+                    new_message = _message + " {:20} |".format(key)
+                else:
+                    new_message = _message + "{}, ".format(key)
                 compare_dict(d1[key], aggs, new_message, buckets,
-                             uuids, _header, max_level, new_level)
+                             uuids, _header, max_level, csv, new_level)
             else:
                 # this means it's a bucket name
-                new_header = _header + " {:20} |".format(key)
+                if not csv:
+                    new_header = _header + " {:20} |".format(key)
+                else:
+                    new_header = _header + "{}, ".format(key)
                 compare_dict(d1[key], aggs, _message, buckets,
-                             uuids, new_header, max_level, new_level)
+                             uuids, new_header, max_level, csv, new_level)
         else:
             bool_header = True
-            _output = _header + '\n'
-            final_message = _message + " {:20} |".format(key)
-            _output = _output + final_message + '\n'
-            _compare_header = "{:30} |".format("key")
-            for uuid in uuids:
-                _compare_header = \
-                    _compare_header + " {:20} |".format(uuid[:16])
-            _output = _output + _compare_header
-            for agg_key, agg_dict in d1[key].items():
-                if len(agg_dict) < 2:
-                    pass
-                else:
-                    if bool_header:
-                        print("=" * 128)
-                        print(_output)
-                        bool_header = False
-                    _compare_values = "{:40} |".format(agg_key)
+            if not csv:
+                _output = _header + '\n'
+                final_message = _message + " {:20} |".format(key)
+                _output = _output + final_message + '\n'
+                _compare_header = "{:30} |".format("key")
+                for uuid in uuids:
+                    _compare_header = \
+                        _compare_header + " {:20} |".format(uuid[:16])
+                _output = _output + _compare_header
+                for agg_key, agg_dict in d1[key].items():
+                    if len(agg_dict) < 2:
+                        pass
+                    else:
+                        if bool_header:
+                            print("=" * 128)
+                            print(_output)
+                            bool_header = False
+                        _compare_values = "{:40} |".format(agg_key)
+                        for uuid in uuids:
+                            if uuid in agg_dict:
+                                _compare_values = \
+                                    _compare_values + " {:40} |".format(str(agg_dict[uuid])) # noqa
+                            else:
+                                _compare_values = \
+                                    _compare_values + " {:40} |".format("no_match")
+                        print(_compare_values)
+            else:
+                _output = _message + "{}, ".format(key)
+                for agg_key, agg_dict in d1[key].items():
+                    output = _output + "{}, ".format(agg_key)
                     for uuid in uuids:
                         if uuid in agg_dict:
-                            _compare_values = \
-                                _compare_values + " {:40} |".format(str(agg_dict[uuid])) # noqa
-                        else:
-                            _compare_values = \
-                                _compare_values + " {:40} |".format("no_match")
-                    print(_compare_values)
+                            message = \
+                                output + "{}, {}".format(uuid, str(agg_dict[uuid])) # noqa
+                            print(message)

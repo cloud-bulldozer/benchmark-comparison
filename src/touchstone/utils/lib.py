@@ -69,7 +69,7 @@ def mergedicts(dict1, dict2):
             yield (k, dict2[k])
 
 
-def compare_dict(d1, aggs, _message, buckets, uuids, _header, max_level,
+def compare_dict(d1, identifier, aggs, _message, buckets, uuids, _header, max_level,
                  csv=False, level=0):
     for key in d1:
         if type(d1[key]) is dict and key not in aggs and level < max_level - 1:
@@ -80,7 +80,7 @@ def compare_dict(d1, aggs, _message, buckets, uuids, _header, max_level,
                     new_message = _message + " {:20} |".format(key)
                 else:
                     new_message = _message + "{}, ".format(key)
-                compare_dict(d1[key], aggs, new_message, buckets,
+                compare_dict(d1[key], identifier, aggs, new_message, buckets,
                              uuids, _header, max_level, csv, new_level)
             else:
                 # this means it's a bucket name
@@ -88,7 +88,7 @@ def compare_dict(d1, aggs, _message, buckets, uuids, _header, max_level,
                     new_header = _header + " {:20} |".format(key)
                 else:
                     new_header = _header + "{}, ".format(key)
-                compare_dict(d1[key], aggs, _message, buckets,
+                compare_dict(d1[key], identifier, aggs, _message, buckets,
                              uuids, new_header, max_level, csv, new_level)
         else:
             bool_header = True
@@ -96,7 +96,7 @@ def compare_dict(d1, aggs, _message, buckets, uuids, _header, max_level,
                 _output = _header + '\n'
                 final_message = _message + " {:20} |".format(key)
                 _output = _output + final_message + '\n'
-                _compare_header = "{:30} |".format("key")
+                _compare_header = "{:30} |".format(identifier)
                 for uuid in uuids:
                     _compare_header = \
                         _compare_header + " {:20} |".format(uuid[:16])

@@ -8,7 +8,7 @@ import yaml
 from touchstone import __version__
 from . import benchmarks
 from . import databases
-from .utils.temp import compare_dict, mergedicts, dfs_list_dict
+from .utils.lib import compare_dict, mergedicts, dfs_list_dict
 
 __author__ = "aakarshg"
 __copyright__ = "aakarshg"
@@ -51,9 +51,16 @@ def parse_args(args):
         choices=['ripsaw'],
         metavar="harness")
     parser.add_argument(
+        '-id', '--identifier-key',
+        dest="identifier",
+        help="identifier key name(default: uuid)",
+        type=str,
+        metavar="identifier",
+        default="uuid")
+    parser.add_argument(
         '-u', '--uuid',
         dest="uuid",
-        help="2 uuids to compare",
+        help="identifier values to fetch results and compare",
         type=str,
         nargs='+')
     parser.add_argument(
@@ -117,7 +124,7 @@ def main(args):
         print_csv = True
         printed_header = False
     for index in benchmark_instance.emit_indices():
-        _compare_header = "{:40} |".format("key")
+        _compare_header = "{:40} |".format(args.identifier)
         compare_uuid_dict = {}
         for key in benchmark_instance.emit_compare_map()[index]:
             compare_uuid_dict[key] = {}
@@ -130,7 +137,8 @@ def main(args):
                 database_instance.emit_compare_dict(uuid=uuid,
                                                     compare_map=benchmark_instance.emit_compare_map(), # noqa
                                                     index=index,
-                                                    input_dict=compare_uuid_dict) # noqa
+                                                    input_dict=compare_uuid_dict, # noqa
+                                                    identifier=args.identifier)
         if args.output in ["json", "yaml"]:
             compute_uuid_dict = {}
             for compute in benchmark_instance.emit_compute_map()[index]:
@@ -144,7 +152,8 @@ def main(args):
                         database_instance.emit_compute_dict(uuid=uuid,
                                                             compute_map=compute, # noqa
                                                             index=index,
-                                                            input_dict=compare_uuid_dict) # noqa
+                                                            input_dict=compare_uuid_dict, # noqa
+                                                            identifier=args.identifier) # noqa
                     if catch != {}:
                         current_compute_dict = \
                             dfs_list_dict(list(compute['filter'].items()),
@@ -183,7 +192,8 @@ def main(args):
                         database_instance.emit_compute_dict(uuid=uuid,
                                                             compute_map=compute,
                                                             index=index,
-                                                            input_dict=compare_uuid_dict) # noqa
+                                                            input_dict=compare_uuid_dict, # noqa
+                                                            identifier=args.identifier) # noqa
                     compute_aggs_set = \
                         compute_aggs_set + database_instance._aggs_list
                     compute_uuid_dict = \
@@ -193,11 +203,12 @@ def main(args):
                 if print_csv:
                     for key in compute_buckets:
                         _compute_header += "{}, ".format(key)
-                    _compute_header += "key, uuid, value"
+                    _compute_header += "key, {}, value".format(args.identifier)
                     if not printed_header:
                         print(_compute_header)
                         printed_header = True
-                compare_dict(compute_uuid_dict, compute_aggs_set, _compute_value,
+                compare_dict(compute_uuid_dict, args.identifier,
+                             compute_aggs_set, _compute_value,
                              compute_buckets, args.uuid, _compute_header,
                              max_level=2 * len(compute_buckets), csv=print_csv)
     if args.output == "json":

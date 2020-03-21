@@ -6,7 +6,7 @@ from elasticsearch_dsl import Search
 
 
 from . import DatabaseBaseClass
-from ..utils.temp import get
+from ..utils.lib import get
 
 
 _logger = logging.getLogger("touchstone")
@@ -68,15 +68,17 @@ class Elasticsearch(DatabaseBaseClass):
                     pass
         return _output_dict
 
-    def _build_values_dict(self, search_map, index, uuid, input_dict):
+    def _build_values_dict(self, search_map, index, uuid, input_dict,
+                           identifier):
         _temp_dict = {}
         buckets = search_map['buckets']
         aggregations = search_map['aggregations']
         collate = search_map['collate']
         filters = search_map['filter']
         _logger.debug("Initializing search object")
+        _identifier = identifier + ".keyword" # append .keyword
         s = Search(using=self._conn_object,
-                   index=str(index)).query("match", **{"uuid.keyword":str(uuid)})
+                   index=str(index)).query("match", **{str(_identifier):str(uuid)})
         for key, value in filters.items():
             s = s.filter("term", **{str(key): str(value)})
         _logger.debug("Building query")
@@ -138,10 +140,12 @@ class Elasticsearch(DatabaseBaseClass):
                         ".format(json.dumps(_output_dict, indent=4)))
         return _output_dict
 
-    def _build_compare_dict(self, compare_map, index, uuid, input_dict):
+    def _build_compare_dict(self, compare_map, index, uuid, input_dict,
+                            identifier):
         _logger.debug("Initializing search object")
+        _identifier = identifier + ".keyword" # append .keyword
         s = Search(using=self._conn_object,
-                   index=str(index)).query("match", **{"uuid.keyword":str(uuid)})
+                   index=str(index)).query("match", **{str(_identifier):str(uuid)})
         response = s.execute()
         if len(response.hits.hits) > 0:
             for compare_key in compare_map:
@@ -152,10 +156,11 @@ class Elasticsearch(DatabaseBaseClass):
         return input_dict
 
     def emit_compute_dict(self, uuid=None, compute_map=None, index=None,
-                          input_dict=None):
-        return self._build_values_dict(compute_map, index, uuid, input_dict)
+                          input_dict=None, identifier=None):
+        return self._build_values_dict(compute_map, index, uuid, input_dict,
+                                       identifier)
 
     def emit_compare_dict(self, uuid=None, compare_map=None, index=None,
-                          input_dict=None):
+                          input_dict=None, identifier=None):
         return self._build_compare_dict(compare_map[index], index, uuid,
-                                        input_dict)
+                                        input_dict, identifier)

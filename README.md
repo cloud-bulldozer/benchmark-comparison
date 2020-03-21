@@ -32,6 +32,20 @@ You'd be running it as follows:
 touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c 70cbb0eb-8bb6-58e3-b92a-cb802a74bb52
 ```
 
+### Comparing on a specific identifier
+
+You can also now compare against identifiers other than the `uuid` key, so for
+example if you'd like to compare using the key `cluster_name` you can do so by
+using the `-id` argument and run as follows:
+
+```
+touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com -u cnvcluster minikube -id cluster_name
+```
+
+Note: If the identifier is same for 2 or more uuids, then all of the results
+will be taken into consideration while computing aggregations, so please use
+with caution.
+
 
 ## Contributing
 

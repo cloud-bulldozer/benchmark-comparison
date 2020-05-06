@@ -89,8 +89,8 @@ def parse_args(args):
         type=str,
         nargs='+')
     parser.add_argument(
-        '-name', '--metric_name',
-        dest="metric_name",
+        '-name', '--metric_name_list',
+        dest="metric_name_list",
         help="the name of the prometheus query metric",
         type=str,
         nargs='+')
@@ -104,6 +104,19 @@ def parse_args(args):
         '-end', '--end_time',
         dest="end_time",
         help="the end time for the query parameter",
+        type=str,
+        nargs='+')
+    parser.add_argument(
+        '-headers',
+        dest="headers",
+        help="http headers to be used to communicate with the host",
+        type=str,
+        nargs='+')
+    parser.add_argument(
+        '-disable_ssl',
+        dest="disable_ssl",
+        help="http headers to be used to communicate with the host",
+        default="False",
         type=str,
         nargs='+')
     parser.add_argument(

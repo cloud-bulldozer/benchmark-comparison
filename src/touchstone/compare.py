@@ -36,19 +36,30 @@ def parse_args(args):
         action="version",
         version="touchstone {ver}".format(ver=__version__))
     parser.add_argument(
+        '-benchmark',
         dest="benchmark",
         help="which type of benchmark to compare",
         type=str,
         choices=['uperf', 'ycsb', 'pgbench', 'vegeta', 'mb'],
+        default="",
         metavar="benchmark")
     parser.add_argument(
+        '-database',
         dest="database",
         help="the type of database data is stored in",
         type=str,
         choices=['elasticsearch', 'prometheus'],
         metavar="database")
     parser.add_argument(
+        '-prom_config',
+        dest="prom_config",
+        default=None,
+        help="the prometheus configuration yaml file",
+        type=str)
+    parser.add_argument(
+        '-harness',
         dest="harness",
+        default="",
         help="the test harness that was used to run the benchmark",
         type=str,
         choices=['ripsaw'],
@@ -64,6 +75,7 @@ def parse_args(args):
         '-u', '--uuid',
         dest="uuid",
         help="identifier values to fetch results and compare",
+        default="",
         type=str,
         nargs='+')
     parser.add_argument(
@@ -85,24 +97,27 @@ def parse_args(args):
     parser.add_argument(
         '-url', '--connection-url',
         dest="conn_url",
+        default=None,
         help="the database connection strings in the same order as the uuids",
         type=str,
         nargs='+')
     parser.add_argument(
-        '-name', '--metric_name_list',
-        dest="metric_name_list",
-        help="the name of the prometheus query metric",
-        type=str,
-        nargs='+')
+        '-query', '--query_list',
+        dest="query_list",
+        default="",
+        help="the prometheus query",
+        type=str)
     parser.add_argument(
         '-start', '--start_time',
-        dest="start_time",
+        dest="start_time_list",
+        default=['1588751810'],
         help="the start time for the query parameter",
         type=str,
         nargs='+')
     parser.add_argument(
         '-end', '--end_time',
-        dest="end_time",
+        dest="end_time_list",
+        default=['1588785118'],
         help="the end time for the query parameter",
         type=str,
         nargs='+')
@@ -117,8 +132,7 @@ def parse_args(args):
         dest="disable_ssl",
         help="http headers to be used to communicate with the host",
         default="False",
-        type=str,
-        nargs='+')
+        type=str)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -167,7 +181,7 @@ def main(args):
     setup_logging(args.loglevel)
     print_csv = False
 
-
+    # If the query is for elasticsearch
     if args.database == 'elasticsearch':
         csv_header_metadata = "uuid, where, field, value"
         metadata_json = dict()

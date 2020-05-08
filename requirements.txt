@@ -1,1 +1,2 @@
 pyyaml
+prometheus_api_client

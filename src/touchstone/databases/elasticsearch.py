@@ -145,8 +145,11 @@ class Elasticsearch(DatabaseBaseClass):
         response = s.execute()
         if len(response.hits.hits) > 0:
             for compare_key in compare_map:
-                input_dict[compare_key][uuid] = \
-                    get(response.hits.hits[0]['_source'], str(compare_key))
+                temp_value = get(response.hits.hits[0]['_source'], str(compare_key))
+                if isinstance(temp_value, elasticsearch_dsl.utils.AttrList):
+                    input_dict[compare_key][uuid] = temp_value[0]
+                else:
+                    input_dict[compare_key][uuid] = temp_value
         _logger.debug("output compare dictionary with summaries is: {}\
                         ".format(json.dumps(input_dict, indent=4)))
         return input_dict

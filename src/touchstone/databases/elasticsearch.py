@@ -79,7 +79,7 @@ class Elasticsearch(DatabaseBaseClass):
                    index=str(index)).query("match", **{"uuid.keyword":str(uuid)})
         for key, value in filters.items():
             s = s.filter("term", **{str(key): str(value)})
-        if 'exclude' in search_map: 
+        if 'exclude' in search_map:
             for key, value in search_map['exclude'].items():
                 s = s.exclude('match', **{key: value})
         _logger.debug("Building query")

@@ -44,13 +44,14 @@ As a contributor, more often than not you'll be adding code to benchmarks dir.
 
 ### Benchmarks
 
-To add a new benchmark, you'll create your the class and define three member function which will need to put together the following 4 types of keys:
+To add a new benchmark, you'll create your the class and define three member function which will need to put together the following 5 types of keys:
 
 1. Filter: To only take the particular entry into consideration if it passes filter
 2. Bucket: To facilitate apple to apple comparison, touchstone will put records into buckets
 3. Aggregation: Apply aggregation and the type on the keys
 4. Compare: Compare the keys that help characterize the SUT/benchmark run
 5. Collate: Collates the keys after applying filters, buckets and aggregations.
+5. Exclude: Excludes entries which passes this filter.
 
 The member functions are:
 
@@ -61,6 +62,9 @@ The member functions are:
     b. 'buckets': this is a list of all the various keys we'll need to look at while bucketing to ensure we do an apple to apple comparison. one example for uperf is ['protocol.keyword', 'message_size', 'num_threads']
 
     c. 'aggregations': aggregations is a dictionary of keys to do aggregations with value being a list of type of aggregations, note an aggregation can also be a dictionary. one example for uperf is {'norm_byte': ['max', 'avg', {'percentiles': {'percents': [50]}}]}
+
+
+    d. 'exclude': excludes documents from the query that meet these conditions. For uperf we exclude documents with zero norm_ops metrics with {'norm_ops': 0}
 
 2. emit_compare_map(): This should emit a dictionary where key is the index and the value is a list of keys to compare
 
@@ -81,6 +85,9 @@ And you'll need to create the above for all the indices in the database choice, 
               'filter': {
                 'test_type.keyword': 'stream'
               },
+              'exclude': {
+                'norm_ops': 0
+              },
               'buckets': ['protocol.keyword',
                 'message_size', 'num_threads'
               ],
@@ -93,6 +100,9 @@ And you'll need to create the above for all the indices in the database choice, 
             }, {
               'filter': {
                 'test_type.keyword': 'rr'
+              },
+              'exclude': {
+                'norm_ops': 0
               },
               'buckets': ['protocol.keyword',
                 'message_size', 'num_threads'

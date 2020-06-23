@@ -110,14 +110,14 @@ def parse_args(args):
     parser.add_argument(
         '-start', '--start_time',
         dest="start_time_list",
-        default=['1588751810'],
+        default=None,
         help="the start time for the query parameter",
         type=str,
         nargs='+')
     parser.add_argument(
         '-end', '--end_time',
         dest="end_time_list",
-        default=['1588785118'],
+        default=None,
         help="the end time for the query parameter",
         type=str,
         nargs='+')

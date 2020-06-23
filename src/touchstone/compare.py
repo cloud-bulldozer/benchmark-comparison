@@ -106,7 +106,8 @@ def parse_args(args):
         dest="query_list",
         default="",
         help="the prometheus query",
-        type=str)
+        type=str,
+        nargs='+')
     parser.add_argument(
         '-start', '--start_time',
         dest="start_time_list",

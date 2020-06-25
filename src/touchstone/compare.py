@@ -36,7 +36,7 @@ def parse_args(args):
         dest="benchmark",
         help="which type of benchmark to compare",
         type=str,
-        choices=['uperf', 'ycsb', 'pgbench'],
+        choices=['uperf', 'ycsb', 'pgbench', 'vegeta'],
         metavar="benchmark")
     parser.add_argument(
         dest="database",

@@ -1,4 +1,4 @@
-import dateparser
+import datetime
 from prometheus_api_client import PrometheusConnect
 
 
@@ -22,13 +22,12 @@ class Prometheus:
                 settings = {"DATE_ORDER": "YMD"}
                 if self.start_time_list is not None:
                     aggregates['start_time'] = self.start_time_list[i]
-                    start_time = dateparser.parse(str(self.start_time_list[i]),
-                                                  settings=settings)
+                    start_time = datetime.datetime.fromtimestamp(int(self.start_time_list[i]))
                 else:
                     start_time = None
                 if self.end_time_list is not None:
                     aggregates['end_time'] = self.end_time_list[i]
-                    end_time = dateparser.parse(str(self.end_time_list[i]), settings=settings)
+                    end_time = datetime.datetime.fromtimestamp(int(self.end_time_list[i]))
                 else:
                     end_time = None
                 aggregates.update(

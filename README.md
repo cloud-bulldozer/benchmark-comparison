@@ -11,7 +11,8 @@ Touchstone currently supports comparison of the following docs:
 |      Uperf     |  Elasticsearch   |    Ripsaw     |
 |      YCSB      |  Elasticsearch   |    Ripsaw     |
 |      Pgbench   |  Elasticsearch   |    Ripsaw     |
-|      Vegeta    |  Elasticsearch   |    Ripsaw
+|      Vegeta    |  Elasticsearch   |    Ripsaw     |
+|        -       |  Prometheus      |       -       |
 
 ## Usage
 
@@ -25,23 +26,44 @@ python setup.py develop
 touchstone_compare -h
 ```
 
-For example:
+#### For example:
 
+##### To Compare benchmark database on Elasticsearch
 To compare 2 runs of uperf data indexed into elasticsearch server marquez.perf.lab.eng.rdu2.redhat.com ran through ripsaw,
 which generated 2 uuids: [6c5d0257-57e4-54f0-9c98-e149af8b4a5c 70cbb0eb-8bb6-58e3-b92a-cb802a74bb52]
 
 You'd be running it as follows:
 ```
-touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c 70cbb0eb-8bb6-58e3-b92a-cb802a74bb52
+touchstone_compare -database elasticsearch -benchmark uperf -harness ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c 70cbb0eb-8bb6-58e3-b92a-cb802a74bb52
 ```
 
 Regarding metadata collection, the indices from which metadata will be collected is listed in the file of the benchmark being run. However, these indices can be overrided by including the path to a metadata config file as a command line argument. The default location of this file is examples/metadata.json.
 
 Running with this argument would be run as follows:
 ```
-touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c -input-file examples/metadata.json 
+touchstone_compare -database elasticsearch -benchmark uperf -harness ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c -input-file examples/metadata.json 
 ```   
 
+To compare the prometheus metric data aggreagations(sum, max, min, deviation, nth percentile) over a period of time
+for prometheus running locally on url - http://localhost:9090 for the metric - 'node_disk_io_time_seconds_total' for a time interval
+you need to create following config file - 
+
+```
+---
+- url: http://localhost:9090
+  query_list:
+    - node_disk_io_time_seconds_total
+  bearer_token:
+  disable_ssl: True
+  start_time_list:
+    - 1594307762
+  end_time_list:
+    - 1594307777
+```
+You'd be running it as follows:
+```
+touchstone_compare -database prometheus -prom_config path/to/your/config_file.yaml 
+``` 
 ### Comparing on a specific identifier
 
 You can also now compare against identifiers other than the `uuid` key, so for
@@ -277,3 +299,15 @@ looks like following :
     }
 }
 ```
+
+### Prometheus metric agregation config file
+For comparing the metric aggregations following keys are compulsory in the config file - 
+```
+url: string
+query_list: string (this can accept multiple metrices)
+bearer_token: string
+disable_ssl: Boolean
+start_time_list: int (this can accept multiple values)
+end_time_list: int (this can accept multiple values)
+```
+An example config_file can be found [here](src/touchstone/databases/prom_config.yaml)

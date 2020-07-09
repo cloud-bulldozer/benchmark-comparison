@@ -15,11 +15,12 @@ class Prometheus:
 
     def compare_data(self):
         output = []
+        # when start_time and end_time are None, these queries are called for the duration of
+        # current prometheus session.
         len_times = 1 if self.start_time_list is None else len(self.start_time_list)
         for query in self.query_list:
             for i in range(len_times):
                 aggregates = {'url': self.url, 'query': query}
-                settings = {"DATE_ORDER": "YMD"}
                 if self.start_time_list is not None:
                     aggregates['start_time'] = self.start_time_list[i]
                     start_time = datetime.datetime.fromtimestamp(int(self.start_time_list[i]))

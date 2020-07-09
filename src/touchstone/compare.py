@@ -102,39 +102,6 @@ def parse_args(args):
         type=str,
         nargs='+')
     parser.add_argument(
-        '-query', '--query_list',
-        dest="query_list",
-        default="",
-        help="the prometheus query",
-        type=str,
-        nargs='+')
-    parser.add_argument(
-        '-start', '--start_time',
-        dest="start_time_list",
-        default=None,
-        help="the start time for the query parameter",
-        type=str,
-        nargs='+')
-    parser.add_argument(
-        '-end', '--end_time',
-        dest="end_time_list",
-        default=None,
-        help="the end time for the query parameter",
-        type=str,
-        nargs='+')
-    parser.add_argument(
-        '-headers',
-        dest="headers",
-        help="http headers to be used to communicate with the host",
-        type=str,
-        nargs='+')
-    parser.add_argument(
-        '-disable_ssl',
-        dest="disable_ssl",
-        help="http headers to be used to communicate with the host",
-        default="False",
-        type=str)
-    parser.add_argument(
         "-v",
         "--verbose",
         dest="loglevel",

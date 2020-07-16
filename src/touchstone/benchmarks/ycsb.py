@@ -34,6 +34,24 @@ class Ycsb(BenchmarkBaseClass):
         self._search_dict = {
             'elasticsearch': {
                 'ripsaw': {
+                    'cpuinfo-metadata': { 
+                        'compare': ['value.Model name', 'value.Architecture', 'value.CPU(s)', 'value.Virtualization'],
+                        'compute': [{
+                            'filter': {},
+                            'buckets': ['_index'],
+                            'aggregations': {},
+                            'collate': [],
+                        }, ]
+                    }, 
+                    'dmidecode-metadata': { 
+                        'compare': ['pod_name', 'node_name'],
+                        'compute': [{
+                            'filter': {},
+                            'buckets': ['_index'],
+                            'aggregations': {},
+                            'collate': [],
+                        }, ]
+                    },
                     'ripsaw-ycsb-summary': {
                         'compare': ['uuid', 'user', 'recordcount',
                                     'operationcount', 'driver'],

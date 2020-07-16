@@ -34,6 +34,34 @@ class Uperf(BenchmarkBaseClass):
         self._search_dict = {
             'elasticsearch': {
                 'ripsaw': {
+                    'cpuinfo-metadata': { 
+                        'compare': ['value.Model name', 'value.Architecture', 'value.CPU(s)', 'value.Virtualization'],
+                        'compute': [{
+                            'filter': {},
+                            'buckets': ['_index'],
+                            'aggregations': {},
+                            'collate': [],
+                        }, ]
+                    }, 
+                    'meminfo-metadata': { 
+                        'compare': ['value.MemTotal', 'value.Active'],
+                        'compute': [{
+                            'filter': {},
+                            'buckets': ['_index'],
+                            'aggregations': {},
+                            'collate': [],
+                        }, ]
+                    },
+                    'k8s_nodes-metadata': { 
+                        'compare': ['value.status.nodeInfo.osImage', 'value.status.nodeInfo.kubeletVersion', 'value.status.nodeInfo.kubeProxyVersion',
+                                    'value.status.nodeInfo.kernelVersion', 'value.status.nodeInfo.containerRuntimeVersion', 'pod_name', 'node_name'],
+                        'compute': [{
+                            'filter': {},
+                            'buckets': ['_index'],
+                            'aggregations': {},
+                            'collate': [],
+                        }, ]
+                    }, 
                     'ripsaw-uperf-results': {
                         'compare': ['uuid', 'user', 'cluster_name',
                                     'hostnetwork', 'service_ip'],

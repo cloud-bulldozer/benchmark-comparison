@@ -123,9 +123,18 @@ def main(args):
     if args.output == "csv":
         print_csv = True
         printed_header = False
+
+    metadata_map = benchmark_instance.emit_metadata_map()
+    for index in metadata_map:
+        for uuid_index, uuid in enumerate(args.uuid):
+           # Create database connection instance
+           database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
+           # Now I added the method emit_compare_metadata_dict to the elasticsearch class
+           database_instance.emit_compare_metadata_dict(uuid=uuid, compare_map=metadata_map[index], index=index)   
+    
     for index in benchmark_instance.emit_indices():
-        _compare_header = "{:40} |".format(args.identifier)
         compare_uuid_dict = {}
+        _compare_header = "{:60} |".format(args.identifier)
         for key in benchmark_instance.emit_compare_map()[index]:
             compare_uuid_dict[key] = {}
         for uuid_index, uuid in enumerate(args.uuid):

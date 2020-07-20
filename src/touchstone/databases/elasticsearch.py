@@ -167,3 +167,13 @@ class Elasticsearch(DatabaseBaseClass):
                           input_dict=None, identifier=None):
         return self._build_compare_dict(compare_map[index], index, uuid,
                                         input_dict, identifier)
+
+    def emit_compare_metadata_dict(self, uuid=None, compare_map=None, index=None, input_dict=None):
+        _logger.debug("Initializing metadata search object")
+        s = Search(using=self._conn_object, index=index).query("match", **{"uuid.keyword": uuid})
+        resp = s.execute()
+        for hit in resp["hits"]["hits"]:
+            print("\n" + hit["_source"][compare_map["element"]])
+            for compare in compare_map["compare"]:
+                print("Comparing %s: %s" % (compare, hit["_source"]["value"][compare]))
+        

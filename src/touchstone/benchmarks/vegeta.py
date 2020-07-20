@@ -33,25 +33,17 @@ class Vegeta(BenchmarkBaseClass):
                                     harness_type=harness_type)
         self._search_dict = {
             'elasticsearch': {
-                'ripsaw': {
+                'metadata': {
                     'cpuinfo-metadata': { 
-                        'compare': ['value.Model name', 'value.Architecture', 'value.CPU(s)', 'value.Virtualization'],
-                        'compute': [{
-                            'filter': {},
-                            'buckets': ['_index'],
-                            'aggregations': {},
-                            'collate': [],
-                        }, ]
+                        'element': 'pod_name',
+                        'compare': ['Model name', 'Architecture', 'CPU(s)', 'Hypervisor vendor'],
                     }, 
                     'meminfo-metadata': { 
-                        'compare': ['value.MemTotal', 'value.Active'],
-                        'compute': [{
-                            'filter': {},
-                            'buckets': ['_index'],
-                            'aggregations': {},
-                            'collate': [],
-                        }, ]
+                        'element': 'pod_name',
+                        'compare': ['MemTotal', 'Active'],
                     },
+                },
+                'ripsaw': {
                     'ripsaw-vegeta-results': {
                         'compare': ['uuid', 'user', 'cluster_name', 'hostname', 'duration',
                                     'workers', 'requests'],
@@ -95,3 +87,6 @@ class Vegeta(BenchmarkBaseClass):
 
     def emit_indices(self):
         return self._search_map.keys()
+
+    def emit_metadata_map(self):
+        return self._search_dict[self._source_type]["metadata"]

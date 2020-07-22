@@ -35,13 +35,14 @@ class Vegeta(BenchmarkBaseClass):
             'elasticsearch': {
                 'ripsaw': {
                     'ripsaw-vegeta-results': {
-                        'compare': ['uuid', 'user', 'cluster_name', 'hostname', 'duration',
+                        'compare': ['uuid', 'user', 'cluster_name',
+                                    'hostname', 'duration',
                                     'workers', 'requests'],
                         'compute': [{
                             'filter': {},
                             'buckets': ['targets.keyword'],
                             'aggregations': {
-                                'rps':  ['avg'],
+                                'rps': ['avg'],
                                 'throughput': ['avg'],
                                 'req_latency': ['avg'],
                                 'p95_latency': ['avg'],
@@ -57,7 +58,6 @@ class Vegeta(BenchmarkBaseClass):
                 },
             },
         }
-        
         self._search_map = self._build_search()
         self._compute_map = self._build_compute()
         self._compare_map = self._build_compare_keys()

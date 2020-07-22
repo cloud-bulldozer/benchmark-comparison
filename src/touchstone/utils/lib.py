@@ -69,7 +69,8 @@ def mergedicts(dict1, dict2):
             yield (k, dict2[k])
 
 
-def compare_dict(d1, identifier, aggs, _message, buckets, uuids, _header, max_level,
+def compare_dict(d1, identifier, aggs, _message, buckets,
+                 uuids, _header, max_level,
                  csv=False, level=0):
     for key in d1:
         if type(d1[key]) is dict and key not in aggs and level < max_level - 1:
@@ -116,7 +117,8 @@ def compare_dict(d1, identifier, aggs, _message, buckets, uuids, _header, max_le
                                     _compare_values + " {:40} |".format(str(agg_dict[uuid])) # noqa
                             else:
                                 _compare_values = \
-                                    _compare_values + " {:40} |".format("no_match")
+                                    _compare_values + \
+                                    " {:40} |".format("no_match")
                         print(_compare_values)
             else:
                 _output = _message + "{}, ".format(key)

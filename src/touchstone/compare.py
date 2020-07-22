@@ -68,7 +68,7 @@ def parse_args(args):
         dest="output",
         help="How should touchstone output the result",
         type=str,
-        choices=['json', 'yaml','csv'])
+        choices=['json', 'yaml', 'csv'])
     parser.add_argument(
         '-url', '--connection-url',
         dest="conn_url",
@@ -161,7 +161,7 @@ def main(args):
                                           len(compute['filter']), catch)
                         compute_uuid_dict = \
                             dict(mergedicts(compute_uuid_dict, current_compute_dict)) # noqa
-            truth = dict(mergedicts(truth,compute_uuid_dict))
+            truth = dict(mergedicts(truth, compute_uuid_dict))
         else:
             for key in benchmark_instance.emit_compare_map()[index]:
                 _message = "{:40} |".format(key)
@@ -190,10 +190,10 @@ def main(args):
                                        conn_url=args.conn_url[uuid_index])
                     _current_uuid_dict = \
                         database_instance.emit_compute_dict(uuid=uuid,
-                                                            compute_map=compute,
-                                                            index=index,
-                                                            input_dict=compare_uuid_dict, # noqa
-                                                            identifier=args.identifier) # noqa
+                                                    compute_map=compute,
+                                                    index=index,
+                                                    input_dict=compare_uuid_dict, # noqa
+                                                    identifier=args.identifier) # noqa
                     compute_aggs_set = \
                         compute_aggs_set + database_instance._aggs_list
                     compute_uuid_dict = \

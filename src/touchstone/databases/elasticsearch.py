@@ -76,9 +76,10 @@ class Elasticsearch(DatabaseBaseClass):
         collate = search_map['collate']
         filters = search_map['filter']
         _logger.debug("Initializing search object")
-        _identifier = identifier + ".keyword" # append .keyword
+        _identifier = identifier + ".keyword"  # append .keyword
         s = Search(using=self._conn_object,
-                   index=str(index)).query("match", **{str(_identifier):str(uuid)})
+                   index=str(index)).query("match", **{str(_identifier):
+                                                       str(uuid)})
         for key, value in filters.items():
             s = s.filter("term", **{str(key): str(value)})
         if 'exclude' in search_map:
@@ -146,9 +147,10 @@ class Elasticsearch(DatabaseBaseClass):
     def _build_compare_dict(self, compare_map, index, uuid, input_dict,
                             identifier):
         _logger.debug("Initializing search object")
-        _identifier = identifier + ".keyword" # append .keyword
+        _identifier = identifier + ".keyword"  # append .keyword
         s = Search(using=self._conn_object,
-                   index=str(index)).query("match", **{str(_identifier):str(uuid)})
+                   index=str(index)).query("match", **{str(_identifier):
+                                                       str(uuid)})
         response = s.execute()
         if len(response.hits.hits) > 0:
             for compare_key in compare_map:

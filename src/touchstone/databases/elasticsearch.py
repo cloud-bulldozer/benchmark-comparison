@@ -1,5 +1,6 @@
 import logging
 import elasticsearch
+import elasticsearch_dsl
 import json
 import copy
 from elasticsearch_dsl import Search
@@ -76,9 +77,10 @@ class Elasticsearch(DatabaseBaseClass):
         collate = search_map['collate']
         filters = search_map['filter']
         _logger.debug("Initializing search object")
-        _identifier = identifier + ".keyword" # append .keyword
+        _identifier = identifier + ".keyword"  # append .keyword
         s = Search(using=self._conn_object,
-                   index=str(index)).query("match", **{str(_identifier):str(uuid)})
+                   index=str(index)).query("match", **{str(_identifier):
+                                                       str(uuid)})
         for key, value in filters.items():
             s = s.filter("term", **{str(key): str(value)})
         if 'exclude' in search_map:
@@ -88,17 +90,11 @@ class Elasticsearch(DatabaseBaseClass):
         _first_bucket = str(buckets[0].split('.')[0])
         self._bucket_list.append(_first_bucket)
         x = s.aggs.bucket(_first_bucket, 'terms', field=str(buckets[0]))
-        # _temp_dict[buckets[0].split('.')[0]] = {}
-        # _temp_dict[buckets[0].split('.')[0]]['buckets'] = {}
-        # y = _temp_dict[buckets[0].split('.')[0]]['buckets']
         _logger.debug("Building buckets")
         for bucket_name in buckets[1:]:
             _curr_bucket = bucket_name.split('.')[0]
             self._bucket_list.append(_curr_bucket)
             x = x.bucket(_curr_bucket, 'terms', field=bucket_name)
-            # y[bucket_name.split('.')[0]] = {}
-            # y[bucket_name.split('.')[0]]['buckets'] = {}
-            # y = y
         _logger.debug("Finished adding buckets to query")
         _logger.debug("Adding aggregations to query")
         for key, agg_list in aggregations.items():
@@ -114,13 +110,6 @@ class Elasticsearch(DatabaseBaseClass):
                             x = x.metric(_temp_agg_str, dict_key, field=key,
                                          **{nested_dict_key: nested_dict_value}) # noqa
                         self._aggs_list.append(_temp_agg_str)
-                # _temp_perc_str = str(agg_entity) + str('_percentiles')
-                # self._aggs_list.append(_temp_perc_str)
-                # _temp_avg_str = str(agg_entity) + str('_average')
-                # self._aggs_list.append(_temp_avg_str)
-                # x = x.metric(_temp_perc_str, 'percentiles', field=agg_entity,
-                #              percents=[1, 5, 50, 95, 99])
-                # x = x.metric(_temp_avg_str, 'avg', field=agg_entity)
         _logger.debug("Finished adding aggregations to query")
         _logger.debug("Built the following query: \
                         {}".format(json.dumps(s.to_dict(), indent=4)))
@@ -146,14 +135,18 @@ class Elasticsearch(DatabaseBaseClass):
     def _build_compare_dict(self, compare_map, index, uuid, input_dict,
                             identifier):
         _logger.debug("Initializing search object")
-        _identifier = identifier + ".keyword" # append .keyword
+        _identifier = identifier + ".keyword"  # append .keyword
         s = Search(using=self._conn_object,
-                   index=str(index)).query("match", **{str(_identifier):str(uuid)})
+                   index=str(index)).query("match", **{str(_identifier):
+                                                       str(uuid)})
         response = s.execute()
         if len(response.hits.hits) > 0:
             for compare_key in compare_map:
-                input_dict[compare_key][uuid] = \
-                    get(response.hits.hits[0]['_source'], str(compare_key))
+                temp_value = get(response.hits.hits[0]['_source'], str(compare_key))
+                if isinstance(temp_value, elasticsearch_dsl.utils.AttrList):
+                    input_dict[compare_key][uuid] = temp_value[0]
+                else:
+                    input_dict[compare_key][uuid] = temp_value
         _logger.debug("output compare dictionary with summaries is: {}\
                         ".format(json.dumps(input_dict, indent=4)))
         return input_dict
@@ -171,9 +164,10 @@ class Elasticsearch(DatabaseBaseClass):
     def emit_compare_metadata_dict(self, uuid=None, compare_map=None, index=None, input_dict=None):
         _logger.debug("Initializing metadata search object")
         s = Search(using=self._conn_object, index=index).query("match", **{"uuid.keyword": uuid})
-        resp = s.execute()
-        for hit in resp["hits"]["hits"]:
-            print("\n" + hit["_source"][compare_map["element"]])
+        response = s.execute()      
+        for hit in response.hits.hits:
+            pod_name = hit['_source'][compare_map["element"]]
             for compare in compare_map["compare"]:
-                print("Comparing %s: %s" % (compare, hit["_source"]["value"][compare]))
+                input_dict[compare][pod_name] = hit['_source']["value"][compare]
+        return input_dict
         

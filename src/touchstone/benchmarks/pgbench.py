@@ -13,6 +13,9 @@ class Pgbench(BenchmarkBaseClass):
         _logger.debug("Building search array for PGBENCH")
         return self._search_dict[self._source_type][self._harness_type]
 
+    def _build_search_metadata(self):
+        return self._search_dict[self._source_type]["metadata"]
+    
     def _build_compare_keys(self):
         _logger.debug("Building compare map")
         _temp_dict = {}
@@ -20,6 +23,13 @@ class Pgbench(BenchmarkBaseClass):
             _temp_dict[index] = self._search_map[index]['compare']
         return _temp_dict
 
+    def _build_compare_keys_metadata(self):
+        _logger.debug("Building compare map for metadata")
+        _temp_dict = {}
+        for index in self._search_map_metadata:
+            _temp_dict[index] = self._search_map_metadata[index]['compare']
+        return _temp_dict
+    
     def _build_compute(self):
         _logger.debug("Building compute map")
         _temp_dict = {}
@@ -83,8 +93,10 @@ class Pgbench(BenchmarkBaseClass):
             }
         }
         self._search_map = self._build_search()
+        self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
         self._compare_map = self._build_compare_keys()
+        self._compare_map_metadata = self._build_compare_keys_metadata()
         _logger.debug("Finished initializing pgbench instance")
 
     def emit_compute_map(self):
@@ -92,6 +104,12 @@ class Pgbench(BenchmarkBaseClass):
         _logger.info("Compute map is {} in the database \
                      {}".format(self._compute_map, self._source_type))
         return self._compute_map
+
+    def emit_compare_map_metadata(self):
+        _logger.debug("Emitting built metadata compare map ")
+        _logger.info("compare map is {} in the database \
+                     {}".format(self._compare_map_metadata, self._source_type))
+        return self._compare_map_metadata
 
     def emit_compare_map(self):
         _logger.debug("Emitting built compare map ")
@@ -102,5 +120,8 @@ class Pgbench(BenchmarkBaseClass):
     def emit_indices(self):
         return self._search_map.keys()
 
-    def emit_metadata_map(self):
-        return self._search_dict[self._source_type]["metadata"]
+    def emit_indices_metadata(self):
+        return self._search_map_metadata.keys()
+
+    def emit_metadata_search_map(self):
+        return self._search_map_metadata

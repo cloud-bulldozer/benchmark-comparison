@@ -3,12 +3,14 @@ import logging
 
 _logger = logging.getLogger("touchstone")
 
+
 def print_metadata_dict(uuid, d):
     for k, v in d.items():
         if isinstance(v, dict):
             print_metadata_dict(uuid, v)
         else:
             print("{0}, {1}, {2}, ".format(uuid, k, v))
+
 
 def get(d, keys):
     if "." in keys:
@@ -75,8 +77,8 @@ def mergedicts(dict1, dict2):
             yield (k, dict2[k])
 
 
-def compare_dict(d1, identifier, aggs, _message, buckets, uuids, _header, max_level,
-                 csv=False, level=0):
+def compare_dict(d1, identifier, aggs, _message, buckets,
+                 uuids, _header, max_level, csv=False, level=0):
     for key in d1:
         if type(d1[key]) is dict and key not in aggs and level < max_level - 1:
             new_level = level + 1

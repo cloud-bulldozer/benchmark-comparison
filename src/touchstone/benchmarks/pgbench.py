@@ -15,7 +15,7 @@ class Pgbench(BenchmarkBaseClass):
 
     def _build_search_metadata(self):
         return self._search_dict[self._source_type]["metadata"]
-    
+
     def _build_compare_keys(self):
         _logger.debug("Building compare map")
         _temp_dict = {}
@@ -29,7 +29,7 @@ class Pgbench(BenchmarkBaseClass):
         for index in self._search_map_metadata:
             _temp_dict[index] = self._search_map_metadata[index]['compare']
         return _temp_dict
-    
+
     def _build_compute(self):
         _logger.debug("Building compute map")
         _temp_dict = {}
@@ -44,16 +44,17 @@ class Pgbench(BenchmarkBaseClass):
         self._search_dict = {
             'elasticsearch': {
                 'metadata': {
-                    'cpuinfo-metadata': { 
+                    'cpuinfo-metadata': {
                         'element': 'pod_name',
-                        'compare': ['value.Model name', 'value.Architecture', 'value.CPU(s)']
+                        'compare': ['value.Model name', 'value.Architecture',
+                                    'value.CPU(s)']
                     },
-                    'meminfo-metadata': { 
+                    'meminfo-metadata': {
                         'element': 'pod_name',
                         'compare': ['value.MemTotal', 'value.Active'],
                     },
                 },
-                'ripsaw': { 
+                'ripsaw': {
                     'ripsaw-pgbench-summary': {
                         'compare': ['uuid', 'user', 'cluster_name',
                                     'scaling_factor', 'query_mode',

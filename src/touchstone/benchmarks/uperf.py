@@ -12,7 +12,7 @@ class Uperf(BenchmarkBaseClass):
     def _build_search(self):
         _logger.debug("Building search array for uperf")
         return self._search_dict[self._source_type][self._harness_type]
-    
+
     def _build_search_metadata(self):
         return self._search_dict[self._source_type]["metadata"]
 
@@ -29,7 +29,7 @@ class Uperf(BenchmarkBaseClass):
         for index in self._search_map_metadata:
             _temp_dict[index] = self._search_map_metadata[index]['compare']
         return _temp_dict
-    
+
     def _build_compute(self):
         _logger.debug("Building compute map")
         _temp_dict = {}
@@ -46,14 +46,15 @@ class Uperf(BenchmarkBaseClass):
                 'metadata': {
                     'cpuinfo-metadata': {
                         'element': 'pod_name',
-                        'compare': ['value.Model name', 'value.Architecture', 'value.CPU(s)']
+                        'compare': ['value.Model name', 'value.Architecture',
+                                    'value.CPU(s)']
                     },
-                    'meminfo-metadata': { 
+                    'meminfo-metadata': {
                         'element': 'pod_name',
                         'compare': ['value.MemTotal', 'value.Active'],
                     },
                 },
-                'ripsaw': { 
+                'ripsaw': {
                     'ripsaw-uperf-results': {
                         'compare': ['uuid', 'user', 'cluster_name',
                                     'hostnetwork', 'service_ip'],

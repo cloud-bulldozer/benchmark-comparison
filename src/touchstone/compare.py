@@ -9,7 +9,8 @@ from tabulate import tabulate
 from touchstone import __version__
 from . import benchmarks
 from . import databases
-from .utils.lib import print_metadata_dict, compare_dict, mergedicts, dfs_list_dict
+from .utils.lib import print_metadata_dict, compare_dict, \
+    mergedicts, dfs_list_dict
 
 __author__ = "aakarshg"
 __copyright__ = "aakarshg"
@@ -126,19 +127,20 @@ def main(args):
         print_csv = True
         printed_header = False
 
-    #Indices from metadata map
+    # Indices from metadata map
     for uuid_index, uuid in enumerate(args.uuid):
         super_header = "\n{} UUID: {} {}".format(("=" * 65), uuid, ("=" * 65))
         compare_uuid_dict_metadata[uuid] = {}
         # Create database connection instance
-        database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
+        database_instance = databases.grab(args.database,
+                                           conn_url=args.conn_url[uuid_index])
         for index in benchmark_instance.emit_metadata_search_map().keys():
             input_dict = {}
-            # Adding method emit_compare_metadata_dict to the elasticsearch class
+            # Adding emit_compare_metadata_dict to elasticsearch class
             database_instance.emit_compare_metadata_dict(uuid=uuid,
-                                                               compare_map=benchmark_instance.emit_metadata_search_map()[index],
-                                                               index=index,
-                                                               input_dict=input_dict)  #noqa
+            compare_map=benchmark_instance.emit_metadata_search_map()[index],
+                                                         index=index,
+                                                         input_dict=input_dict)  # noqa
             compare_uuid_dict_metadata[uuid] = input_dict
             stockpile_metadata = {}
             stockpile_metadata["where"] = []
@@ -150,13 +152,14 @@ def main(args):
                     stockpile_metadata[k].append(v)
             if args.output not in ["json", "yaml", "csv"]:
                 print(super_header)
-                print(tabulate(stockpile_metadata, headers="keys", tablefmt="grid"))
+                print(tabulate(stockpile_metadata,
+                               headers="keys", tablefmt="grid"))
             elif args.output in ["csv"]:
                 print_metadata_dict(uuid, compare_uuid_dict_metadata)
-    
-    #Indices from entered harness (ex: ripsaw)
+
+    # Indices from entered harness (ex: ripsaw)
     for index in benchmark_instance.emit_indices():
-        compare_uuid_dict = {}  #Dict to hold fields under 'compare' field
+        compare_uuid_dict = {}  # Dict to hold fields under 'compare' field
         for key in benchmark_instance.emit_compare_map()[index]:
             compare_uuid_dict[key] = {}
         for uuid_index, uuid in enumerate(args.uuid):
@@ -172,7 +175,7 @@ def main(args):
                                                     input_dict=compare_uuid_dict, # noqa
                                                     identifier=args.identifier)
         if args.output in ["json", "yaml"]:
-            compute_uuid_dict = {}  #Dict to hold fields under 'compute' field
+            compute_uuid_dict = {}  # Dict to hold fields under 'compute' field
             for compute in benchmark_instance.emit_compute_map()[index]:
                 current_compute_dict = {}
                 for uuid_index, uuid in enumerate(args.uuid):
@@ -196,7 +199,7 @@ def main(args):
                             dict(mergedicts(compute_uuid_dict, current_compute_dict)) # noqa
             main_json = dict(mergedicts(main_json, compute_uuid_dict))
         else:
-            #Stdout
+            # Stdout
             for key in benchmark_instance.emit_compare_map()[index]:
                 _message = "{:50} |".format(key)
                 for uuid in args.uuid:
@@ -205,14 +208,14 @@ def main(args):
             for compute in benchmark_instance.emit_compute_map()[index]:
                 compute_uuid_dict = {}
                 compute_aggs_set = []
-                #If not csv, format bucket header
+                # If not csv, format bucket header
                 if not print_csv:
                     _compute_header = "{:50} |".format("bucket_name")
                     _compute_value = "{:50} |".format("bucket_value")
                 else:
                     _compute_header = ""
-                    _compute_value = ""          
-                #Format filter output with values in compute map
+                    _compute_value = ""
+                # Format filter output with values in compute map
                 for key, value in compute['filter'].items():
                     if not print_csv:
                         _compute_header += " {:20} |".format(key)
@@ -220,9 +223,9 @@ def main(args):
                     else:
                         _compute_header += "{}, ".format(key)
                         _compute_value += "{}, ".format(value)
-                
+
                 for uuid_index, uuid in enumerate(args.uuid):
-                    #Repeats earlier code - needs cleanup
+                    # Repeats earlier code - needs cleanup
                     database_instance = \
                         databases.grab(args.database,
                                        conn_url=args.conn_url[uuid_index])
@@ -238,7 +241,7 @@ def main(args):
                         dict(mergedicts(compute_uuid_dict, _current_uuid_dict))
                 compute_aggs_set = set(compute_aggs_set)
                 compute_buckets = database_instance._bucket_list
-                #If output in csv form, gather values from buckets in compute map
+                # If csv, gather values from buckets in compute map
                 if print_csv:
                     for key in compute_buckets:
                         _compute_header += "{}, ".format(key)

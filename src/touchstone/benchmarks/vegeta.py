@@ -29,7 +29,7 @@ class Vegeta(BenchmarkBaseClass):
         for index in self._search_map_metadata:
             _temp_dict[index] = self._search_map_metadata[index]['compare']
         return _temp_dict
-    
+
     def _build_compute(self):
         _logger.debug("Building compute map")
         _temp_dict = {}
@@ -44,24 +44,26 @@ class Vegeta(BenchmarkBaseClass):
         self._search_dict = {
             'elasticsearch': {
                 'metadata': {
-                    'cpuinfo-metadata': { 
+                    'cpuinfo-metadata': {
                         'element': 'pod_name',
-                        'compare': ['value.Model name', 'value.Architecture', 'value.CPU(s)'],
-                    }, 
-                    'meminfo-metadata': { 
+                        'compare': ['value.Model name', 'value.Architecture',
+                                    'value.CPU(s)'],
+                    },
+                    'meminfo-metadata': {
                         'element': 'pod_name',
                         'compare': ['value.MemTotal', 'value.Active'],
                     },
                 },
                 'ripsaw': {
                     'ripsaw-vegeta-results': {
-                        'compare': ['uuid', 'user', 'cluster_name', 'hostname', 'duration',
+                        'compare': ['uuid', 'user', 'cluster_name',
+                                    'hostname', 'duration',
                                     'workers', 'requests'],
                         'compute': [{
                             'filter': {},
                             'buckets': ['targets.keyword'],
                             'aggregations': {
-                                'rps':  ['avg'],
+                                'rps': ['avg'],
                                 'throughput': ['avg'],
                                 'req_latency': ['avg'],
                                 'p95_latency': ['avg'],
@@ -77,7 +79,6 @@ class Vegeta(BenchmarkBaseClass):
                 },
             },
         }
-        
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
@@ -96,7 +97,7 @@ class Vegeta(BenchmarkBaseClass):
         _logger.info("compare map is {} in the database \
                      {}".format(self._compare_map_metadata, self._source_type))
         return self._compare_map_metadata
-    
+
     def emit_compare_map(self):
         _logger.debug("Emitting built compare map ")
         _logger.info("compare map is {} in the database \

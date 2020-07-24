@@ -44,11 +44,12 @@ class Ycsb(BenchmarkBaseClass):
         self._search_dict = {
             'elasticsearch': {
                 'metadata': {
-                    'cpuinfo-metadata': { 
+                    'cpuinfo-metadata': {
                         'element': 'pod_name',
-                        'compare': ['value.Model name', 'value.Architecture', 'value.CPU(s)']
+                        'compare': ['value.Model name', 'value.Architecture',
+                                    'value.CPU(s)']
                     },
-                    'meminfo-metadata': { 
+                    'meminfo-metadata': {
                         'element': 'pod_name',
                         'compare': ['value.MemTotal', 'value.Active'],
                     },

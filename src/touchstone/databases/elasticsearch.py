@@ -142,7 +142,8 @@ class Elasticsearch(DatabaseBaseClass):
         response = s.execute()
         if len(response.hits.hits) > 0:
             for compare_key in compare_map:
-                temp_value = get(response.hits.hits[0]['_source'], str(compare_key))
+                temp_value = get(response.hits.hits[0]['_source'],
+                                 str(compare_key))
                 if isinstance(temp_value, elasticsearch_dsl.utils.AttrList):
                     input_dict[compare_key][uuid] = temp_value[0]
                 else:
@@ -161,20 +162,24 @@ class Elasticsearch(DatabaseBaseClass):
         return self._build_compare_dict(compare_map[index], index, uuid,
                                         input_dict, identifier)
 
-    def emit_compare_metadata_dict(self, uuid=None, compare_map=None, index=None, input_dict=None):
+    def emit_compare_metadata_dict(self, uuid=None, compare_map=None,
+                                   index=None, input_dict=None):
         _logger.debug("Initializing metadata search object")
-        s = Search(using=self._conn_object, index=index).query("match", **{"uuid.keyword": uuid})
-        response = s.execute()      
+        s = Search(using=self._conn_object,
+                   index=index).query("match", **{"uuid.keyword": uuid})
+        response = s.execute()
         for hit in response.hits.hits:
-            compare_by = self.access_nested_field(hit['_source'], compare_map["element"])
+            compare_by = self.access_nested_field(hit['_source'],
+                                                  compare_map["element"])
             if compare_by not in input_dict:
                 input_dict[compare_by] = {}
             for compare in compare_map["compare"]:
                 value = self.access_nested_field(hit['_source'], compare)
                 if value:
-                    input_dict[compare_by][compare] = hit['_source']["value"][compare] = value
+                    input_dict[compare_by][compare] = \
+                        hit['_source']["value"][compare] = value
         return input_dict
-        
+
     def access_nested_field(self, d, fields):
         tmp_dict = d
         for field in fields.split("."):

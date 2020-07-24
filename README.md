@@ -9,6 +9,9 @@ Touchstone currently supports comparison of the following docs:
 |    Benchmark   |     Database     |    Harness    |
 |----------------|------------------|---------------|
 |      Uperf     |  Elasticsearch   |    Ripsaw     |
+|      YCSB      |  Elasticsearch   |    Ripsaw     |
+|      Pgbench   |  Elasticsearch   |    Ripsaw     |
+|      Vegeta    |  Elasticsearch   |    Ripsaw
 
 ## Usage
 

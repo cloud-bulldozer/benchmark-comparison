@@ -166,8 +166,20 @@ class Elasticsearch(DatabaseBaseClass):
         s = Search(using=self._conn_object, index=index).query("match", **{"uuid.keyword": uuid})
         response = s.execute()      
         for hit in response.hits.hits:
-            pod_name = hit['_source'][compare_map["element"]]
+            compare_by = self.access_nested_field(hit['_source'], compare_map["element"])
+            if compare_by not in input_dict:
+                input_dict[compare_by] = {}
             for compare in compare_map["compare"]:
-                input_dict[compare][pod_name] = hit['_source']["value"][compare]
+                value = self.access_nested_field(hit['_source'], compare)
+                if value:
+                    input_dict[compare_by][compare] = hit['_source']["value"][compare] = value
         return input_dict
         
+    def access_nested_field(self, d, fields):
+        tmp_dict = d
+        for field in fields.split("."):
+            if field in tmp_dict:
+                tmp_dict = tmp_dict[field]
+            else:
+                return None
+        return tmp_dict

@@ -46,7 +46,11 @@ class Ycsb(BenchmarkBaseClass):
                 'metadata': {
                     'cpuinfo-metadata': { 
                         'element': 'pod_name',
-                        'compare': ['Model name', 'Architecture', 'CPU(s)', 'Hypervisor vendor']
+                        'compare': ['value.Model name', 'value.Architecture', 'value.CPU(s)']
+                    },
+                    'meminfo-metadata': { 
+                        'element': 'pod_name',
+                        'compare': ['value.MemTotal', 'value.Active'],
                     },
                 },
                 'ripsaw': {

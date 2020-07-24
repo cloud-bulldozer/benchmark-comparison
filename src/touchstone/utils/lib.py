@@ -3,6 +3,12 @@ import logging
 
 _logger = logging.getLogger("touchstone")
 
+def print_metadata_dict(uuid, d):
+    for k, v in d.items():
+        if isinstance(v, dict):
+            print_metadata_dict(uuid, v)
+        else:
+            print("{0}, {1}, {2}, ".format(uuid, k, v))
 
 def get(d, keys):
     if "." in keys:
@@ -116,7 +122,8 @@ def compare_dict(d1, identifier, aggs, _message, buckets, uuids, _header, max_le
                                     _compare_values + " {:60} |".format(str(agg_dict[uuid])) # noqa
                             else:
                                 _compare_values = \
-                                    _compare_values + " {:60} |".format("no_match")
+                                    _compare_values + \
+                                    " {:60} |".format("no_match")
                         print(_compare_values)
             else:
                 _output = _message + "{}, ".format(key)

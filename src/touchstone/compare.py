@@ -114,6 +114,7 @@ def main(args):
     args = parse_args(args)
     setup_logging(args.loglevel)
     print_csv = False
+    csv_header_metadata = "uuid, where, field, value"
     main_json = dict()
     compare_uuid_dict_metadata = dict()
     metadata = "{} Key Metadata {}".format(("=" * 82), ("=" * 82))
@@ -126,6 +127,7 @@ def main(args):
     if args.output == "csv":
         print_csv = True
         printed_header = False
+        printed_csv_header = False
 
     # Indices from metadata map
     for uuid_index, uuid in enumerate(args.uuid):
@@ -155,6 +157,9 @@ def main(args):
                 print(tabulate(stockpile_metadata,
                                headers="keys", tablefmt="grid"))
             elif args.output in ["csv"]:
+                if not printed_csv_header:
+                    print(csv_header_metadata)
+                    printed_csv_header = True
                 print_metadata_dict(uuid, compare_uuid_dict_metadata, "")
 
     # Indices from entered harness (ex: ripsaw)

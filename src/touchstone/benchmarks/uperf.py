@@ -23,13 +23,6 @@ class Uperf(BenchmarkBaseClass):
             _temp_dict[index] = self._search_map[index]['compare']
         return _temp_dict
 
-    def _build_compare_keys_metadata(self):
-        _logger.debug("Building compare map for metadata")
-        _temp_dict = {}
-        for index in self._search_map_metadata:
-            _temp_dict[index] = self._search_map_metadata[index]['compare']
-        return _temp_dict
-
     def _build_compute(self):
         _logger.debug("Building compute map")
         _temp_dict = {}
@@ -104,7 +97,6 @@ class Uperf(BenchmarkBaseClass):
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
         self._compare_map = self._build_compare_keys()
-        self._compare_map_metadata = self._build_compare_keys_metadata()
         _logger.debug("Finished initializing uperf instance")
 
     def emit_compute_map(self):
@@ -112,12 +104,6 @@ class Uperf(BenchmarkBaseClass):
         _logger.info("Compute map is {} in the database \
                      {}".format(self._compute_map, self._source_type))
         return self._compute_map
-
-    def emit_compare_map_metadata(self):
-        _logger.debug("Emitting built metadata compare map ")
-        _logger.info("compare map is {} in the database \
-                     {}".format(self._compare_map_metadata, self._source_type))
-        return self._compare_map_metadata
 
     def emit_compare_map(self):
         _logger.debug("Emitting built compare map ")
@@ -127,9 +113,6 @@ class Uperf(BenchmarkBaseClass):
 
     def emit_indices(self):
         return self._search_map.keys()
-
-    def emit_indices_metadata(self):
-        return self._search_map_metadata.keys()
 
     def emit_metadata_search_map(self):
         return self._search_map_metadata

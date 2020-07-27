@@ -115,6 +115,7 @@ def main(args):
     setup_logging(args.loglevel)
     print_csv = False
     csv_header_metadata = "uuid, where, field, value"
+    metadata_json = dict()
     main_json = dict()
     compare_uuid_dict_metadata = dict()
     metadata = "{} Key Metadata {}".format(("=" * 82), ("=" * 82))
@@ -161,6 +162,8 @@ def main(args):
                     print(csv_header_metadata)
                     printed_csv_header = True
                 print_metadata_dict(uuid, compare_uuid_dict_metadata, "")
+            elif args.output in ["json", "yaml"]:
+                metadata_json = dict(mergedicts(metadata_json, compare_uuid_dict_metadata))
 
     # Indices from entered harness (ex: ripsaw)
     for index in benchmark_instance.emit_indices():
@@ -259,10 +262,10 @@ def main(args):
                              compute_buckets, args.uuid, _compute_header,
                              max_level=2 * len(compute_buckets), csv=print_csv)
     if args.output == "json":
-        print(json.dumps(compare_uuid_dict_metadata, indent=4))
+        print(json.dumps(metadata_json, indent=4))
         print(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
-        print(yaml.dump(compare_uuid_dict_metadata, allow_unicode=True))
+        print(yaml.dump(metadata_json, allow_unicode=True))
         print(yaml.dump(main_json, allow_unicode=True))
     elif args.output == "csv":
         pass

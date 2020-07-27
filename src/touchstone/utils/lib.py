@@ -4,12 +4,14 @@ import logging
 _logger = logging.getLogger("touchstone")
 
 
-def print_metadata_dict(uuid, d):
+def print_metadata_dict(uuid, d, _message):
     for k, v in d.items():
         if isinstance(v, dict):
-            print_metadata_dict(uuid, v)
+            _message += ("{0}, ".format(k))
+            print_metadata_dict(uuid, v, _message)
+            _message = ("{0}, ".format(uuid))
         else:
-            print("{0}, {1}, {2}, ".format(uuid, k, v))
+            print("{0}{1}, {2}".format(_message, k, v))
 
 
 def get(d, keys):

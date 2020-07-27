@@ -155,7 +155,7 @@ def main(args):
                 print(tabulate(stockpile_metadata,
                                headers="keys", tablefmt="grid"))
             elif args.output in ["csv"]:
-                print_metadata_dict(uuid, compare_uuid_dict_metadata)
+                print_metadata_dict(uuid, compare_uuid_dict_metadata, "")
 
     # Indices from entered harness (ex: ripsaw)
     for index in benchmark_instance.emit_indices():

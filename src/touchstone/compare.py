@@ -161,7 +161,7 @@ def main(args):
                 if not printed_csv_header:
                     print(csv_header_metadata)
                     printed_csv_header = True
-                print_metadata_dict(uuid, compare_uuid_dict_metadata, "")
+                print_metadata_dict(uuid, compare_uuid_dict_metadata[uuid])
             elif args.output in ["json", "yaml"]:
                 metadata_json = dict(mergedicts(metadata_json, compare_uuid_dict_metadata))
 

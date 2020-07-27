@@ -4,7 +4,7 @@ import logging
 _logger = logging.getLogger("touchstone")
 
 
-def print_metadata_dict(uuid, d, message):
+def print_metadata_dict(uuid, d, message=""):
     for k, v in d.items():
         if isinstance(v, dict):
             message = ("{0}, ".format(k))

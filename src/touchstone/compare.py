@@ -148,22 +148,29 @@ def main(args):
             stockpile_metadata = {}
             stockpile_metadata["where"] = []
             for where in input_dict.keys():
+                # Skip if there is no associated metadata
+                if not input_dict[where].items():
+                    continue
                 stockpile_metadata["where"].append(where)
                 for k, v in input_dict[where].items():
                     if k not in stockpile_metadata:
                         stockpile_metadata[k] = []
                     stockpile_metadata[k].append(v)
-            if args.output not in ["json", "yaml", "csv"]:
-                print(super_header)
-                print(tabulate(stockpile_metadata,
-                               headers="keys", tablefmt="grid"))
-            elif args.output in ["csv"]:
-                if not printed_csv_header:
-                    print(csv_header_metadata)
-                    printed_csv_header = True
-                print_metadata_dict(uuid, compare_uuid_dict_metadata[uuid])
-            elif args.output in ["json", "yaml"]:
-                metadata_json = dict(mergedicts(metadata_json, compare_uuid_dict_metadata))
+            # Check that metadata exists to be printed
+            if stockpile_metadata["where"]:
+                if args.output not in ["json", "yaml", "csv"]:
+                    print(super_header)
+                    print(tabulate(stockpile_metadata,
+                                   headers="keys", tablefmt="grid"))
+                elif args.output in ["csv"]:
+                    if not printed_csv_header:
+                        print(csv_header_metadata)
+                        printed_csv_header = True
+                    print_metadata_dict(uuid, compare_uuid_dict_metadata[uuid])
+                elif args.output in ["json", "yaml"]:
+                    metadata_json = dict(mergedicts(
+                                         metadata_json,
+                                         compare_uuid_dict_metadata))
 
     # Indices from entered harness (ex: ripsaw)
     for index in benchmark_instance.emit_indices():
@@ -262,10 +269,12 @@ def main(args):
                              compute_buckets, args.uuid, _compute_header,
                              max_level=2 * len(compute_buckets), csv=print_csv)
     if args.output == "json":
-        print(json.dumps(metadata_json, indent=4))
+        if metadata_json:
+            print(json.dumps(metadata_json, indent=4))
         print(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
-        print(yaml.dump(metadata_json, allow_unicode=True))
+        if metadata_json:
+            print(yaml.dump(metadata_json, allow_unicode=True))
         print(yaml.dump(main_json, allow_unicode=True))
     elif args.output == "csv":
         pass

@@ -35,6 +35,13 @@ You'd be running it as follows:
 touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c 70cbb0eb-8bb6-58e3-b92a-cb802a74bb52
 ```
 
+Regarding metadata collection, the indices from which metadata will be collected is listed in the file of the benchmark being run. However, these indices can be overrided by including the path to a metadata config file as a command line argument. The default location of this file is examples/metadata.json.
+
+Running with this argument would be run as follows:
+```
+touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c -input-file examples/metadata.json 
+```   
+
 ### Comparing on a specific identifier
 
 You can also now compare against identifiers other than the `uuid` key, so for

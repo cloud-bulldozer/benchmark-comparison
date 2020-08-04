@@ -72,6 +72,11 @@ def parse_args(args):
         type=str,
         choices=['json', 'yaml', 'csv'])
     parser.add_argument(
+        '-input-file',
+        dest="input_file",
+        help="Input config file for metadata",
+        type=argparse.FileType('r', encoding='utf-8'))
+    parser.add_argument(
         '-url', '--connection-url',
         dest="conn_url",
         help="the database connection strings in the same order as the uuids",
@@ -129,7 +134,8 @@ def main(args):
         print_csv = True
         printed_header = False
         printed_csv_header = False
-
+    if args.input_file:
+        config_file_metadata = json.load(args.input_file)
     # Indices from metadata map
     for uuid_index, uuid in enumerate(args.uuid):
         super_header = "\n{} UUID: {} {}".format(("=" * 65), uuid, ("=" * 65))
@@ -137,13 +143,18 @@ def main(args):
         # Create database connection instance
         database_instance = databases.grab(args.database,
                                            conn_url=args.conn_url[uuid_index])
-        for index in benchmark_instance.emit_metadata_search_map().keys():
+        # Set metadata search map based on existence of config file
+        if args.input_file:
+            metadata_search_map = config_file_metadata["metadata"]
+        else:
+            metadata_search_map = benchmark_instance.emit_metadata_search_map()
+        for index in metadata_search_map.keys():
             input_dict = {}
             # Adding emit_compare_metadata_dict to elasticsearch class
             database_instance.emit_compare_metadata_dict(uuid=uuid,
-            compare_map=benchmark_instance.emit_metadata_search_map()[index],
-                                                         index=index,
-                                                         input_dict=input_dict)  # noqa
+            compare_map=metadata_search_map[index],
+                        index=index,
+                        input_dict=input_dict)  # noqa
             compare_uuid_dict_metadata[uuid] = input_dict
             stockpile_metadata = {}
             stockpile_metadata["where"] = []

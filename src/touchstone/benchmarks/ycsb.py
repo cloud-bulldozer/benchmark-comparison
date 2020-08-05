@@ -13,6 +13,9 @@ class Ycsb(BenchmarkBaseClass):
         _logger.debug("Building search array for YCSB")
         return self._search_dict[self._source_type][self._harness_type]
 
+    def _build_search_metadata(self):
+        return self._search_dict[self._source_type]["metadata"]
+
     def _build_compare_keys(self):
         _logger.debug("Building compare map")
         _temp_dict = {}
@@ -33,6 +36,17 @@ class Ycsb(BenchmarkBaseClass):
                                     harness_type=harness_type)
         self._search_dict = {
             'elasticsearch': {
+                'metadata': {
+                    'cpuinfo-metadata': {
+                        'element': 'pod_name',
+                        'compare': ['value.Model name', 'value.Architecture',
+                                    'value.CPU(s)']
+                    },
+                    'meminfo-metadata': {
+                        'element': 'pod_name',
+                        'compare': ['value.MemTotal', 'value.Active'],
+                    },
+                },
                 'ripsaw': {
                     'ripsaw-ycsb-summary': {
                         'compare': ['uuid', 'user', 'recordcount',
@@ -112,6 +126,7 @@ class Ycsb(BenchmarkBaseClass):
             }
         }
         self._search_map = self._build_search()
+        self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
         self._compare_map = self._build_compare_keys()
         _logger.debug("Finished initializing ycsb instance")
@@ -130,3 +145,6 @@ class Ycsb(BenchmarkBaseClass):
 
     def emit_indices(self):
         return self._search_map.keys()
+
+    def emit_metadata_search_map(self):
+        return self._search_map_metadata

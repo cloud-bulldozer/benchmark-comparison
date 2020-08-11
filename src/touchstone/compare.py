@@ -138,7 +138,8 @@ def main(args):
     metadata_json = dict()
     main_json = dict()
     compare_uuid_dict_metadata = dict()
-    metadata = "{} Key Metadata {}".format(("=" * 82), ("=" * 82))
+    compare_header_footer = "{}{}".format(("=" * 89), ("=" * 89))
+    compare_output = compare_header_footer
     _logger.debug("Instantiating the benchmark instance")
     benchmark_instance = benchmarks.grab(args.benchmark,
                                          source_type=args.database,
@@ -223,40 +224,46 @@ def main(args):
                                                     index=index,
                                                     input_dict=compare_uuid_dict, # noqa
                                                     identifier=args.identifier)
+        compute_uuid_dict = {}
+        for compute in benchmark_instance.emit_compute_map()[index]:
+            current_compute_dict = {}
+            compute_aggs_set = []
+            for uuid_index, uuid in enumerate(args.uuid):
+                # Create database connection instance
+                database_instance = \
+                    databases.grab(args.database,
+                                   conn_url=args.conn_url[uuid_index])
+                # Add method emit_compute_dict to the elasticsearch class
+                catch = \
+                    database_instance.emit_compute_dict(uuid=uuid,
+                                                        compute_map=compute, # noqa
+                                                        index=index,
+                                                        input_dict=compute_uuid_dict, # noqa
+                                                        identifier=args.identifier) # noqa
+                if catch != {}:
+                    current_compute_dict = \
+                        dfs_list_dict(list(compute['filter'].items()),
+                                      compute_uuid_dict,
+                                      len(compute['filter']), catch)
+                    compute_uuid_dict = \
+                        dict(mergedicts(compute_uuid_dict, current_compute_dict)) # noqa
+                    compute_aggs_set = \
+                        compute_aggs_set + database_instance._aggs_list
+                    compute_uuid_dict = \
+                        dict(mergedicts(compute_uuid_dict, catch))
+            compute_aggs_set = set(compute_aggs_set)
+            compute_buckets = database_instance._bucket_list
         if args.output in ["json", "yaml"]:
-            compute_uuid_dict = {}  # Dict to hold fields under 'compute' field
-            for compute in benchmark_instance.emit_compute_map()[index]:
-                current_compute_dict = {}
-                for uuid_index, uuid in enumerate(args.uuid):
-                    # Create database connection instance
-                    database_instance = \
-                        databases.grab(args.database,
-                                       conn_url=args.conn_url[uuid_index])
-                    # Add method emit_compute_dict to the elasticsearch class
-                    catch = \
-                        database_instance.emit_compute_dict(uuid=uuid,
-                                                            compute_map=compute, # noqa
-                                                            index=index,
-                                                            input_dict=compare_uuid_dict, # noqa
-                                                            identifier=args.identifier) # noqa
-                    if catch != {}:
-                        current_compute_dict = \
-                            dfs_list_dict(list(compute['filter'].items()),
-                                          compute_uuid_dict,
-                                          len(compute['filter']), catch)
-                        compute_uuid_dict = \
-                            dict(mergedicts(compute_uuid_dict, current_compute_dict)) # noqa
             main_json = dict(mergedicts(main_json, compute_uuid_dict))
         else:
             # Stdout
             for key in benchmark_instance.emit_compare_map()[index]:
                 _message = "{:50} |".format(key)
                 for uuid in args.uuid:
-                    _message += " {:60} |".format(compare_uuid_dict[key][uuid])
-                metadata += "\n{}".format(_message)
+                    _message += \
+                        " {0:<60} |".format(compare_uuid_dict[key][uuid])
+                compare_output += "\n{}".format(_message)
             for compute in benchmark_instance.emit_compute_map()[index]:
-                compute_uuid_dict = {}
-                compute_aggs_set = []
                 # If not csv, format bucket header
                 if not print_csv:
                     _compute_header = "{:50} |".format("bucket_name")
@@ -272,24 +279,6 @@ def main(args):
                     else:
                         _compute_header += "{}, ".format(key)
                         _compute_value += "{}, ".format(value)
-
-                for uuid_index, uuid in enumerate(args.uuid):
-                    # Repeats earlier code - needs cleanup
-                    database_instance = \
-                        databases.grab(args.database,
-                                       conn_url=args.conn_url[uuid_index])
-                    _current_uuid_dict = \
-                        database_instance.emit_compute_dict(uuid=uuid,
-                                                    compute_map=compute,
-                                                    index=index,
-                                                    input_dict=compare_uuid_dict, # noqa
-                                                    identifier=args.identifier) # noqa
-                    compute_aggs_set = \
-                        compute_aggs_set + database_instance._aggs_list
-                    compute_uuid_dict = \
-                        dict(mergedicts(compute_uuid_dict, _current_uuid_dict))
-                compute_aggs_set = set(compute_aggs_set)
-                compute_buckets = database_instance._bucket_list
                 # If csv, gather values from buckets in compute map
                 if print_csv:
                     for key in compute_buckets:
@@ -314,8 +303,8 @@ def main(args):
     elif args.output == "csv":
         pass
     else:
-        metadata += "\n{} End Metadata {}".format(("=" * 82), ("=" * 82))
-        print(metadata)
+        compare_output += "\n" + compare_header_footer
+        print(compare_output)
     _logger.info("Script ends here")
 
 

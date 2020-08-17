@@ -44,7 +44,7 @@ class Pgbench(BenchmarkBaseClass):
                     },
                     'meminfo-metadata': {
                         'element': 'pod_name',
-                        'compare': ['value.MemTotal', 'value.Active'],
+                        'compare': ['value.MemTotal'],
                     },
                 },
                 'ripsaw': {

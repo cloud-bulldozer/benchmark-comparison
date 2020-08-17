@@ -1,16 +1,17 @@
 import logging
+import sys
 
 
 _logger = logging.getLogger("touchstone")
 
 
-def print_metadata_dict(uuid, d, message=""):
+def print_metadata_dict(uuid, d, output_file=sys.stdout, message=''):
     for k, v in d.items():
         if isinstance(v, dict):
             message = ("{0}, ".format(k))
-            print_metadata_dict(uuid, v, message)
+            print_metadata_dict(uuid, v, output_file, message)
         else:
-            print("{0}, {1}{2}, {3}".format(uuid, message, k, v))
+            output_file.write("{0}, {1}{2}, {3}\n".format(uuid, message, k, v))
 
 
 def get(d, keys):
@@ -79,7 +80,8 @@ def mergedicts(dict1, dict2):
 
 
 def compare_dict(d1, identifier, aggs, _message, buckets,
-                 uuids, _header, max_level, csv=False, level=0):
+                 uuids, _header, max_level, output_file=sys.stdout,
+                 csv=False, level=0):
     for key in d1:
         if type(d1[key]) is dict and key not in aggs and level < max_level - 1:
             new_level = level + 1
@@ -90,7 +92,8 @@ def compare_dict(d1, identifier, aggs, _message, buckets,
                 else:
                     new_message = _message + "{}, ".format(key)
                 compare_dict(d1[key], identifier, aggs, new_message, buckets,
-                             uuids, _header, max_level, csv, new_level)
+                             uuids, _header, max_level, output_file,
+                             csv, new_level)
             else:
                 # this means it's a bucket name
                 if not csv:
@@ -98,12 +101,14 @@ def compare_dict(d1, identifier, aggs, _message, buckets,
                 else:
                     new_header = _header + "{}, ".format(key)
                 compare_dict(d1[key], identifier, aggs, _message, buckets,
-                             uuids, new_header, max_level, csv, new_level)
+                             uuids, new_header, max_level, output_file,
+                             csv, new_level)
         else:
             bool_header = True
             if not csv:
-                _output = _header + '\n'
-                final_message = _message + " {:60} |".format(key)
+                _output = _header + ' ' * 62 + '|\n'
+                final_message = \
+                    _message + " {:60} |".format(key) + ' ' * 62 + "|"
                 _output = _output + final_message + '\n'
                 _compare_header = "{:50} |".format(identifier)
                 for uuid in uuids:
@@ -135,5 +140,5 @@ def compare_dict(d1, identifier, aggs, _message, buckets,
                     for uuid in uuids:
                         if uuid in agg_dict:
                             message = \
-                                output + "{}, {}".format(uuid, str(agg_dict[uuid])) # noqa
-                            print(message)
+                                output + "{}, {}\n".format(uuid, str(agg_dict[uuid])) # noqa
+                            output_file.write(message)

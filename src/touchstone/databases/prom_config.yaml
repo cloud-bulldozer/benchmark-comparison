@@ -7,6 +7,7 @@
   disable_ssl: True
   start_time_list:
   end_time_list:
+  index_result_to_es: True
 
 
 - url: https://prometheus-k8s-openshift-monitoring.apps.awsovn4312aakarsh.perf-testing.devcluster.openshift.com
@@ -21,4 +22,5 @@
   end_time_list:
     - 1588795118
     - 1588795018
+  index_result_to_es: True
 ...

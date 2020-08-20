@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 import argparse
+import os
+import ssl
 import sys
 import logging
 import json
 import yaml
+import elasticsearch
 from tabulate import tabulate
 
 from touchstone import __version__
@@ -327,7 +330,6 @@ def main(args):
 
     elif args.database == 'prometheus':
         # Configurations are retrieved from the entered config yaml file in CLI argument.
-        output = []
 
         if args.prom_config is not None:
             file_path = args.prom_config
@@ -335,12 +337,14 @@ def main(args):
             config = yaml.load(file, Loader=yaml.FullLoader)
 
             for i in range(len(config)):
+                output = []
                 url = config[i]['url']
                 query_list = config[i]['query_list']
                 bearer_token = config[i]['bearer_token']
                 disable_ssl = config[i]['disable_ssl']
                 start_time_list = config[i]['start_time_list']
                 end_time_list = config[i]['end_time_list']
+                index_result_to_es = config[i]['index_result_to_es']
 
                 if bearer_token is not None:
                     headers = {"Authorization": "bearer " + bearer_token}
@@ -353,8 +357,45 @@ def main(args):
                                                    headers=headers,
                                                    disable_ssl=disable_ssl)
                 output.extend(prometheus_object.compare_data())
+                print(output)
 
-        print(output)
+                # Index result to elasticsearch
+                es = {}
+                if index_result_to_es:
+                    if os.environ["ES_HOST"] != "":
+                        es['server'] = os.environ["ES_HOST"]
+                        _logger.info("Using elasticsearch server with host:" + es['server'])
+                    if os.environ["ES_PORT"] != "":
+                        es['port'] = os.environ["ES_PORT"]
+                        _logger.info("Using elasticsearch server with port:" + es['port'])
+                    es_verify_cert = os.getenv("es_verify_cert", "true")
+
+                    try:
+                        _es_connection_string = str(es['server']) + ':' + str(es['port'])
+                        if es_verify_cert == "false":
+                            _logger.info("Turning off TLS certificate verification")
+                            import urllib3
+                            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                            ssl_ctx = ssl.create_default_context()
+                            ssl_ctx.check_hostname = False
+                            ssl_ctx.verify_mode = ssl.CERT_NONE
+                            es = elasticsearch.Elasticsearch([_es_connection_string],
+                                                             send_get_body_as='POST',
+                                                             ssl_context=ssl_ctx, use_ssl=True)
+                        else:
+                            es = elasticsearch.Elasticsearch([_es_connection_string],
+                                                             send_get_body_as='POST')
+                        _logger.info(
+                            "Connected to the elasticsearch cluster with info as follows:{0}".format(
+                                str(es.info())))
+                    except Exception as e:
+                        _logger.info("Elasticsearch connection caused an exception : %s" % e)
+                    import uuid
+                    print(output)
+                    for data in output:
+                        id = uuid.uuid4()
+                        es.index(index="benchmark_comparison_prom_aggregates", id=id, body=data)
+                    _logger.info("Successfully indexed data to Elasticsearch.")
 
     _logger.info("Script ends here")
 

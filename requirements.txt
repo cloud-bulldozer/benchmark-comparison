@@ -1,2 +1,2 @@
 pyyaml
-prometheus_api_client
+git+https://github.com/AICoE/prometheus-api-client-python.git

@@ -14,7 +14,6 @@ from . import benchmarks
 from . import databases
 from .utils.lib import print_metadata_dict, compare_dict, \
     mergedicts, dfs_list_dict
-from .databases import prometheus
 
 __author__ = "aakarshg"
 __copyright__ = "aakarshg"
@@ -391,7 +390,6 @@ def main(args):
                     except Exception as e:
                         _logger.info("Elasticsearch connection caused an exception : %s" % e)
                     import uuid
-                    print(output)
                     for data in output:
                         id = uuid.uuid4()
                         es.index(index="benchmark_comparison_prom_aggregates", id=id, body=data)

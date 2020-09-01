@@ -40,4 +40,4 @@ class Prometheus:
         aggregation_operations = ['sum', 'max', 'min', 'variance', 'deviation', 'average',
                                   'percentile_95']
         return self.pc.get_metric_aggregation(query=query, operations=aggregation_operations,
-                                              start_time=start_time, end_time=end_time, step='15')
+                                              start_time=start_time, end_time=end_time, step='30')

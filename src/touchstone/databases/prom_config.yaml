@@ -7,6 +7,6 @@
   disable_ssl: True
   start_time_list:
   end_time_list:
-  index_result_to_es: True
+  index_result_to_es: False
 
 ...

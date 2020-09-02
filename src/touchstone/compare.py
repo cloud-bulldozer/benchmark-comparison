@@ -361,11 +361,11 @@ def main(args):
                 # Index result to elasticsearch
                 es = {}
                 if index_result_to_es:
-                    if os.environ["ES_HOST"] != "":
-                        es['server'] = os.environ["ES_HOST"]
+                    if os.environ["TOUCHSTONE_ES_HOST"] != "":
+                        es['server'] = os.environ["TOUCHSTONE_ES_HOST"]
                         _logger.info("Using elasticsearch server with host:" + es['server'])
-                    if os.environ["ES_PORT"] != "":
-                        es['port'] = os.environ["ES_PORT"]
+                    if os.environ["TOUCHSTONE_ES_PORT"] != "":
+                        es['port'] = os.environ["TOUCHSTONE_ES_PORT"]
                         _logger.info("Using elasticsearch server with port:" + es['port'])
                     es_verify_cert = os.getenv("es_verify_cert", "true")
 

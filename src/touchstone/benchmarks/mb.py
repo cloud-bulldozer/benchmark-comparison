@@ -45,7 +45,7 @@ class Mb(BenchmarkBaseClass):
                     },
                 },
                 "ripsaw": {
-                    "mb": {
+                    "router-test-results": {
                         "compare": [
                             "uuid",
                             "tls_reuse",

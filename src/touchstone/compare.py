@@ -334,26 +334,26 @@ def main(args):
             file_path = args.prom_config
             file = open(file_path)
             config = yaml.load(file, Loader=yaml.FullLoader)
-
             for i in range(len(config)):
                 output = []
                 url = config[i]['url']
-                query_list = config[i]['query_list']
+                metrics = config[i]['metrics']
                 bearer_token = config[i]['bearer_token']
                 disable_ssl = config[i]['disable_ssl']
                 start_time_list = config[i]['start_time_list']
                 end_time_list = config[i]['end_time_list']
                 index_result_to_es = config[i]['index_result_to_es']
+                test_info = config[i]['test_info']
 
                 if bearer_token is not None:
                     headers = {"Authorization": "bearer " + bearer_token}
                 else:
                     headers = None
 
-                prometheus_object = databases.grab(args.database, query_list=query_list,
+                prometheus_object = databases.grab(args.database, metrics=metrics,
                                                    start_time_list=start_time_list,
                                                    url=url, end_time_list=end_time_list,
-                                                   headers=headers,
+                                                   headers=headers, test_info=test_info,
                                                    disable_ssl=disable_ssl)
                 output.extend(prometheus_object.compare_data())
                 print(output)

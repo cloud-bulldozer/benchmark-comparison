@@ -1,12 +1,14 @@
 ---
 - url: http://localhost:9090
-  query_list:
-    - node_disk_io_time_seconds_total
-    - up
+  metrics:
+    - query: node_disk_io_time_seconds_total
+      metricName: diskIOtime
+    - query: node_cooling_device_max_state
+      metricName: coolingState
   bearer_token:
   disable_ssl: True
   start_time_list:
   end_time_list:
   index_result_to_es: False
-
+  test_info: demoRun
 ...

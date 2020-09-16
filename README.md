@@ -52,13 +52,16 @@ you need to create following config file -
 ---
 - url: http://localhost:9090
   query_list:
-    - node_disk_io_time_seconds_total
+    - query: node_disk_io_time_seconds_total
+      metricName: diskIOtime
   bearer_token:
   disable_ssl: True
   start_time_list:
     - 1594307762
   end_time_list:
     - 1594307777
+  index_result_to_es: False
+  test_info: demoRun
 ```
 You'd be running it as follows:
 ```
@@ -304,10 +307,12 @@ looks like following :
 For comparing the metric aggregations following keys are compulsory in the config file - 
 ```
 url: string
-query_list: string (this can accept multiple metrices)
+metrics: pair of query(string) and metricName(string, alias for long queires), this can accept multiple metrices
 bearer_token: string
 disable_ssl: Boolean
 start_time_list: int (this can accept multiple values)
 end_time_list: int (this can accept multiple values)
+index_result_to_es: Boolean(to index the data on elasticsearch)
+test_info: string - To store extra detail about the results
 ```
 An example config_file can be found [here](src/touchstone/databases/prom_config.yaml)

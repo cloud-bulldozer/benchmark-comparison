@@ -1,5 +1,6 @@
 import datetime
 from prometheus_api_client import PrometheusConnect
+import time
 
 
 class Prometheus:
@@ -22,7 +23,8 @@ class Prometheus:
         for metric in self.metrics:
             for i in range(len_times):
                 aggregates = {'url': self.url, 'query': metric['query'],
-                              'metricName': metric['metricName'], 'test_info': self.test_info}
+                              'metricName': metric['metricName'], 'test_info': self.test_info,
+                              'timestamp': time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())}
                 if self.start_time_list is not None:
                     aggregates['start_time'] = self.start_time_list[i]
                     start_time = datetime.datetime.fromtimestamp(int(self.start_time_list[i]))

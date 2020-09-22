@@ -12,7 +12,10 @@ Touchstone currently supports comparison of the following docs:
 |      YCSB      |  Elasticsearch   |    Ripsaw     |
 |      Pgbench   |  Elasticsearch   |    Ripsaw     |
 |      Vegeta    |  Elasticsearch   |    Ripsaw     |
-|        -       |  Prometheus      |       -       |
+
+It also supports comparing data aggregations(sum, max, min, avg, deviation, nth percentile)
+for prometheus data over different time periods.
+
 
 ## Usage
 

@@ -9,7 +9,6 @@ _logger = logging.getLogger("touchstone")
 
 
 def grab(database_input_type, *args, **kwargs):
-
     try:
         if '.' in database_input_type:
             module_name, class_name = database_input_type.rsplit('.', 1)

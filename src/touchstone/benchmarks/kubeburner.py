@@ -1,8 +1,8 @@
 import logging
-
+import elasticsearch
+import json
 
 from . import BenchmarkBaseClass
-
 
 _logger = logging.getLogger("touchstone")
 
@@ -30,10 +30,41 @@ class Kubeburner(BenchmarkBaseClass):
             _temp_dict[index] = self._search_map[index]['compute']
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
-        _logger.debug("Initializing Vegeta instance")
+    # The kuber-burner stores data for many prom queires and the index fields are not same for
+    # all. This function helps us to compare if the given uuid's belong to same query and then
+    # generate the bucket list for them.
+    def check_valid_comparison(self):
+        try:
+            es = elasticsearch.Elasticsearch(self.conn_url, send_get_body_as='POST')
+            search_object = {
+                'query': {'match': {'uuid': self.uuid[0]}}}
+            res = es.search(index='ripsaw-kube-burner', body=json.dumps(search_object))
+            label1 = res['hits']['hits'][0]['_source']['labels']
+            search_object = {
+                'query': {'match': {'uuid': self.uuid[1]}}}
+            res = es.search(index='ripsaw-kube-burner', body=json.dumps(search_object))
+            label2 = res['hits']['hits'][0]['_source']['labels']
+            isSame = True
+            for label in label1:
+                if label not in label2:
+                    isSame = False
+
+            if isSame is True:
+                self.buckets = ['metricName.keyword']
+                for label in label1:
+                    self.buckets.append('labels.' + label + '.keyword')
+            else:
+                _logger.error("Provided UUID does not belong to the same query.")
+        except Exception:
+            _logger.error("Error connecting with Elastic server")
+
+    def __init__(self, source_type=None, harness_type=None, uuid=None, conn_url=None):
+        _logger.debug("Initializing kube-burner instance")
         BenchmarkBaseClass.__init__(self, source_type=source_type,
                                     harness_type=harness_type)
+        self.uuid = uuid
+        self.conn_url = conn_url
+        self.check_valid_comparison()
         self._search_dict = {
             'elasticsearch': {
                 'metadata': {
@@ -44,7 +75,7 @@ class Kubeburner(BenchmarkBaseClass):
                         'compare': ['uuid'],
                         'compute': [{
                             'filter': {},
-                            'buckets': ['labels.namespace.keyword', 'labels.node.keyword', 'labels.pod.keyword', 'metricName.keyword'],
+                            'buckets': self.buckets,
                             'aggregations': {
                                 'value': [{
                                     'percentiles': {

@@ -162,7 +162,8 @@ def main(args):
         _logger.debug("Instantiating the benchmark instance")
         benchmark_instance = benchmarks.grab(args.benchmark,
                                              source_type=args.database,
-                                             harness_type=args.harness)
+                                             harness_type=args.harness,
+                                             uuid=args.uuid, conn_url=args.conn_url)
         if len(args.conn_url) < len(args.uuid):
             args.conn_url = [args.conn_url[0]] * len(args.uuid)
         if args.output == "csv":

@@ -30,10 +30,12 @@ class Uperf(BenchmarkBaseClass):
             _temp_dict[index] = self._search_map[index]['compute']
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
+    def __init__(self, source_type=None, harness_type=None, uuid=None, conn_url=None):
         _logger.debug("Initializing uperf instance")
         BenchmarkBaseClass.__init__(self, source_type=source_type,
                                     harness_type=harness_type)
+        self.uuid = uuid
+        self.conn_url = conn_url
         self._search_dict = {
             'elasticsearch': {
                 'metadata': {

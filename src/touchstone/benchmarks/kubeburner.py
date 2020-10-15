@@ -79,7 +79,7 @@ class Kubeburner(BenchmarkBaseClass):
                             'aggregations': {
                                 'value': [{
                                     'percentiles': {
-                                        'percents': [90, 99]
+                                        'percents': [90, 95]
                                     }
                                 }, 'avg', 'max', 'min']
                             },

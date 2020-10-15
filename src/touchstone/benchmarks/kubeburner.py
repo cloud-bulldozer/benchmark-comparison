@@ -1,16 +1,16 @@
 import logging
-
+import elasticsearch
+import json
 
 from . import BenchmarkBaseClass
-
 
 _logger = logging.getLogger("touchstone")
 
 
-class Vegeta(BenchmarkBaseClass):
+class Kubeburner(BenchmarkBaseClass):
 
     def _build_search(self):
-        _logger.debug("Building search array for Vegeta")
+        _logger.debug("Building search array for kube-burner")
         return self._search_dict[self._source_type][self._harness_type]
 
     def _build_search_metadata(self):
@@ -30,43 +30,58 @@ class Vegeta(BenchmarkBaseClass):
             _temp_dict[index] = self._search_map[index]['compute']
         return _temp_dict
 
+    # The kuber-burner stores data for many prom queires and the index fields are not same for
+    # all. This function helps us to compare if the given uuid's belong to same query and then
+    # generate the bucket list for them.
+    def check_valid_comparison(self):
+        try:
+            es = elasticsearch.Elasticsearch(self.conn_url, send_get_body_as='POST')
+            search_object = {
+                'query': {'match': {'uuid': self.uuid[0]}}}
+            res = es.search(index='ripsaw-kube-burner', body=json.dumps(search_object))
+            label1 = res['hits']['hits'][0]['_source']['labels']
+            search_object = {
+                'query': {'match': {'uuid': self.uuid[1]}}}
+            res = es.search(index='ripsaw-kube-burner', body=json.dumps(search_object))
+            label2 = res['hits']['hits'][0]['_source']['labels']
+            isSame = True
+            for label in label1:
+                if label not in label2:
+                    isSame = False
+
+            if isSame is True:
+                self.buckets = ['metricName.keyword']
+                for label in label1:
+                    self.buckets.append('labels.' + label + '.keyword')
+            else:
+                _logger.error("Provided UUID does not belong to the same query.")
+        except Exception:
+            _logger.error("Error connecting with Elastic server")
+
     def __init__(self, source_type=None, harness_type=None, uuid=None, conn_url=None):
-        _logger.debug("Initializing Vegeta instance")
+        _logger.debug("Initializing kube-burner instance")
         BenchmarkBaseClass.__init__(self, source_type=source_type,
                                     harness_type=harness_type)
         self.uuid = uuid
         self.conn_url = conn_url
+        self.check_valid_comparison()
         self._search_dict = {
             'elasticsearch': {
                 'metadata': {
-                    'cpuinfo-metadata': {
-                        'element': 'pod_name',
-                        'compare': ['value.Model name', 'value.Architecture',
-                                    'value.CPU(s)'],
-                    },
-                    'meminfo-metadata': {
-                        'element': 'pod_name',
-                        'compare': ['value.MemTotal'],
-                    },
+
                 },
                 'ripsaw': {
-                    'ripsaw-vegeta-results': {
-                        'compare': ['uuid', 'user', 'cluster_name',
-                                    'hostname', 'duration',
-                                    'workers', 'requests'],
+                    'ripsaw-kube-burner': {
+                        'compare': ['uuid'],
                         'compute': [{
                             'filter': {},
-                            'buckets': ['targets.keyword'],
+                            'buckets': self.buckets,
                             'aggregations': {
-                                'rps': ['avg'],
-                                'throughput': ['avg'],
-                                'req_latency': ['avg'],
-                                'p95_latency': ['avg'],
-                                'p99_latency': ['avg'],
-                                'max_latency': ['avg'],
-                                'min_latency': ['avg'],
-                                'bytes_in': ['avg'],
-                                'bytes_out': ['avg'],
+                                'value': [{
+                                    'percentiles': {
+                                        'percents': [90, 95]
+                                    }
+                                }, 'avg', 'max', 'min']
                             },
                             'collate': []
                         }, ],
@@ -74,11 +89,12 @@ class Vegeta(BenchmarkBaseClass):
                 },
             },
         }
+
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
         self._compare_map = self._build_compare_keys()
-        _logger.debug("Finished initializing Vegeta instance")
+        _logger.debug("Finished initializing kube-burner instance")
 
     def emit_compute_map(self):
         _logger.debug("Emitting built compute map ")

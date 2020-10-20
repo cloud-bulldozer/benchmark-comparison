@@ -14,6 +14,9 @@ Touchstone currently supports comparison of the following docs:
 |      Vegeta    |  Elasticsearch   |    Ripsaw     |
 |    Kubeburner  |  Elasticsearch   |    Ripsaw     |
 
+Touchstone also supports the comparison of following data from Elasticsearch -
+- Scale up/down
+
 ## Usage
 
 It is suggested to use a venv to install and run touchstone.

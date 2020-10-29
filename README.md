@@ -11,7 +11,8 @@ Touchstone currently supports comparison of the following docs:
 |      Uperf     |  Elasticsearch   |    Ripsaw     |
 |      YCSB      |  Elasticsearch   |    Ripsaw     |
 |      Pgbench   |  Elasticsearch   |    Ripsaw     |
-|      Vegeta    |  Elasticsearch   |    Ripsaw
+|      Vegeta    |  Elasticsearch   |    Ripsaw     |
+|    Kubeburner  |  Elasticsearch   |    Ripsaw     |
 
 ## Usage
 

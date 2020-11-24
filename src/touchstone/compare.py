@@ -9,14 +9,13 @@ from tabulate import tabulate
 from touchstone import __version__
 from . import benchmarks
 from . import databases
-from .utils.lib import print_metadata_dict, compare_dict, \
-    mergedicts, dfs_list_dict
+from .utils.lib import print_metadata_dict, mergedicts, print_csv
 
 __author__ = "aakarshg"
 __copyright__ = "aakarshg"
 __license__ = "mit"
 
-_logger = logging.getLogger("touchstone")
+logger = logging.getLogger("touchstone")
 
 
 def parse_args(args):
@@ -133,23 +132,17 @@ def main(args):
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    print_csv = False
     csv_header_metadata = "uuid, where, field, value"
-    metadata_json = dict()
-    main_json = dict()
+    metadata_json = {}
+    main_json = {}
+    bucket_list = set()
     compare_uuid_dict_metadata = dict()
-    compare_header_footer = "{}{}".format(("=" * 89), ("=" * 89))
-    compare_output = compare_header_footer
-    _logger.debug("Instantiating the benchmark instance")
+    logger.debug("Instantiating the benchmark instance")
     benchmark_instance = benchmarks.grab(args.benchmark,
                                          source_type=args.database,
                                          harness_type=args.harness)
     if len(args.conn_url) < len(args.uuid):
         args.conn_url = [args.conn_url[0]] * len(args.uuid)
-    if args.output == "csv":
-        print_csv = True
-        printed_header = False
-        printed_csv_header = False
     if args.input_file:
         config_file_metadata = json.load(args.input_file)
     if args.output_file:
@@ -172,10 +165,7 @@ def main(args):
         for index in metadata_search_map.keys():
             tmp_dict = {}
             # Adding emit_compare_metadata_dict to elasticsearch class
-            database_instance.emit_compare_metadata_dict(uuid=uuid,
-            compare_map=metadata_search_map[index],
-                        index=index,
-                        input_dict=tmp_dict)  # noqa
+            database_instance.emit_compare_metadata_dict(uuid, metadata_search_map[index], index, tmp_dict)
             compare_uuid_dict_metadata[uuid] = tmp_dict
             index_dict = update(tmp_dict, index_dict)
         stockpile_metadata = {}
@@ -197,101 +187,38 @@ def main(args):
                                headers="keys", tablefmt="pretty"))
             elif args.output in ["csv"]:
                 # Print to output file if argument present
-                if not printed_csv_header:
-                    output_file.write(csv_header_metadata + "\n")
-                    printed_csv_header = True
+                output_file.write(csv_header_metadata + "\n")
                 print_metadata_dict(uuid, compare_uuid_dict_metadata[uuid],
                                     output_file)
             elif args.output in ["json", "yaml"]:
-                metadata_json = dict(mergedicts(
-                                     metadata_json,
-                                     compare_uuid_dict_metadata))
+                mergedicts(compare_uuid_dict_metadata, metadata_json)
 
     # Indices from entered harness (ex: ripsaw)
     for index in benchmark_instance.emit_indices():
-        compare_uuid_dict = {}  # Dict to hold fields under 'compare' field
-        for key in benchmark_instance.emit_compare_map()[index]:
-            compare_uuid_dict[key] = {}
-        for uuid_index, uuid in enumerate(args.uuid):
-            # Create database connection instance
-            database_instance = \
-                databases.grab(args.database,
-                               conn_url=args.conn_url[uuid_index])
-            # Add method emit_compare_dict to the elasticsearch class
-            compare_uuid_dict = \
-                database_instance.emit_compare_dict(uuid=uuid,
-                                                    compare_map=benchmark_instance.emit_compare_map(), # noqa
-                                                    index=index,
-                                                    input_dict=compare_uuid_dict, # noqa
-                                                    identifier=args.identifier)
-        compute_uuid_dict = {}
         for compute in benchmark_instance.emit_compute_map()[index]:
-            current_compute_dict = {}
-            compute_aggs_set = []
+            # Iterate through UUIDs
             for uuid_index, uuid in enumerate(args.uuid):
                 # Create database connection instance
-                database_instance = \
-                    databases.grab(args.database,
-                                   conn_url=args.conn_url[uuid_index])
+                database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
                 # Add method emit_compute_dict to the elasticsearch class
-                catch = \
-                    database_instance.emit_compute_dict(uuid=uuid,
-                                                        compute_map=compute, # noqa
-                                                        index=index,
-                                                        input_dict=compute_uuid_dict, # noqa
-                                                        identifier=args.identifier) # noqa
-                if catch != {}:
-                    current_compute_dict = \
-                        dfs_list_dict(list(compute['filter'].items()),
-                                      compute_uuid_dict,
-                                      len(compute['filter']), catch)
-                    compute_uuid_dict = \
-                        dict(mergedicts(compute_uuid_dict, current_compute_dict)) # noqa
-                    compute_aggs_set = \
-                        compute_aggs_set + database_instance._aggs_list
-                    compute_uuid_dict = \
-                        dict(mergedicts(compute_uuid_dict, catch))
-            compute_aggs_set = set(compute_aggs_set)
-            compute_buckets = database_instance._bucket_list
-        if args.output in ["json", "yaml"]:
-            main_json = dict(mergedicts(main_json, compute_uuid_dict))
-        else:
-            # Stdout
-            for key in benchmark_instance.emit_compare_map()[index]:
-                _message = "{:50} |".format(key)
-                for uuid in args.uuid:
-                    _message += \
-                        " {0:<60} |".format(compare_uuid_dict[key][uuid])
-                compare_output += "\n{}".format(_message)
-            for compute in benchmark_instance.emit_compute_map()[index]:
-                # If not csv, format bucket header
-                if not print_csv:
-                    _compute_header = "{:50} |".format("bucket_name")
-                    _compute_value = "{:50} |".format("bucket_value")
-                else:
-                    _compute_header = ""
-                    _compute_value = ""
-                # Format filter output with values in compute map
-                for key, value in compute['filter'].items():
-                    if not print_csv:
-                        _compute_header += " {:20} |".format(key)
-                        _compute_value += " {:20} |".format(value)
-                    else:
-                        _compute_header += "{}, ".format(key)
-                        _compute_value += "{}, ".format(value)
-                # If csv, gather values from buckets in compute map
-                if print_csv:
-                    for key in compute_buckets:
-                        _compute_header += "{}, ".format(key)
-                    _compute_header += "key, {}, value".format(args.identifier)
-                    if not printed_header:
-                        output_file.write(_compute_header + "\n")
-                        printed_header = True
-                compare_dict(compute_uuid_dict, args.identifier,
-                             compute_aggs_set, _compute_value,
-                             compute_buckets, args.uuid, _compute_header,
-                             max_level=2 * len(compute_buckets),
-                             output_file=output_file, csv=print_csv)
+                result = database_instance.emit_compute_dict(uuid=uuid,
+                                                             compute_map=compute,
+                                                             index=index,
+                                                             identifier=args.identifier)
+                for b in compute["buckets"]:
+                    bucket_list.add(b.split(".")[0])
+                mergedicts(result, main_json)
+                if args.output == "csv":
+                    _compute_header = []
+                    for key, value in compute['filter'].items():
+                        _compute_header.append(key)
+                    for bucket in compute["buckets"]:
+                        _compute_header.append(bucket)
+                    for extra_h in ["key", "uuid", "value"]:
+                        _compute_header.append(extra_h)
+                    _compute_header = [h.split(".")[0] for h in _compute_header]
+                    print_csv(", ".join(_compute_header), result, bucket_list)
+
     if args.output == "json":
         if metadata_json:
             output_file.write(json.dumps(metadata_json, indent=4))
@@ -300,12 +227,7 @@ def main(args):
         if metadata_json:
             output_file.write(yaml.dump(metadata_json, allow_unicode=True))
         output_file.write(yaml.dump(main_json, allow_unicode=True))
-    elif args.output == "csv":
-        pass
-    else:
-        compare_output += "\n" + compare_header_footer
-        print(compare_output)
-    _logger.info("Script ends here")
+    logger.info("Script ends here")
 
 
 def render():

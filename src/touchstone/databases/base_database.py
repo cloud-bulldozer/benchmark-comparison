@@ -16,7 +16,3 @@ class DatabaseBaseClass(metaclass=ABCMeta): # noqa
     @abstractmethod
     def emit_compute_dict(self):
         pass
-
-    @abstractmethod
-    def emit_compare_dict(self):
-        pass

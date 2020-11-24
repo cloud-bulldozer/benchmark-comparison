@@ -8,7 +8,6 @@ logger = logging.getLogger("touchstone")
 
 
 class Pgbench(BenchmarkBaseClass):
-
     def _build_search(self):
         logger.debug("Building search array for PGBENCH")
         return self._search_dict[self._source_type][self._harness_type]
@@ -20,70 +19,76 @@ class Pgbench(BenchmarkBaseClass):
         logger.debug("Building compare map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]['compare']
+            _temp_dict[index] = self._search_map[index]["compare"]
         return _temp_dict
 
     def _build_compute(self):
         logger.debug("Building compute map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]['compute']
+            _temp_dict[index] = self._search_map[index]["compute"]
         return _temp_dict
 
     def __init__(self, source_type=None, harness_type=None):
         logger.debug("Initializing PGBENCH instance")
-        BenchmarkBaseClass.__init__(self, source_type=source_type,
-                                    harness_type=harness_type)
+        BenchmarkBaseClass.__init__(
+            self, source_type=source_type, harness_type=harness_type
+        )
         self._search_dict = {
-            'elasticsearch': {
-                'metadata': {
-                    'cpuinfo-metadata': {
-                        'element': 'pod_name',
-                        'compare': ['value.Model name', 'value.Architecture',
-                                    'value.CPU(s)']
+            "elasticsearch": {
+                "metadata": {
+                    "cpuinfo-metadata": {
+                        "element": "pod_name",
+                        "compare": [
+                            "value.Model name",
+                            "value.Architecture",
+                            "value.CPU(s)",
+                        ],
                     },
-                    'meminfo-metadata': {
-                        'element': 'pod_name',
-                        'compare': ['value.MemTotal'],
+                    "meminfo-metadata": {
+                        "element": "pod_name",
+                        "compare": ["value.MemTotal"],
                     },
                 },
-                'ripsaw': {
-                    'ripsaw-pgbench-summary': {
-                        'compare': ['uuid', 'user', 'cluster_name',
-                                    'scaling_factor', 'query_mode',
-                                    'number_of_threads', 'number_of_clients',
-                                    'duration_seconds'
-                                    ],
-                        'compute': [{
-                            'filter': {
-                                'workload': 'pgbench'
+                "ripsaw": {
+                    "ripsaw-pgbench-summary": {
+                        "compare": [
+                            "uuid",
+                            "user",
+                            "cluster_name",
+                            "scaling_factor",
+                            "query_mode",
+                            "number_of_threads",
+                            "number_of_clients",
+                            "duration_seconds",
+                        ],
+                        "compute": [
+                            {
+                                "filter": {"workload": "pgbench"},
+                                "buckets": ["iteration"],
+                                "aggregations": {},
+                                "collate": [
+                                    "tps_incl_con_est",
+                                    "number_of_transactions_actually_processed",  # noqa
+                                    "latency_average_ms",
+                                ],
                             },
-                            'buckets': ['iteration'],
-                            'aggregations': {},
-                            'collate': ['tps_incl_con_est',
-                                        'number_of_transactions_actually_processed', # noqa
-                                        'latency_average_ms'
-                                       ]
-                        }, ]
+                        ],
                     },
-                    'ripsaw-pgbench-results': {
-                        'compare': ['transaction_type'],
-                        'compute': [{
-                            'filter': {
-                                'workload': 'pgbench'
+                    "ripsaw-pgbench-results": {
+                        "compare": ["transaction_type"],
+                        "compute": [
+                            {
+                                "filter": {"workload": "pgbench"},
+                                "buckets": ["iteration"],
+                                "aggregations": {
+                                    "latency_ms": [{"percentiles": {"percents": [95]}}]
+                                },
+                                "collate": [],
                             },
-                            'buckets': ['iteration'],
-                            'aggregations': {
-                                'latency_ms': [{
-                                    'percentiles': {
-                                        'percents': [95]
-                                    }
-                                }]
-                            },
-                            'collate': []
-                        }, ]
-                    }
-                }
+                        ],
+                    },
+                },
             }
         }
         self._search_map = self._build_search()
@@ -94,14 +99,22 @@ class Pgbench(BenchmarkBaseClass):
 
     def emit_compute_map(self):
         logger.debug("Emitting built compute map ")
-        logger.info("Compute map is {} in the database \
-                     {}".format(self._compute_map, self._source_type))
+        logger.info(
+            "Compute map is {} in the database \
+                     {}".format(
+                self._compute_map, self._source_type
+            )
+        )
         return self._compute_map
 
     def emit_compare_map(self):
         logger.debug("Emitting built compare map ")
-        logger.info("compare map is {} in the database \
-                     {}".format(self._compare_map, self._source_type))
+        logger.info(
+            "compare map is {} in the database \
+                     {}".format(
+                self._compare_map, self._source_type
+            )
+        )
         return self._compare_map
 
     def emit_indices(self):

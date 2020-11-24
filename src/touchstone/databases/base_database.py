@@ -5,7 +5,7 @@ import logging
 _logger = logging.getLogger("touchstone")
 
 
-class DatabaseBaseClass(metaclass=ABCMeta): # noqa
+class DatabaseBaseClass(metaclass=ABCMeta):  # noqa
     def __init__(self, conn_url=None):
         _logger.debug("Initializing DatabaseBaseClass instance")
         if conn_url:

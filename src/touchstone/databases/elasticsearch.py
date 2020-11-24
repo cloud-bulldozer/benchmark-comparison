@@ -10,10 +10,9 @@ logger = logging.getLogger("touchstone")
 
 
 class Elasticsearch(DatabaseBaseClass):
-
     def _create_conn_object(self):
         logger.debug("Creating connection object")
-        es = elasticsearch.Elasticsearch([self._conn_url], send_get_body_as='POST')
+        es = elasticsearch.Elasticsearch([self._conn_url], send_get_body_as="POST")
         return es
 
     def __init__(self, conn_url=None):
@@ -57,28 +56,30 @@ class Elasticsearch(DatabaseBaseClass):
         Returns the normalized data from the ES query
         """
         output_dict = {}
-        buckets = compute_map['buckets']
-        aggregations = compute_map['aggregations']
-        collate = compute_map['collate']
-        filters = compute_map['filter']
+        buckets = compute_map["buckets"]
+        aggregations = compute_map["aggregations"]
+        collate = compute_map["collate"]
+        filters = compute_map["filter"]
 
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
-        s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
+        s = Search(using=self._conn_object, index=str(index)).query(
+            "match", **{kw_identifier: uuid}
+        )
 
         # Apply filters
         if filters:
             s = s.filter("term", **filters)
 
         # Apply excludes
-        if 'exclude' in compute_map:
-            s = s.exclude('match', **compute_map['exclude'])
+        if "exclude" in compute_map:
+            s = s.exclude("match", **compute_map["exclude"])
 
         logger.debug("Building buckets")
-        a = A('terms', field=buckets[0])
+        a = A("terms", field=buckets[0])
         x = s.aggs.bucket(buckets[0].split(".")[0], a)
         for bucket in buckets[1:]:
-            a = A('terms', field=bucket)
+            a = A("terms", field=bucket)
             # Create bucket with and trimming characters after .
             x = x.bucket(bucket.split(".")[0], a)
         logger.debug("Finished adding buckets to query")
@@ -95,12 +96,16 @@ class Elasticsearch(DatabaseBaseClass):
                     for dict_key, dict_value in aggs.items():
                         _temp_agg_str = "{}({})".format(dict_key, key)
                         # Add nested dict as aggregation
-                        a.metric(_temp_agg_str, dict_key, field=key, **dict_value) # noqa
+                        a.metric(
+                            _temp_agg_str, dict_key, field=key, **dict_value
+                        )  # noqa
                         self._aggs_list.append(_temp_agg_str)
                 else:
                     logger.warn("Ignoring aggregation {}".format(aggs))
         logger.debug("Finished adding aggregations to query")
-        logger.debug("Built the following query: {}".format(json.dumps(s.to_dict(), indent=4)))
+        logger.debug(
+            "Built the following query: {}".format(json.dumps(s.to_dict(), indent=4))
+        )
         response = s.execute()
         logger.debug("Succesfully executed the search query")
 
@@ -113,22 +118,33 @@ class Elasticsearch(DatabaseBaseClass):
                 break
         else:
             output_dict = _output_dict
-        logger.debug("output compute dictionary with summaries is: {}".format(json.dumps(output_dict,
-                                                                                         indent=4)))
+        logger.debug(
+            "output compute dictionary with summaries is: {}".format(
+                json.dumps(output_dict, indent=4)
+            )
+        )
         return output_dict
 
-    def emit_compare_metadata_dict(self, uuid=None, compare_map=None, index=None, input_dict=None):
+    def emit_compare_metadata_dict(
+        self, uuid=None, compare_map=None, index=None, input_dict=None
+    ):
         logger.debug("Initializing metadata search object")
-        s = Search(using=self._conn_object, index=index).query("match", **{"uuid.keyword": uuid})
+        s = Search(using=self._conn_object, index=index).query(
+            "match", **{"uuid.keyword": uuid}
+        )
         response = s.execute()
         for hit in response.hits.hits:
-            compare_by = self.access_nested_field(hit['_source'], compare_map["element"])
+            compare_by = self.access_nested_field(
+                hit["_source"], compare_map["element"]
+            )
             if compare_by not in input_dict:
                 input_dict[compare_by] = {}
             for compare in compare_map["compare"]:
-                value = self.access_nested_field(hit['_source'], compare)
+                value = self.access_nested_field(hit["_source"], compare)
                 if value:
-                    input_dict[compare_by][compare] = hit['_source']["value"][compare] = value
+                    input_dict[compare_by][compare] = hit["_source"]["value"][
+                        compare
+                    ] = value
         return input_dict
 
     def access_nested_field(self, d, fields):

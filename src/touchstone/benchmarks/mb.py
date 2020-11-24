@@ -31,13 +31,19 @@ class Mb(BenchmarkBaseClass):
 
     def __init__(self, source_type=None, harness_type=None):
         logger.debug("Initializing Mb instance")
-        BenchmarkBaseClass.__init__(self, source_type=source_type, harness_type=harness_type)
+        BenchmarkBaseClass.__init__(
+            self, source_type=source_type, harness_type=harness_type
+        )
         self._search_dict = {
             "elasticsearch": {
                 "metadata": {
                     "cpuinfo-metadata": {
                         "element": "pod_name",
-                        "compare": ["value.Model name", "value.Architecture", "value.CPU(s)"],
+                        "compare": [
+                            "value.Model name",
+                            "value.Architecture",
+                            "value.CPU(s)",
+                        ],
                     },
                     "meminfo-metadata": {
                         "element": "pod_name",
@@ -57,32 +63,67 @@ class Mb(BenchmarkBaseClass):
                         "compute": [
                             {
                                 "filter": {"test_type": "http"},
-                                "buckets": ["routes", "conn_per_targetroute", "keepalive"],
-                                "aggregations": {"requests_per_second": ["avg"], "latency_95pctl": ["avg"]},
+                                "buckets": [
+                                    "routes",
+                                    "conn_per_targetroute",
+                                    "keepalive",
+                                ],
+                                "aggregations": {
+                                    "requests_per_second": ["avg"],
+                                    "latency_95pctl": ["avg"],
+                                },
                                 "collate": [],
                             },
                             {
                                 "filter": {"test_type": "edge"},
-                                "buckets": ["routes", "conn_per_targetroute", "keepalive"],
-                                "aggregations": {"requests_per_second": ["avg"], "latency_95pctl": ["avg"]},
+                                "buckets": [
+                                    "routes",
+                                    "conn_per_targetroute",
+                                    "keepalive",
+                                ],
+                                "aggregations": {
+                                    "requests_per_second": ["avg"],
+                                    "latency_95pctl": ["avg"],
+                                },
                                 "collate": [],
                             },
                             {
                                 "filter": {"test_type": "passthrough"},
-                                "buckets": ["routes", "conn_per_targetroute", "keepalive"],
-                                "aggregations": {"requests_per_second": ["avg"], "latency_95pctl": ["avg"]},
+                                "buckets": [
+                                    "routes",
+                                    "conn_per_targetroute",
+                                    "keepalive",
+                                ],
+                                "aggregations": {
+                                    "requests_per_second": ["avg"],
+                                    "latency_95pctl": ["avg"],
+                                },
                                 "collate": [],
                             },
                             {
                                 "filter": {"test_type": "reencrypt"},
-                                "buckets": ["routes", "conn_per_targetroute", "keepalive"],
-                                "aggregations": {"requests_per_second": ["avg"], "latency_95pctl": ["avg"]},
+                                "buckets": [
+                                    "routes",
+                                    "conn_per_targetroute",
+                                    "keepalive",
+                                ],
+                                "aggregations": {
+                                    "requests_per_second": ["avg"],
+                                    "latency_95pctl": ["avg"],
+                                },
                                 "collate": [],
                             },
                             {
                                 "filter": {"test_type": "mix"},
-                                "buckets": ["routes", "conn_per_targetroute", "keepalive"],
-                                "aggregations": {"requests_per_second": ["avg"], "latency_95pctl": ["avg"]},
+                                "buckets": [
+                                    "routes",
+                                    "conn_per_targetroute",
+                                    "keepalive",
+                                ],
+                                "aggregations": {
+                                    "requests_per_second": ["avg"],
+                                    "latency_95pctl": ["avg"],
+                                },
                                 "collate": [],
                             },
                         ],

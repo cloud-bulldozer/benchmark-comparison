@@ -27,12 +27,12 @@ def parse_args(args):
     Returns:
       :obj:`argparse.Namespace`: command line parameters namespace
     """
-    parser = argparse.ArgumentParser(
-        description="compare results from benchmarks")
+    parser = argparse.ArgumentParser(description="compare results from benchmarks")
     parser.add_argument(
         "--version",
         action="version",
-        version="touchstone {ver}".format(ver=__version__))
+        version="touchstone {ver}".format(ver=__version__),
+    )
     parser.add_argument(
         dest="benchmark",
         help="which type of benchmark to compare",
@@ -43,63 +43,77 @@ def parse_args(args):
         dest="database",
         help="the type of database data is stored in",
         type=str,
-        choices=['elasticsearch'],
-        metavar="database")
+        choices=["elasticsearch"],
+        metavar="database",
+    )
     parser.add_argument(
         dest="harness",
         help="the test harness that was used to run the benchmark",
         type=str,
-        choices=['ripsaw'],
-        metavar="harness")
+        choices=["ripsaw"],
+        metavar="harness",
+    )
     parser.add_argument(
-        '-id', '--identifier-key',
+        "-id",
+        "--identifier-key",
         dest="identifier",
         help="identifier key name(default: uuid)",
         type=str,
         metavar="identifier",
-        default="uuid")
+        default="uuid",
+    )
     parser.add_argument(
-        '-u', '--uuid',
+        "-u",
+        "--uuid",
         dest="uuid",
         help="identifier values to fetch results and compare",
         type=str,
-        nargs='+')
+        nargs="+",
+    )
     parser.add_argument(
-        '-o', '--output',
+        "-o",
+        "--output",
         dest="output",
         help="How should touchstone output the result",
         type=str,
-        choices=['json', 'yaml', 'csv'])
+        choices=["json", "yaml", "csv"],
+    )
     parser.add_argument(
-        '-input-file',
+        "--input-file",
         dest="input_file",
         help="Input config file for metadata",
-        type=argparse.FileType('r', encoding='utf-8'))
+        type=argparse.FileType("r", encoding="utf-8"),
+    )
     parser.add_argument(
-        '-output-file',
+        "--output-file",
         dest="output_file",
         help="Redirect output of json/csv/yaml to file",
-        type=argparse.FileType('w'))
+        type=argparse.FileType("w"),
+    )
     parser.add_argument(
-        '-url', '--connection-url',
+        "-url",
+        "--connection-url",
         dest="conn_url",
         help="the database connection strings in the same order as the uuids",
         type=str,
-        nargs='+')
+        nargs="+",
+    )
     parser.add_argument(
         "-v",
         "--verbose",
         dest="loglevel",
         help="set loglevel to INFO",
         action="store_const",
-        const=logging.INFO)
+        const=logging.INFO,
+    )
     parser.add_argument(
         "-vv",
         "--very-verbose",
         dest="loglevel",
         help="set loglevel to DEBUG",
         action="store_const",
-        const=logging.DEBUG)
+        const=logging.DEBUG,
+    )
     return parser.parse_args(args)
 
 
@@ -110,8 +124,9 @@ def setup_logging(loglevel):
       loglevel (int): minimum loglevel for emitting messages
     """
     logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
-    logging.basicConfig(level=loglevel, stream=sys.stdout,
-                        format=logformat, datefmt="%Y-%m-%d %H:%M:%S")
+    logging.basicConfig(
+        level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S"
+    )
 
 
 def update(dict1, dict2):
@@ -138,9 +153,9 @@ def main(args):
     bucket_list = set()
     compare_uuid_dict_metadata = dict()
     logger.debug("Instantiating the benchmark instance")
-    benchmark_instance = benchmarks.grab(args.benchmark,
-                                         source_type=args.database,
-                                         harness_type=args.harness)
+    benchmark_instance = benchmarks.grab(
+        args.benchmark, source_type=args.database, harness_type=args.harness
+    )
     if len(args.conn_url) < len(args.uuid):
         args.conn_url = [args.conn_url[0]] * len(args.uuid)
     if args.input_file:
@@ -154,8 +169,9 @@ def main(args):
         super_header = "\n{} UUID: {} {}".format(("=" * 67), uuid, ("=" * 67))
         compare_uuid_dict_metadata[uuid] = {}
         # Create database connection instance
-        database_instance = databases.grab(args.database,
-                                           conn_url=args.conn_url[uuid_index])
+        database_instance = databases.grab(
+            args.database, conn_url=args.conn_url[uuid_index]
+        )
         # Set metadata search map based on existence of config file
         if args.input_file:
             metadata_search_map = config_file_metadata["metadata"]
@@ -165,7 +181,9 @@ def main(args):
         for index in metadata_search_map.keys():
             tmp_dict = {}
             # Adding emit_compare_metadata_dict to elasticsearch class
-            database_instance.emit_compare_metadata_dict(uuid, metadata_search_map[index], index, tmp_dict)
+            database_instance.emit_compare_metadata_dict(
+                uuid, metadata_search_map[index], index, tmp_dict
+            )
             compare_uuid_dict_metadata[uuid] = tmp_dict
             index_dict = update(tmp_dict, index_dict)
         stockpile_metadata = {}
@@ -183,13 +201,11 @@ def main(args):
         if stockpile_metadata["where"]:
             if args.output not in ["json", "yaml", "csv"]:
                 print(super_header)
-                print(tabulate(stockpile_metadata,
-                               headers="keys", tablefmt="pretty"))
+                print(tabulate(stockpile_metadata, headers="keys", tablefmt="pretty"))
             elif args.output in ["csv"]:
                 # Print to output file if argument present
-                output_file.write(csv_header_metadata + "\n")
-                print_metadata_dict(uuid, compare_uuid_dict_metadata[uuid],
-                                    output_file)
+                print(csv_header_metadata, file=output_file)
+                print_metadata_dict(uuid, compare_uuid_dict_metadata[uuid], output_file)
             elif args.output in ["json", "yaml"]:
                 mergedicts(compare_uuid_dict_metadata, metadata_json)
 
@@ -199,25 +215,30 @@ def main(args):
             # Iterate through UUIDs
             for uuid_index, uuid in enumerate(args.uuid):
                 # Create database connection instance
-                database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
+                database_instance = databases.grab(
+                    args.database, conn_url=args.conn_url[uuid_index]
+                )
                 # Add method emit_compute_dict to the elasticsearch class
-                result = database_instance.emit_compute_dict(uuid=uuid,
-                                                             compute_map=compute,
-                                                             index=index,
-                                                             identifier=args.identifier)
-                for b in compute["buckets"]:
-                    bucket_list.add(b.split(".")[0])
+                result = database_instance.emit_compute_dict(
+                    uuid=uuid,
+                    compute_map=compute,
+                    index=index,
+                    identifier=args.identifier,
+                )
+                for bucket in compute["buckets"]:
+                    bucket_list.add(bucket.split(".")[0])
                 mergedicts(result, main_json)
                 if args.output == "csv":
-                    _compute_header = []
-                    for key, value in compute['filter'].items():
-                        _compute_header.append(key)
+                    compute_header = []
+                    for key, value in compute["filter"].items():
+                        compute_header.append(key.split(".")[0])
                     for bucket in compute["buckets"]:
-                        _compute_header.append(bucket)
+                        compute_header.append(bucket.split(".")[0])
                     for extra_h in ["key", "uuid", "value"]:
-                        _compute_header.append(extra_h)
-                    _compute_header = [h.split(".")[0] for h in _compute_header]
-                    print_csv(", ".join(_compute_header), result, bucket_list)
+                        compute_header.append(extra_h)
+                    print_csv(
+                        ", ".join(compute_header), result, bucket_list, output_file
+                    )
 
     if args.output == "json":
         if metadata_json:

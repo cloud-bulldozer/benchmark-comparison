@@ -5,7 +5,7 @@ import logging
 _logger = logging.getLogger("touchstone")
 
 
-class BenchmarkBaseClass(metaclass=ABCMeta): # noqa
+class BenchmarkBaseClass(metaclass=ABCMeta):  # noqa
     def __init__(self, source_type=None, harness_type=None):
         _logger.debug("Initializing BenchmarkBaseClass instance")
         if source_type:

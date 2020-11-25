@@ -67,6 +67,20 @@ the knowledge and interaction of what the query and data should look like goes i
 
 As a contributor, more often than not you'll be adding code to benchmarks dir.
 
+### CodeStyling and Linting
+
+Touchstone uses [pre-commit](https://pre-commit.com) framework to maintain the code linting and python code styling.<br>
+The CI would run the pre-commit check on each pull request.<br>
+We encourage our contributors to follow the same pattern, while contributing to the code.<br>
+
+The pre-commit configuration file is present in the repository `.pre-commit-config.yaml`<br>
+It contains the different code styling and linting guide which we use for the application.
+
+Following command can be used to run the pre-commit:<br>
+`pre-commit run --all-files`
+
+If pre-commit is not installed in your system, it can be install with : `pip install pre-commit`
+
 ### Benchmarks
 
 To add a new benchmark, you'll create your the class and define three member function which will need to put together the following 5 types of keys:

@@ -64,8 +64,7 @@ class Elasticsearch(DatabaseBaseClass):
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
         s = Search(using=self._conn_object, index=str(index)).query(
-            "match", **{kw_identifier: uuid}
-        )
+            "match", **{kw_identifier: uuid})
 
         # Apply filters
         if filters:
@@ -76,7 +75,7 @@ class Elasticsearch(DatabaseBaseClass):
             s = s.exclude("match", **compute_map["exclude"])
 
         logger.debug("Building buckets")
-        a = A("terms", field=buckets[0])
+        a = A("terms", field=buckets[0], size=10000)
         x = s.aggs.bucket(buckets[0].split(".")[0], a)
         for bucket in buckets[1:]:
             a = A("terms", field=bucket)
@@ -125,9 +124,7 @@ class Elasticsearch(DatabaseBaseClass):
         )
         return output_dict
 
-    def emit_compare_metadata_dict(
-        self, uuid=None, compare_map=None, index=None, input_dict=None
-    ):
+    def emit_compare_metadata_dict(self, uuid=None, compare_map=None, index=None, input_dict=None):
         logger.debug("Initializing metadata search object")
         s = Search(using=self._conn_object, index=index).query(
             "match", **{"uuid.keyword": uuid}

@@ -238,7 +238,6 @@ def main(args):
                         compute_header.append(extra_h)
                     if result:
                         print_csv(", ".join(compute_header), result, bucket_list, output_file)
-
     if args.output == "json":
         if metadata_json:
             output_file.write(json.dumps(metadata_json, indent=4))

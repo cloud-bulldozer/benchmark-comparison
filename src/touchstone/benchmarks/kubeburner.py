@@ -42,10 +42,23 @@ class Kubeburner(BenchmarkBaseClass):
                         "compare": ["uuid"],
                         "compute": [
                             {
-                                "filter": {},
-                                "buckets": ["metricName.keyword"],
-                                "aggregations": {"value": ["avg", "max", "min"]},
+                                "filter": {"metricName.keyword": "podLatencyQuantilesMeasurement"},
+                                "buckets": ["quantileName.keyword"],
+                                "aggregations": {
+                                    "P99": ["avg"],
+                                },
                             },
+                            {
+                                "filter": {},
+                                "exclude": [
+                                    {"metricName.keyword": "podLatencyMeasurement"},
+                                    {"metricName.keyword": "podLatencyQuantilesMeasurement"},
+                                    {"metricName.keyword": "jobSummary"}
+
+                                ],
+                                "buckets": ["metricName.keyword"],
+                                "aggregations": {"value": ["avg"]},
+                            }
                         ],
                     },
                 },

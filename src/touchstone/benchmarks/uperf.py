@@ -62,7 +62,9 @@ class Uperf(BenchmarkBaseClass):
                         "compute": [
                             {
                                 "filter": {"test_type.keyword": "stream"},
-                                "exclude": {"norm_ops": 0},
+                                "exclude": [
+                                    {"norm_ops": 0}
+                                ],
                                 "buckets": [
                                     "protocol.keyword",
                                     "message_size",
@@ -78,7 +80,9 @@ class Uperf(BenchmarkBaseClass):
                             },
                             {
                                 "filter": {"test_type.keyword": "rr"},
-                                "exclude": {"norm_ops": 0},
+                                "exclude": [
+                                    {"norm_ops": 0}
+                                ],
                                 "buckets": [
                                     "protocol.keyword",
                                     "message_size",

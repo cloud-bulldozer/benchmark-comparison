@@ -25,13 +25,13 @@ class Elasticsearch(DatabaseBaseClass):
     def gen_result_dict(self, reponse, buckets, aggs, uuid):
         output_dict = {}
         input_dict = reponse.aggs.__dict__
-        #response_dict = response.__dict__["_d_"]
         # Remove .keyword from bucket names
-        buckets = [e.split(".")[0] for e in buckets]
+        buckets = [e.split(".keyword")[0] for e in buckets]
 
         def build_dict(input_dict, output_dict):
             # Iterate through buckets and check if that bucket exists in input_dict
             for b in buckets:
+                # If the bucket exists, add it
                 if b in input_dict:
                     output_dict[b] = {}
                     # Iterate through bucket values and recurse with each nested bucket
@@ -40,6 +40,8 @@ class Elasticsearch(DatabaseBaseClass):
                         build_dict(bucket, output_dict[b][bucket["key"]])
             # This is supposed to run in the last level
             for agg in aggs:
+                # If the aggregation name is in this level and a value is found for that aggregation,
+                # we add it to the output dict
                 if agg in input_dict and "values" in input_dict[agg]:
                     for name, value in input_dict[agg]["values"].items():
                         agg_name = "{}{}".format(name, agg)
@@ -62,8 +64,7 @@ class Elasticsearch(DatabaseBaseClass):
 
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
-        s = Search(using=self._conn_object, index=str(index)).query(
-            "match", **{kw_identifier: uuid})
+        s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
 
         # Apply filters
         for key, value in filters.items():
@@ -71,15 +72,16 @@ class Elasticsearch(DatabaseBaseClass):
 
         # Apply excludes
         if "exclude" in compute_map:
-            s = s.exclude("match", **compute_map["exclude"])
+            for exclude in compute_map["exclude"]:
+                s = s.exclude("match", **exclude)
 
         logger.debug("Building buckets")
         a = A("terms", field=buckets[0], size=10000)
-        x = s.aggs.bucket(buckets[0].split(".")[0], a)
+        x = s.aggs.bucket(buckets[0].split(".keyword")[0], a)
         for bucket in buckets[1:]:
             a = A("terms", field=bucket)
             # Create bucket with and trimming characters after .
-            x = x.bucket(bucket.split(".")[0], a)
+            x = x.bucket(bucket.split(".keyword")[0], a)
         logger.debug("Finished adding buckets to query")
         logger.debug("Adding aggregations to query")
         for key, agg_list in aggregations.items():
@@ -90,13 +92,14 @@ class Elasticsearch(DatabaseBaseClass):
                     a.metric(_temp_agg_str, aggs, field=key)
                     self._aggs_list.append(_temp_agg_str)
                 # If there's a dictionary of aggregations. i.e different percentiles
+                # we have to iterate through keys and values
                 elif isinstance(aggs, dict):
                     for dict_key, dict_value in aggs.items():
                         _temp_agg_str = "{}({})".format(dict_key, key)
                         # Add nested dict as aggregation
                         a.metric(
                             _temp_agg_str, dict_key, field=key, **dict_value
-                        )  # noqa
+                        )
                         self._aggs_list.append(_temp_agg_str)
                 else:
                     logger.warn("Ignoring aggregation {}".format(aggs))

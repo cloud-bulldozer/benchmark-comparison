@@ -1,4 +1,5 @@
 import logging
+import copy
 import sys
 
 
@@ -44,3 +45,15 @@ def print_csv(header, data, buckets, output_file):
         recurse(data[metric])
     for row in row_list:
         print(row, file=output_file)
+
+
+def flatten_and_discard(data, headers, row_list=[], row=[]):
+    if isinstance(data, dict):
+        for k in data:
+            new_row = copy.deepcopy(row)
+            if k not in headers:
+                new_row.append(k)
+            flatten_and_discard(data[k], headers, row_list, new_row)
+    else:
+        row.append(data)
+        row_list.append(row)

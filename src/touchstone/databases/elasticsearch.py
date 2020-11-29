@@ -121,7 +121,7 @@ class Elasticsearch(DatabaseBaseClass):
                 filter_list.append(value)
             # Include all k,v from filters as keys in the output dictionary
             for key in reversed(filter_list):
-                output_dict = {key: output_dict}
+                output_dict = {key.split(".keyword")[0]: output_dict}
         else:
             output_dict = _output_dict
         logger.debug(

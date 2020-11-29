@@ -9,7 +9,7 @@ from tabulate import tabulate
 from touchstone import __version__
 from . import benchmarks
 from . import databases
-from .utils.lib import print_metadata_dict, mergedicts, print_csv
+from .utils.lib import print_metadata_dict, mergedicts, print_csv, flatten_and_discard
 
 __author__ = "aakarshg"
 __copyright__ = "aakarshg"
@@ -199,19 +199,22 @@ def main(args):
                 stockpile_metadata[k].append(v)
         # Check that metadata exists to be printed
         if stockpile_metadata["where"]:
-            if args.output not in ["json", "yaml", "csv"]:
-                print(super_header)
-                print(tabulate(stockpile_metadata, headers="keys", tablefmt="pretty"))
-            elif args.output in ["csv"]:
+            if args.output in ["csv"]:
                 # Print to output file if argument present
                 print(csv_header_metadata, file=output_file)
                 print_metadata_dict(uuid, compare_uuid_dict_metadata[uuid], output_file)
             elif args.output in ["json", "yaml"]:
                 mergedicts(compare_uuid_dict_metadata, metadata_json)
+            else:
+                print(super_header)
+                print(tabulate(stockpile_metadata, headers="keys", tablefmt="pretty"))
 
     # Indices from entered harness (ex: ripsaw)
     for index in benchmark_instance.emit_indices():
         for compute in benchmark_instance.emit_compute_map()[index]:
+            # index_json is used for csv and standard output. Since the heeader can be different in each index
+            # we need to print CSV or stdout for each index
+            index_json = {}
             # Iterate through UUIDs
             for uuid_index, uuid in enumerate(args.uuid):
                 # Create database connection instance
@@ -228,16 +231,21 @@ def main(args):
                 for bucket in compute["buckets"]:
                     bucket_list.add(bucket.split(".")[0])
                 mergedicts(result, main_json)
+                mergedicts(result, index_json)
+                compute_header = []
+                for key in compute["filter"]:
+                    compute_header.append(key.split(".keyword")[0])
+                for bucket in compute["buckets"]:
+                    compute_header.append(bucket.split(".keyword")[0])
+                for extra_h in ["key", "uuid", "value"]:
+                    compute_header.append(extra_h)
+            if index_json:
                 if args.output == "csv":
-                    compute_header = []
-                    for key, value in compute["filter"].items():
-                        compute_header.append(key.split(".")[0])
-                    for bucket in compute["buckets"]:
-                        compute_header.append(bucket.split(".")[0])
-                    for extra_h in ["key", "uuid", "value"]:
-                        compute_header.append(extra_h)
-                    if result:
-                        print_csv(", ".join(compute_header), result, bucket_list, output_file)
+                    print_csv(", ".join(compute_header), index_json, bucket_list, output_file)
+                elif args.output not in ["json", "yaml"]:
+                    row_list = []
+                    flatten_and_discard(index_json, compute_header, row_list)
+                    print(tabulate(row_list, headers=compute_header, tablefmt="pretty"))
     if args.output == "json":
         if metadata_json:
             output_file.write(json.dumps(metadata_json, indent=4))

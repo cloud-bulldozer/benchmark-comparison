@@ -85,7 +85,6 @@ class Vegeta(BenchmarkBaseClass):
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
-        self._compare_map = self._build_compare_keys()
         logger.debug("Finished initializing Vegeta instance")
 
     def emit_compute_map(self):
@@ -97,16 +96,6 @@ class Vegeta(BenchmarkBaseClass):
             )
         )
         return self._compute_map
-
-    def emit_compare_map(self):
-        logger.debug("Emitting built compare map ")
-        logger.info(
-            "compare map is {} in the database \
-                     {}".format(
-                self._compare_map, self._source_type
-            )
-        )
-        return self._compare_map
 
     def emit_indices(self):
         return self._search_map.keys()

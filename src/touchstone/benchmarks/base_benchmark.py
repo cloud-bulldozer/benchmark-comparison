@@ -20,9 +20,5 @@ class BenchmarkBaseClass(metaclass=ABCMeta):  # noqa
         pass
 
     @abstractmethod
-    def emit_compare_map(self):
-        pass
-
-    @abstractmethod
     def emit_indices(self):
         pass

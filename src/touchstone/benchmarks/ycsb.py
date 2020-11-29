@@ -90,7 +90,7 @@ class Ycsb(BenchmarkBaseClass):
                                 "buckets": ["iteration"],
                                 "aggregations": {
                                     "data.OVERALL.Throughput(ops/sec)": ["max"],
-                                    "data.READ.95thPercentileLatency(us)": ["max"]
+                                    "data.READ.95thPercentileLatency(us)": ["max"],
                                 },
                             },
                             {
@@ -111,7 +111,9 @@ class Ycsb(BenchmarkBaseClass):
                                     "workload_type": "workloade",
                                 },
                                 "buckets": ["iteration"],
-                                "aggregations": {"data.OVERALL.Throughput(ops/sec)": ["max"]}
+                                "aggregations": {
+                                    "data.OVERALL.Throughput(ops/sec)": ["max"]
+                                },
                             },
                             {
                                 "filter": {
@@ -121,9 +123,11 @@ class Ycsb(BenchmarkBaseClass):
                                 "buckets": ["iteration"],
                                 "aggregations": {
                                     "data.OVERALL.Throughput(ops/sec)": ["max"],
-                                    "data.READ-MODIFY-WRITE.95thPercentileLatency(us)": ["max"],
+                                    "data.READ-MODIFY-WRITE.95thPercentileLatency(us)": [
+                                        "max"
+                                    ],
                                     "data.READ.95thPercentileLatency(us)": ["max"],
-                                    "data.UPDATE.95thPercentileLatency(us)": ["max"]
+                                    "data.UPDATE.95thPercentileLatency(us)": ["max"],
                                 },
                             },
                         ],
@@ -134,7 +138,6 @@ class Ycsb(BenchmarkBaseClass):
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
-        self._compare_map = self._build_compare_keys()
         logger.debug("Finished initializing ycsb instance")
 
     def emit_compute_map(self):
@@ -146,16 +149,6 @@ class Ycsb(BenchmarkBaseClass):
             )
         )
         return self._compute_map
-
-    def emit_compare_map(self):
-        logger.debug("Emitting built compare map ")
-        logger.info(
-            "compare map is {} in the database \
-                     {}".format(
-                self._compare_map, self._source_type
-            )
-        )
-        return self._compare_map
 
     def emit_indices(self):
         return self._search_map.keys()

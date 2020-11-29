@@ -43,8 +43,8 @@ Regarding metadata collection, the indices from which metadata will be collected
 
 Running with this argument would be run as follows:
 ```
-touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c -input-file examples/metadata.json 
-```   
+touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c -input-file examples/metadata.json
+```
 
 ### Comparing on a specific identifier
 

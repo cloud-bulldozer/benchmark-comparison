@@ -212,8 +212,8 @@ def main(args):
     # Indices from entered harness (ex: ripsaw)
     for index in benchmark_instance.emit_indices():
         for compute in benchmark_instance.emit_compute_map()[index]:
-            # index_json is used for csv and standard output. Since the heeader can be different in each index
-            # we need to print CSV or stdout for each index
+            # index_json is used for csv and standard output. Since the heeader may be different in each index
+            # we need to print csv or stdout for each index
             index_json = {}
             # Iterate through UUIDs
             for uuid_index, uuid in enumerate(args.uuid):
@@ -241,7 +241,9 @@ def main(args):
                     compute_header.append(extra_h)
             if index_json:
                 if args.output == "csv":
-                    print_csv(", ".join(compute_header), index_json, bucket_list, output_file)
+                    print_csv(
+                        ", ".join(compute_header), index_json, bucket_list, output_file
+                    )
                 elif args.output not in ["json", "yaml"]:
                     row_list = []
                     flatten_and_discard(index_json, compute_header, row_list)

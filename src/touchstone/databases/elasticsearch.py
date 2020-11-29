@@ -50,6 +50,7 @@ class Elasticsearch(DatabaseBaseClass):
                 elif agg in input_dict:
                     output_dict[agg] = {}
                     output_dict[agg][uuid] = input_dict[agg]["value"]
+
         build_dict(input_dict["_d_"], output_dict)
         return output_dict
 
@@ -64,7 +65,9 @@ class Elasticsearch(DatabaseBaseClass):
 
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
-        s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
+        s = Search(using=self._conn_object, index=str(index)).query(
+            "match", **{kw_identifier: uuid}
+        )
 
         # Apply filters
         for key, value in filters.items():
@@ -97,9 +100,7 @@ class Elasticsearch(DatabaseBaseClass):
                     for dict_key, dict_value in aggs.items():
                         _temp_agg_str = "{}({})".format(dict_key, key)
                         # Add nested dict as aggregation
-                        a.metric(
-                            _temp_agg_str, dict_key, field=key, **dict_value
-                        )
+                        a.metric(_temp_agg_str, dict_key, field=key, **dict_value)
                         self._aggs_list.append(_temp_agg_str)
                 else:
                     logger.warn("Ignoring aggregation {}".format(aggs))
@@ -131,7 +132,9 @@ class Elasticsearch(DatabaseBaseClass):
         )
         return output_dict
 
-    def emit_compare_metadata_dict(self, uuid=None, compare_map=None, index=None, input_dict=None):
+    def emit_compare_metadata_dict(
+        self, uuid=None, compare_map=None, index=None, input_dict=None
+    ):
         logger.debug("Initializing metadata search object")
         s = Search(using=self._conn_object, index=index).query(
             "match", **{"uuid.keyword": uuid}

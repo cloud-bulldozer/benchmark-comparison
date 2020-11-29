@@ -42,23 +42,24 @@ class Kubeburner(BenchmarkBaseClass):
                         "compare": ["uuid"],
                         "compute": [
                             {
-                                "filter": {"metricName.keyword": "podLatencyQuantilesMeasurement"},
-                                "buckets": ["quantileName.keyword"],
-                                "aggregations": {
-                                    "P99": ["avg"],
+                                "filter": {
+                                    "metricName.keyword": "podLatencyQuantilesMeasurement"
                                 },
+                                "buckets": ["quantileName.keyword"],
+                                "aggregations": {"P99": ["avg"]},
                             },
                             {
                                 "filter": {},
                                 "exclude": [
                                     {"metricName.keyword": "podLatencyMeasurement"},
-                                    {"metricName.keyword": "podLatencyQuantilesMeasurement"},
-                                    {"metricName.keyword": "jobSummary"}
-
+                                    {
+                                        "metricName.keyword": "podLatencyQuantilesMeasurement"
+                                    },
+                                    {"metricName.keyword": "jobSummary"},
                                 ],
                                 "buckets": ["metricName.keyword"],
                                 "aggregations": {"value": ["avg"]},
-                            }
+                            },
                         ],
                     },
                 },
@@ -68,7 +69,6 @@ class Kubeburner(BenchmarkBaseClass):
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
-        self._compare_map = self._build_compare_keys()
         logger.debug("Finished initializing kubeburner instance")
 
     def emit_compute_map(self):
@@ -80,16 +80,6 @@ class Kubeburner(BenchmarkBaseClass):
             )
         )
         return self._compute_map
-
-    def emit_compare_map(self):
-        logger.debug("Emitting built compare map ")
-        logger.info(
-            "compare map is {} in the database \
-                     {}".format(
-                self._compare_map, self._source_type
-            )
-        )
-        return self._compare_map
 
     def emit_indices(self):
         return self._search_map.keys()

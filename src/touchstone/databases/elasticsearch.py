@@ -25,6 +25,7 @@ class Elasticsearch(DatabaseBaseClass):
     def gen_result_dict(self, reponse, buckets, aggs, uuid):
         output_dict = {}
         input_dict = reponse.aggs.__dict__
+        #response_dict = response.__dict__["_d_"]
         # Remove .keyword from bucket names
         buckets = [e.split(".")[0] for e in buckets]
 
@@ -47,7 +48,6 @@ class Elasticsearch(DatabaseBaseClass):
                 elif agg in input_dict:
                     output_dict[agg] = {}
                     output_dict[agg][uuid] = input_dict[agg]["value"]
-
         build_dict(input_dict["_d_"], output_dict)
         return output_dict
 
@@ -58,7 +58,6 @@ class Elasticsearch(DatabaseBaseClass):
         output_dict = {}
         buckets = compute_map["buckets"]
         aggregations = compute_map["aggregations"]
-        collate = compute_map["collate"]
         filters = compute_map["filter"]
 
         logger.debug("Initializing search object")
@@ -67,8 +66,8 @@ class Elasticsearch(DatabaseBaseClass):
             "match", **{kw_identifier: uuid})
 
         # Apply filters
-        if filters:
-            s = s.filter("term", **filters)
+        for key, value in filters.items():
+            s = s.filter("term", **{key: value})
 
         # Apply excludes
         if "exclude" in compute_map:
@@ -112,9 +111,14 @@ class Elasticsearch(DatabaseBaseClass):
             return {}
         _output_dict = self.gen_result_dict(response, buckets, self._aggs_list, uuid)
         if filters:
+            output_dict = _output_dict
+            filter_list = []
             for key, value in filters.items():
-                output_dict[key] = {value: _output_dict}
-                break
+                filter_list.append(key)
+                filter_list.append(value)
+            # Include all k,v from filters as keys in the output dictionary
+            for key in reversed(filter_list):
+                output_dict = {key: output_dict}
         else:
             output_dict = _output_dict
         logger.debug(

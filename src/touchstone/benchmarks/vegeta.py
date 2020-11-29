@@ -76,7 +76,6 @@ class Vegeta(BenchmarkBaseClass):
                                     "bytes_in": ["avg"],
                                     "bytes_out": ["avg"],
                                 },
-                                "collate": [],
                             },
                         ],
                     },

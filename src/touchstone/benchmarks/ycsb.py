@@ -1,6 +1,4 @@
 import logging
-
-
 from . import BenchmarkBaseClass
 
 
@@ -66,12 +64,11 @@ class Ycsb(BenchmarkBaseClass):
                                     "workload_type": "workloada",
                                 },
                                 "buckets": ["iteration"],
-                                "aggregations": {},
-                                "collate": [
-                                    "data.OVERALL.Throughput(ops/sec)",
-                                    "data.READ.95thPercentileLatency(us)",
-                                    "data.UPDATE.95thPercentileLatency(us)",
-                                ],
+                                "aggregations": {
+                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                    "data.UPDATE.95thPercentileLatency(us)": ["max"],
+                                    "data.READ.95thPercentileLatency(us)": ["max"],
+                                },
                             },
                             {
                                 "filter": {
@@ -79,12 +76,11 @@ class Ycsb(BenchmarkBaseClass):
                                     "workload_type": "workloadb",
                                 },
                                 "buckets": ["iteration"],
-                                "aggregations": {},
-                                "collate": [
-                                    "data.OVERALL.Throughput(ops/sec)",
-                                    "data.READ.95thPercentileLatency(us)",
-                                    "data.UPDATE.95thPercentileLatency(us)",
-                                ],
+                                "aggregations": {
+                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                    "data.READ.95thPercentileLatency(us)": ["max"],
+                                    "data.UPDATE.95thPercentileLatency(us)": ["max"],
+                                },
                             },
                             {
                                 "filter": {
@@ -92,11 +88,10 @@ class Ycsb(BenchmarkBaseClass):
                                     "workload_type": "workloadc",
                                 },
                                 "buckets": ["iteration"],
-                                "aggregations": {},
-                                "collate": [
-                                    "data.OVERALL.Throughput(ops/sec)",
-                                    "data.READ.95thPercentileLatency(us)",
-                                ],
+                                "aggregations": {
+                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                    "data.READ.95thPercentileLatency(us)": ["max"]
+                                },
                             },
                             {
                                 "filter": {
@@ -104,12 +99,11 @@ class Ycsb(BenchmarkBaseClass):
                                     "workload_type": "workloadd",
                                 },
                                 "buckets": ["iteration"],
-                                "aggregations": {},
-                                "collate": [
-                                    "data.OVERALL.Throughput(ops/sec)",
-                                    "data.INSERT.95thPercentileLatency(us)",  # noqa
-                                    "data.READ.95thPercentileLatency(us)",
-                                ],
+                                "aggregations": {
+                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                    "data.INSERT.95thPercentileLatency(us)": ["max"],
+                                    "data.READ.95thPercentileLatency(us)": ["max"],
+                                },
                             },
                             {
                                 "filter": {
@@ -117,8 +111,7 @@ class Ycsb(BenchmarkBaseClass):
                                     "workload_type": "workloade",
                                 },
                                 "buckets": ["iteration"],
-                                "aggregations": {},
-                                "collate": ["data.OVERALL.Throughput(ops/sec)"],
+                                "aggregations": {"data.OVERALL.Throughput(ops/sec)": ["max"]}
                             },
                             {
                                 "filter": {
@@ -126,13 +119,12 @@ class Ycsb(BenchmarkBaseClass):
                                     "workload_type": "workloadf",
                                 },
                                 "buckets": ["iteration"],
-                                "aggregations": {},
-                                "collate": [
-                                    "data.OVERALL.Throughput(ops/sec)",
-                                    "data.READ-MODIFY-WRITE.95thPercentileLatency(us)",  # noqa
-                                    "data.READ.95thPercentileLatency(us)",
-                                    "data.UPDATE.95thPercentileLatency(us)",
-                                ],
+                                "aggregations": {
+                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                    "data.READ-MODIFY-WRITE.95thPercentileLatency(us)": ["max"],
+                                    "data.READ.95thPercentileLatency(us)": ["max"],
+                                    "data.UPDATE.95thPercentileLatency(us)": ["max"]
+                                },
                             },
                         ],
                     }

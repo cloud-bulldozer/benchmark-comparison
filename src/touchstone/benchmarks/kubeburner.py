@@ -45,7 +45,6 @@ class Kubeburner(BenchmarkBaseClass):
                                 "filter": {},
                                 "buckets": ["metricName.keyword"],
                                 "aggregations": {"value": ["avg", "max", "min"]},
-                                "collate": [],
                             },
                         ],
                     },

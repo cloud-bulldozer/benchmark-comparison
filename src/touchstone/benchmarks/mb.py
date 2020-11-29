@@ -72,7 +72,6 @@ class Mb(BenchmarkBaseClass):
                                     "requests_per_second": ["avg"],
                                     "latency_95pctl": ["avg"],
                                 },
-                                "collate": [],
                             },
                             {
                                 "filter": {"test_type": "edge"},
@@ -85,7 +84,6 @@ class Mb(BenchmarkBaseClass):
                                     "requests_per_second": ["avg"],
                                     "latency_95pctl": ["avg"],
                                 },
-                                "collate": [],
                             },
                             {
                                 "filter": {"test_type": "passthrough"},
@@ -98,7 +96,6 @@ class Mb(BenchmarkBaseClass):
                                     "requests_per_second": ["avg"],
                                     "latency_95pctl": ["avg"],
                                 },
-                                "collate": [],
                             },
                             {
                                 "filter": {"test_type": "reencrypt"},
@@ -111,7 +108,6 @@ class Mb(BenchmarkBaseClass):
                                     "requests_per_second": ["avg"],
                                     "latency_95pctl": ["avg"],
                                 },
-                                "collate": [],
                             },
                             {
                                 "filter": {"test_type": "mix"},
@@ -124,7 +120,6 @@ class Mb(BenchmarkBaseClass):
                                     "requests_per_second": ["avg"],
                                     "latency_95pctl": ["avg"],
                                 },
-                                "collate": [],
                             },
                         ],
                     },

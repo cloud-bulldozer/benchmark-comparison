@@ -236,9 +236,8 @@ def main(args):
                         compute_header.append(bucket.split(".")[0])
                     for extra_h in ["key", "uuid", "value"]:
                         compute_header.append(extra_h)
-                    print_csv(
-                        ", ".join(compute_header), result, bucket_list, output_file
-                    )
+                    if result:
+                        print_csv(", ".join(compute_header), result, bucket_list, output_file)
 
     if args.output == "json":
         if metadata_json:

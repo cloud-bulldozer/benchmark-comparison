@@ -65,26 +65,11 @@ class Pgbench(BenchmarkBaseClass):
                         "compute": [
                             {
                                 "filter": {"workload": "pgbench"},
-                                "buckets": ["iteration"],
-                                "aggregations": {},
-                                "collate": [
-                                    "tps_incl_con_est",
-                                    "number_of_transactions_actually_processed",  # noqa
-                                    "latency_average_ms",
-                                ],
-                            },
-                        ],
-                    },
-                    "ripsaw-pgbench-results": {
-                        "compare": ["transaction_type"],
-                        "compute": [
-                            {
-                                "filter": {"workload": "pgbench"},
-                                "buckets": ["iteration"],
-                                "aggregations": {
-                                    "latency_ms": [{"percentiles": {"percents": [95]}}]
-                                },
-                                "collate": [],
+                                "buckets": ["iteration", "scaling_factor", "number_of_threads",
+                                "number_of_clients"],
+                                "aggregations": {"tps_incl_con_est" :["max"],
+                                    "number_of_transactions_actually_processed": ["max"],
+                                    "latency_average_ms": ["max"] }
                             },
                         ],
                     },

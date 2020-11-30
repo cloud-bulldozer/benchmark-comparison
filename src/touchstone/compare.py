@@ -4,15 +4,16 @@ import sys
 import logging
 import json
 import yaml
+import csv
 from tabulate import tabulate
 
 from touchstone import __version__
 from . import benchmarks
 from . import databases
-from .utils.lib import print_metadata_dict, mergedicts, print_csv, flatten_and_discard
+from .utils.lib import mergedicts, flatten_and_discard
 
-__author__ = "aakarshg"
-__copyright__ = "aakarshg"
+__author__ = "red-hat-perfscale"
+__copyright__ = "red-hat-perfscale"
 __license__ = "mit"
 
 logger = logging.getLogger("touchstone")
@@ -147,11 +148,9 @@ def main(args):
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    csv_header_metadata = "uuid, where, field, value"
     metadata_json = {}
     main_json = {}
-    bucket_list = set()
-    compare_uuid_dict_metadata = dict()
+    compare_uuid_dict_metadata = {}
     logger.debug("Instantiating the benchmark instance")
     benchmark_instance = benchmarks.grab(
         args.benchmark, source_type=args.database, harness_type=args.harness
@@ -201,13 +200,18 @@ def main(args):
         if stockpile_metadata["where"]:
             if args.output in ["csv"]:
                 # Print to output file if argument present
-                print(csv_header_metadata, file=output_file)
-                print_metadata_dict(uuid, compare_uuid_dict_metadata[uuid], output_file)
+                row_list = [["uuid", "where", "field", "value"]]
+                flatten_and_discard(compare_uuid_dict_metadata, [], row_list)
+                writer = csv.writer(output_file, delimiter=",")
+                list(map(writer.writerow, row_list))
             elif args.output in ["json", "yaml"]:
                 mergedicts(compare_uuid_dict_metadata, metadata_json)
             else:
-                print(super_header)
-                print(tabulate(stockpile_metadata, headers="keys", tablefmt="pretty"))
+                print(super_header, file=output_file)
+                print(
+                    tabulate(stockpile_metadata, headers="keys", tablefmt="pretty"),
+                    file=output_file,
+                )
 
     # Indices from entered harness (ex: ripsaw)
     for index in benchmark_instance.emit_indices():
@@ -228,8 +232,6 @@ def main(args):
                     index=index,
                     identifier=args.identifier,
                 )
-                for bucket in compute["buckets"]:
-                    bucket_list.add(bucket.split(".")[0])
                 mergedicts(result, main_json)
                 mergedicts(result, index_json)
                 compute_header = []
@@ -240,14 +242,18 @@ def main(args):
                 for extra_h in ["key", "uuid", "value"]:
                     compute_header.append(extra_h)
             if index_json:
+                row_list = []
                 if args.output == "csv":
-                    print_csv(
-                        ", ".join(compute_header), index_json, bucket_list, output_file
-                    )
-                elif args.output not in ["json", "yaml"]:
-                    row_list = []
+                    row_list.append(compute_header)
                     flatten_and_discard(index_json, compute_header, row_list)
-                    print(tabulate(row_list, headers=compute_header, tablefmt="pretty"))
+                    writer = csv.writer(output_file, delimiter=",")
+                    list(map(writer.writerow, row_list))
+                elif args.output not in ["json", "yaml"]:
+                    flatten_and_discard(index_json, compute_header, row_list)
+                    print(
+                        tabulate(row_list, headers=compute_header, tablefmt="pretty"),
+                        file=output_file,
+                    )
     if args.output == "json":
         if metadata_json:
             output_file.write(json.dumps(metadata_json, indent=4))

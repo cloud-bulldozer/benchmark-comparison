@@ -55,7 +55,7 @@ def parse_args(args):
         metavar="harness",
     )
     parser.add_argument(
-        "-id",
+        "--id",
         "--identifier-key",
         dest="identifier",
         help="identifier key name(default: uuid)",

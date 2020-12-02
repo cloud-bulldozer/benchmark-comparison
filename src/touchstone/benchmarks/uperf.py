@@ -15,24 +15,17 @@ class Uperf(BenchmarkBaseClass):
     def _build_search_metadata(self):
         return self._search_dict[self._source_type]["metadata"]
 
-    def _build_compare_keys(self):
-        logger.debug("Building compare map")
-        _temp_dict = {}
-        for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compare"]
-        return _temp_dict
-
     def _build_compute(self):
         logger.debug("Building compute map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compute"]
+            _temp_dict[index] = self._search_map[index]
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
+    def __init__(self, source_type=None, harness_type=None, config=None):
         logger.debug("Initializing uperf instance")
         BenchmarkBaseClass.__init__(
-            self, source_type=source_type, harness_type=harness_type
+            self, source_type=source_type, harness_type=harness_type, config=config
         )
         self._search_dict = {
             "elasticsearch": {
@@ -51,52 +44,45 @@ class Uperf(BenchmarkBaseClass):
                     },
                 },
                 "ripsaw": {
-                    "ripsaw-uperf-results": {
-                        "compare": [
-                            "uuid",
-                            "user",
-                            "cluster_name",
-                            "hostnetwork",
-                            "service_ip",
-                        ],
-                        "compute": [
-                            {
-                                "filter": {"test_type.keyword": "stream"},
-                                "exclude": [{"norm_ops": 0}],
-                                "buckets": [
-                                    "protocol.keyword",
-                                    "message_size",
-                                    "num_threads",
-                                ],
-                                "aggregations": {
-                                    "norm_byte": [
-                                        "max",
-                                        "avg",
-                                        {"percentiles": {"percents": [50]}},  # noqa
-                                    ]
-                                },
+                    "ripsaw-uperf-results": [
+                        {
+                            "filter": {"test_type.keyword": "stream"},
+                            "exclude": [{"norm_ops": 0}],
+                            "buckets": [
+                                "protocol.keyword",
+                                "message_size",
+                                "num_threads",
+                            ],
+                            "aggregations": {
+                                "norm_byte": [
+                                    "max",
+                                    "avg",
+                                    {"percentiles": {"percents": [50]}},  # noqa
+                                ]
                             },
-                            {
-                                "filter": {"test_type.keyword": "rr"},
-                                "exclude": [{"norm_ops": 0}],
-                                "buckets": [
-                                    "protocol.keyword",
-                                    "message_size",
-                                    "num_threads",
+                        },
+                        {
+                            "filter": {"test_type.keyword": "rr"},
+                            "exclude": [{"norm_ops": 0}],
+                            "buckets": [
+                                "protocol.keyword",
+                                "message_size",
+                                "num_threads",
+                            ],
+                            "aggregations": {
+                                "norm_ops": ["max", "avg"],
+                                "norm_ltcy": [
+                                    {"percentiles": {"percents": [90, 99]}},
+                                    "avg",
                                 ],
-                                "aggregations": {
-                                    "norm_ops": ["max", "avg"],
-                                    "norm_ltcy": [
-                                        {"percentiles": {"percents": [90, 99]}},
-                                        "avg",
-                                    ],
-                                },
                             },
-                        ],
-                    }
+                        },
+                    ],
                 },
             }
         }
+        if self.benchmark_cfg:
+            self._search_dict = self.benchmark_cfg
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()

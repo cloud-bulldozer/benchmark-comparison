@@ -15,57 +15,48 @@ class Kubeburner(BenchmarkBaseClass):
     def _build_search_metadata(self):
         return self._search_dict[self._source_type]["metadata"]
 
-    def _build_compare_keys(self):
-        logger.debug("Building compare map")
-        _temp_dict = {}
-        for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compare"]
-        return _temp_dict
-
     def _build_compute(self):
         logger.debug("Building compute map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compute"]
+            _temp_dict[index] = self._search_map[index]
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
+    def __init__(self, source_type=None, harness_type=None, config=None):
         logger.debug("Initializing kubeburner instance")
         BenchmarkBaseClass.__init__(
-            self, source_type=source_type, harness_type=harness_type
+            self, source_type=source_type, harness_type=harness_type, config=config
         )
         self._search_dict = {
             "elasticsearch": {
                 "metadata": {},
                 "ripsaw": {
-                    "ripsaw-kube-burner": {
-                        "compare": ["uuid"],
-                        "compute": [
-                            {
-                                "filter": {
+                    "ripsaw-kube-burner": [
+                        {
+                            "filter": {
+                                "metricName.keyword": "podLatencyQuantilesMeasurement"
+                            },
+                            "buckets": ["quantileName.keyword"],
+                            "aggregations": {"P99": ["avg"]},
+                        },
+                        {
+                            "filter": {},
+                            "exclude": [
+                                {"metricName.keyword": "podLatencyMeasurement"},
+                                {
                                     "metricName.keyword": "podLatencyQuantilesMeasurement"
                                 },
-                                "buckets": ["quantileName.keyword"],
-                                "aggregations": {"P99": ["avg"]},
-                            },
-                            {
-                                "filter": {},
-                                "exclude": [
-                                    {"metricName.keyword": "podLatencyMeasurement"},
-                                    {
-                                        "metricName.keyword": "podLatencyQuantilesMeasurement"
-                                    },
-                                    {"metricName.keyword": "jobSummary"},
-                                ],
-                                "buckets": ["metricName.keyword"],
-                                "aggregations": {"value": ["avg"]},
-                            },
-                        ],
-                    },
+                                {"metricName.keyword": "jobSummary"},
+                            ],
+                            "buckets": ["metricName.keyword"],
+                            "aggregations": {"value": ["avg"]},
+                        },
+                    ],
                 },
             },
         }
-
+        if self.benchmark_cfg:
+            self._search_dict = self.benchmark_cfg
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()

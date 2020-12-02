@@ -80,9 +80,15 @@ def parse_args(args):
         choices=["json", "yaml", "csv"],
     )
     parser.add_argument(
-        "--input-file",
-        dest="input_file",
-        help="Input config file for metadata",
+        "--metadata-config",
+        dest="metadata_config",
+        help="Metadata configuration file",
+        type=argparse.FileType("r", encoding="utf-8"),
+    )
+    parser.add_argument(
+        "--config",
+        dest="config",
+        help="Touchstone configuration file",
         type=argparse.FileType("r", encoding="utf-8"),
     )
     parser.add_argument(
@@ -153,16 +159,16 @@ def main(args):
     compare_uuid_dict_metadata = {}
     logger.debug("Instantiating the benchmark instance")
     benchmark_instance = benchmarks.grab(
-        args.benchmark, source_type=args.database, harness_type=args.harness
+        args.benchmark,
+        source_type=args.database,
+        harness_type=args.harness,
+        config=args.config,
     )
     if len(args.conn_url) < len(args.uuid):
         args.conn_url = [args.conn_url[0]] * len(args.uuid)
-    if args.input_file:
-        config_file_metadata = json.load(args.input_file)
-    if args.output_file:
-        output_file = args.output_file
-    else:
-        output_file = sys.stdout
+    if args.metadata_config:
+        config_file_metadata = json.load(args.metadata_config)
+    output_file = args.output_file if args.output_file else sys.stdout
     # Indices from metadata map
     for uuid_index, uuid in enumerate(args.uuid):
         super_header = "\n{} UUID: {} {}".format(("=" * 67), uuid, ("=" * 67))
@@ -172,7 +178,7 @@ def main(args):
             args.database, conn_url=args.conn_url[uuid_index]
         )
         # Set metadata search map based on existence of config file
-        if args.input_file:
+        if args.metadata_config:
             metadata_search_map = config_file_metadata["metadata"]
         else:
             metadata_search_map = benchmark_instance.emit_metadata_search_map()

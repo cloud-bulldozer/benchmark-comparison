@@ -26,13 +26,13 @@ class Pgbench(BenchmarkBaseClass):
         logger.debug("Building compute map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compute"]
+            _temp_dict[index] = self._search_map[index]
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
+    def __init__(self, source_type=None, harness_type=None, config=None):
         logger.debug("Initializing PGBENCH instance")
         BenchmarkBaseClass.__init__(
-            self, source_type=source_type, harness_type=harness_type
+            self, source_type=source_type, harness_type=harness_type, config=config
         )
         self._search_dict = {
             "elasticsearch": {
@@ -51,39 +51,27 @@ class Pgbench(BenchmarkBaseClass):
                     },
                 },
                 "ripsaw": {
-                    "ripsaw-pgbench-summary": {
-                        "compare": [
-                            "uuid",
-                            "user",
-                            "cluster_name",
-                            "scaling_factor",
-                            "query_mode",
-                            "number_of_threads",
-                            "number_of_clients",
-                            "duration_seconds",
-                        ],
-                        "compute": [
-                            {
-                                "filter": {"workload": "pgbench"},
-                                "buckets": [
-                                    "iteration",
-                                    "scaling_factor",
-                                    "number_of_threads",
-                                    "number_of_clients",
-                                ],
-                                "aggregations": {
-                                    "tps_incl_con_est": ["max"],
-                                    "number_of_transactions_actually_processed": [
-                                        "max"
-                                    ],
-                                    "latency_average_ms": ["max"],
-                                },
+                    "ripsaw-pgbench-summary": [
+                        {
+                            "filter": {"workload": "pgbench"},
+                            "buckets": [
+                                "iteration",
+                                "scaling_factor",
+                                "number_of_threads",
+                                "number_of_clients",
+                            ],
+                            "aggregations": {
+                                "tps_incl_con_est": ["max"],
+                                "number_of_transactions_actually_processed": ["max"],
+                                "latency_average_ms": ["max"],
                             },
-                        ],
-                    },
+                        },
+                    ]
                 },
             }
         }
+        if self.benchmark_cfg:
+            self._search_dict = self.benchmark_cfg
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()

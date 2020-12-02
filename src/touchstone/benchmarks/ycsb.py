@@ -13,24 +13,17 @@ class Ycsb(BenchmarkBaseClass):
     def _build_search_metadata(self):
         return self._search_dict[self._source_type]["metadata"]
 
-    def _build_compare_keys(self):
-        logger.debug("Building compare map")
-        _temp_dict = {}
-        for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compare"]
-        return _temp_dict
-
     def _build_compute(self):
         logger.debug("Building compute map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compute"]
+            _temp_dict[index] = self._search_map[index]
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
+    def __init__(self, source_type=None, harness_type=None, config=None):
         logger.debug("Initializing YCSB instance")
         BenchmarkBaseClass.__init__(
-            self, source_type=source_type, harness_type=harness_type
+            self, source_type=source_type, harness_type=harness_type, config=config
         )
         self._search_dict = {
             "elasticsearch": {
@@ -49,92 +42,97 @@ class Ycsb(BenchmarkBaseClass):
                     },
                 },
                 "ripsaw": {
-                    "ripsaw-ycsb-summary": {
-                        "compare": [
-                            "uuid",
-                            "user",
-                            "recordcount",
-                            "operationcount",
-                            "driver",
-                        ],
-                        "compute": [
-                            {
-                                "filter": {
-                                    "phase": "run",
-                                    "workload_type": "workloada",
-                                },
-                                "buckets": ["iteration"],
-                                "aggregations": {
-                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
-                                    "data.UPDATE.95thPercentileLatency(us)": ["max"],
-                                    "data.READ.95thPercentileLatency(us)": ["max"],
-                                },
+                    "ripsaw-ycsb-summary": [
+                        {
+                            "filter": {"phase": "run", "workload_type": "workloada"},
+                            "buckets": [
+                                "iteration",
+                                "recordcount",
+                                "operationcount",
+                                "driver.keyword",
+                            ],
+                            "aggregations": {
+                                "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                "data.UPDATE.95thPercentileLatency(us)": ["max"],
+                                "data.READ.95thPercentileLatency(us)": ["max"],
                             },
-                            {
-                                "filter": {
-                                    "phase": "run",
-                                    "workload_type": "workloadb",
-                                },
-                                "buckets": ["iteration"],
-                                "aggregations": {
-                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
-                                    "data.READ.95thPercentileLatency(us)": ["max"],
-                                    "data.UPDATE.95thPercentileLatency(us)": ["max"],
-                                },
+                        },
+                        {
+                            "filter": {"phase": "run", "workload_type": "workloadb"},
+                            "buckets": [
+                                "iteration",
+                                "recordcount",
+                                "operationcount",
+                                "driver.keyword",
+                            ],
+                            "aggregations": {
+                                "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                "data.READ.95thPercentileLatency(us)": ["max"],
+                                "data.UPDATE.95thPercentileLatency(us)": ["max"],
                             },
-                            {
-                                "filter": {
-                                    "phase": "run",
-                                    "workload_type": "workloadc",
-                                },
-                                "buckets": ["iteration"],
-                                "aggregations": {
-                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
-                                    "data.READ.95thPercentileLatency(us)": ["max"],
-                                },
+                        },
+                        {
+                            "filter": {"phase": "run", "workload_type": "workloadc"},
+                            "buckets": [
+                                "iteration",
+                                "recordcount",
+                                "operationcount",
+                                "driver.keyword",
+                            ],
+                            "aggregations": {
+                                "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                "data.READ.95thPercentileLatency(us)": ["max"],
                             },
-                            {
-                                "filter": {
-                                    "phase": "run",
-                                    "workload_type": "workloadd",
-                                },
-                                "buckets": ["iteration"],
-                                "aggregations": {
-                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
-                                    "data.INSERT.95thPercentileLatency(us)": ["max"],
-                                    "data.READ.95thPercentileLatency(us)": ["max"],
-                                },
+                        },
+                        {
+                            "filter": {"phase": "run", "workload_type": "workloadd"},
+                            "buckets": [
+                                "iteration",
+                                "recordcount",
+                                "operationcount",
+                                "driver.keyword",
+                            ],
+                            "aggregations": {
+                                "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                "data.INSERT.95thPercentileLatency(us)": ["max"],
+                                "data.READ.95thPercentileLatency(us)": ["max"],
                             },
-                            {
-                                "filter": {
-                                    "phase": "run",
-                                    "workload_type": "workloade",
-                                },
-                                "buckets": ["iteration"],
-                                "aggregations": {
-                                    "data.OVERALL.Throughput(ops/sec)": ["max"]
-                                },
+                        },
+                        {
+                            "filter": {"phase": "run", "workload_type": "workloade"},
+                            "buckets": [
+                                "iteration",
+                                "recordcount",
+                                "operationcount",
+                                "driver.keyword",
+                            ],
+                            "aggregations": {
+                                "data.OVERALL.Throughput(ops/sec)": ["max"]
                             },
-                            {
-                                "filter": {
-                                    "phase": "run",
-                                    "workload_type": "workloadf",
-                                },
-                                "buckets": ["iteration"],
-                                "aggregations": {
-                                    "data.OVERALL.Throughput(ops/sec)": ["max"],
-                                    "data.READ-MODIFY-WRITE.95thPercentileLatency(us)": [
-                                        "max"
-                                    ],
-                                    "data.READ.95thPercentileLatency(us)": ["max"],
-                                    "data.UPDATE.95thPercentileLatency(us)": ["max"],
-                                },
+                        },
+                        {
+                            "filter": {"phase": "run", "workload_type": "workloadf"},
+                            "buckets": [
+                                "iteration",
+                                "recordcount",
+                                "operationcount",
+                                "driver.keyword",
+                            ],
+                            "aggregations": {
+                                "data.OVERALL.Throughput(ops/sec)": ["max"],
+                                "data.READ-MODIFY-WRITE.95thPercentileLatency(us)": [
+                                    "max"
+                                ],
+                                "data.READ.95thPercentileLatency(us)": ["max"],
+                                "data.UPDATE.95thPercentileLatency(us)": ["max"],
                             },
-                        ],
-                    }
+                        },
+                    ],
                 },
             }
         }
+        if self.benchmark_cfg:
+            self._search_dict = self.benchmark_cfg
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()

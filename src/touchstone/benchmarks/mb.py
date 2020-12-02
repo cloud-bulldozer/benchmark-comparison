@@ -15,24 +15,17 @@ class Mb(BenchmarkBaseClass):
     def _build_search_metadata(self):
         return self._search_dict[self._source_type]["metadata"]
 
-    def _build_compare_keys(self):
-        logger.debug("Building compare map")
-        _temp_dict = {}
-        for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compare"]
-        return _temp_dict
-
     def _build_compute(self):
         logger.debug("Building compute map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compute"]
+            _temp_dict[index] = self._search_map[index]
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
+    def __init__(self, source_type=None, harness_type=None, config=None):
         logger.debug("Initializing Mb instance")
         BenchmarkBaseClass.__init__(
-            self, source_type=source_type, harness_type=harness_type
+            self, source_type=source_type, harness_type=harness_type, config=config
         )
         self._search_dict = {
             "elasticsearch": {
@@ -51,81 +44,53 @@ class Mb(BenchmarkBaseClass):
                     },
                 },
                 "ripsaw": {
-                    "router-test-results": {
-                        "compare": [
-                            "uuid",
-                            "tls_reuse",
-                            "test_name",
-                            "num_workload_generators",
-                            "delay",
-                            "runtime",
-                        ],
-                        "compute": [
-                            {
-                                "filter": {"test_type": "http"},
-                                "buckets": [
-                                    "routes",
-                                    "conn_per_targetroute",
-                                    "keepalive",
-                                ],
-                                "aggregations": {
-                                    "requests_per_second": ["avg"],
-                                    "latency_95pctl": ["avg"],
-                                },
+                    "router-test-results": [
+                        {
+                            "filter": {"test_type": "http"},
+                            "buckets": ["routes", "conn_per_targetroute", "keepalive"],
+                            "aggregations": {
+                                "requests_per_second": ["avg"],
+                                "latency_95pctl": ["avg"],
                             },
-                            {
-                                "filter": {"test_type": "edge"},
-                                "buckets": [
-                                    "routes",
-                                    "conn_per_targetroute",
-                                    "keepalive",
-                                ],
-                                "aggregations": {
-                                    "requests_per_second": ["avg"],
-                                    "latency_95pctl": ["avg"],
-                                },
+                        },
+                        {
+                            "filter": {"test_type": "edge"},
+                            "buckets": ["routes", "conn_per_targetroute", "keepalive"],
+                            "aggregations": {
+                                "requests_per_second": ["avg"],
+                                "latency_95pctl": ["avg"],
                             },
-                            {
-                                "filter": {"test_type": "passthrough"},
-                                "buckets": [
-                                    "routes",
-                                    "conn_per_targetroute",
-                                    "keepalive",
-                                ],
-                                "aggregations": {
-                                    "requests_per_second": ["avg"],
-                                    "latency_95pctl": ["avg"],
-                                },
+                        },
+                        {
+                            "filter": {"test_type": "passthrough"},
+                            "buckets": ["routes", "conn_per_targetroute", "keepalive"],
+                            "aggregations": {
+                                "requests_per_second": ["avg"],
+                                "latency_95pctl": ["avg"],
                             },
-                            {
-                                "filter": {"test_type": "reencrypt"},
-                                "buckets": [
-                                    "routes",
-                                    "conn_per_targetroute",
-                                    "keepalive",
-                                ],
-                                "aggregations": {
-                                    "requests_per_second": ["avg"],
-                                    "latency_95pctl": ["avg"],
-                                },
+                        },
+                        {
+                            "filter": {"test_type": "reencrypt"},
+                            "buckets": ["routes", "conn_per_targetroute", "keepalive"],
+                            "aggregations": {
+                                "requests_per_second": ["avg"],
+                                "latency_95pctl": ["avg"],
                             },
-                            {
-                                "filter": {"test_type": "mix"},
-                                "buckets": [
-                                    "routes",
-                                    "conn_per_targetroute",
-                                    "keepalive",
-                                ],
-                                "aggregations": {
-                                    "requests_per_second": ["avg"],
-                                    "latency_95pctl": ["avg"],
-                                },
+                        },
+                        {
+                            "filter": {"test_type": "mix"},
+                            "buckets": ["routes", "conn_per_targetroute", "keepalive"],
+                            "aggregations": {
+                                "requests_per_second": ["avg"],
+                                "latency_95pctl": ["avg"],
                             },
-                        ],
-                    },
+                        },
+                    ],
                 },
             },
         }
+        if self.benchmark_cfg:
+            self._search_dict = self.benchmark_cfg
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()

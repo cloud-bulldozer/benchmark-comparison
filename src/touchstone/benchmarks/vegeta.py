@@ -15,24 +15,17 @@ class Vegeta(BenchmarkBaseClass):
     def _build_search_metadata(self):
         return self._search_dict[self._source_type]["metadata"]
 
-    def _build_compare_keys(self):
-        logger.debug("Building compare map")
-        _temp_dict = {}
-        for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compare"]
-        return _temp_dict
-
     def _build_compute(self):
         logger.debug("Building compute map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]["compute"]
+            _temp_dict[index] = self._search_map[index]
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
+    def __init__(self, source_type=None, harness_type=None, config=None):
         logger.debug("Initializing Vegeta instance")
         BenchmarkBaseClass.__init__(
-            self, source_type=source_type, harness_type=harness_type
+            self, source_type=source_type, harness_type=harness_type, config=config
         )
         self._search_dict = {
             "elasticsearch": {
@@ -51,37 +44,28 @@ class Vegeta(BenchmarkBaseClass):
                     },
                 },
                 "ripsaw": {
-                    "ripsaw-vegeta-results": {
-                        "compare": [
-                            "uuid",
-                            "user",
-                            "cluster_name",
-                            "hostname",
-                            "duration",
-                            "workers",
-                            "requests",
-                        ],
-                        "compute": [
-                            {
-                                "filter": {},
-                                "buckets": ["targets.keyword"],
-                                "aggregations": {
-                                    "rps": ["avg"],
-                                    "throughput": ["avg"],
-                                    "req_latency": ["avg"],
-                                    "p95_latency": ["avg"],
-                                    "p99_latency": ["avg"],
-                                    "max_latency": ["avg"],
-                                    "min_latency": ["avg"],
-                                    "bytes_in": ["avg"],
-                                    "bytes_out": ["avg"],
-                                },
+                    "ripsaw-vegeta-results": [
+                        {
+                            "filter": {},
+                            "buckets": ["targets.keyword"],
+                            "aggregations": {
+                                "rps": ["avg"],
+                                "throughput": ["avg"],
+                                "req_latency": ["avg"],
+                                "p95_latency": ["avg"],
+                                "p99_latency": ["avg"],
+                                "max_latency": ["avg"],
+                                "min_latency": ["avg"],
+                                "bytes_in": ["avg"],
+                                "bytes_out": ["avg"],
                             },
-                        ],
-                    },
+                        },
+                    ],
                 },
             },
         }
+        if self.benchmark_cfg:
+            self._search_dict = self.benchmark_cfg
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()

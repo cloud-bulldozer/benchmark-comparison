@@ -97,10 +97,9 @@ class Mb(BenchmarkBaseClass):
         logger.debug("Finished initializing Mb instance")
 
     def emit_compute_map(self):
-        logger.debug("Emitting built compute map ")
+        logger.debug("Emitting built compute map")
         logger.info(
-            "Compute map is {} in the database \
-                     {}".format(
+            "Compute map is {} in the database {}".format(
                 self._compute_map, self._source_type
             )
         )

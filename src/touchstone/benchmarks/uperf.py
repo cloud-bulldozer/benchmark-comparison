@@ -57,7 +57,7 @@ class Uperf(BenchmarkBaseClass):
                                 "norm_byte": [
                                     "max",
                                     "avg",
-                                    {"percentiles": {"percents": [50]}},  # noqa
+                                    {"percentiles": {"percents": [50]}},
                                 ]
                             },
                         },

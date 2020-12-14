@@ -29,7 +29,7 @@
                     ],
                     "buckets": [
                         "protocol.keyword",
-                        "write_message_size",
+                        "message_size",
                         "read_message_size",
                         "num_threads"
                     ],
@@ -58,7 +58,7 @@
                     ],
                     "buckets": [
                         "protocol.keyword",
-                        "write_message_size",
+                        "message_size",
                         "read_message_size",
                         "num_threads"
                     ],

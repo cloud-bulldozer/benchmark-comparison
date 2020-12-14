@@ -109,7 +109,7 @@ The member functions are:
 
     d. 'exclude': excludes documents from the query that meet these conditions. For uperf we exclude documents with zero norm_ops metrics with {'norm_ops': 0}
 
-3. emit_indices(): This should emit a list of indices to search against.
+2. emit_indices(): This should emit a list of indices to search against.
 
 And you'll need to create the above for all the indices in the database choice, so for example in Uperf we look up in the dict and build which looks like:
 

@@ -15,8 +15,12 @@ Touchstone currently supports comparison of the following docs:
 |    Kubeburner  |  Elasticsearch   |    Ripsaw     |
 |      mb        |  Elasticsearch   |    Ripsaw     |
 
-Touchstone also supports the comparison of following data from Elasticsearch -
-- Scale up/down
+Touchstone also supports the comparison of following data in Elasticsearch:
+
+|       Workload            |   Database     |
+|---------------------------|----------------|
+| OpenShift node Scale Up   | Elasticsearch  |
+| OpenShift node Scale Down | Elasticsearch  |
 
 ## Usage
 

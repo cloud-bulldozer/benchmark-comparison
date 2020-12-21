@@ -4,112 +4,99 @@ import logging
 from . import BenchmarkBaseClass
 
 
-_logger = logging.getLogger("touchstone")
+logger = logging.getLogger("touchstone")
 
 
 class Uperf(BenchmarkBaseClass):
-
     def _build_search(self):
-        _logger.debug("Building search array for uperf")
+        logger.debug("Building search array for uperf")
         return self._search_dict[self._source_type][self._harness_type]
 
     def _build_search_metadata(self):
         return self._search_dict[self._source_type]["metadata"]
 
-    def _build_compare_keys(self):
-        _logger.debug("Building compare map")
-        _temp_dict = {}
-        for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]['compare']
-        return _temp_dict
-
     def _build_compute(self):
-        _logger.debug("Building compute map")
+        logger.debug("Building compute map")
         _temp_dict = {}
         for index in self._search_map:
-            _temp_dict[index] = self._search_map[index]['compute']
+            _temp_dict[index] = self._search_map[index]
         return _temp_dict
 
-    def __init__(self, source_type=None, harness_type=None):
-        _logger.debug("Initializing uperf instance")
-        BenchmarkBaseClass.__init__(self, source_type=source_type,
-                                    harness_type=harness_type)
+    def __init__(self, source_type=None, harness_type=None, config=None):
+        logger.debug("Initializing uperf instance")
+        BenchmarkBaseClass.__init__(
+            self, source_type=source_type, harness_type=harness_type, config=config
+        )
         self._search_dict = {
-            'elasticsearch': {
-                'metadata': {
-                    'cpuinfo-metadata': {
-                        'element': 'pod_name',
-                        'compare': ['value.Model name', 'value.Architecture',
-                                    'value.CPU(s)']
+            "elasticsearch": {
+                "metadata": {
+                    "cpuinfo-metadata": {
+                        "element": "pod_name",
+                        "compare": [
+                            "value.Model name",
+                            "value.Architecture",
+                            "value.CPU(s)",
+                        ],
                     },
-                    'meminfo-metadata': {
-                        'element': 'pod_name',
-                        'compare': ['value.MemTotal'],
+                    "meminfo-metadata": {
+                        "element": "pod_name",
+                        "compare": ["value.MemTotal"],
                     },
                 },
-                'ripsaw': {
-                    'ripsaw-uperf-results': {
-                        'compare': ['uuid', 'user', 'cluster_name',
-                                    'hostnetwork', 'service_ip'],
-                        'compute': [{
-                            'filter': {
-                                'test_type.keyword': 'stream'
-                            },
-                            'exclude': {
-                                'norm_ops': 0
-                            },
-                            'buckets': ['protocol.keyword', 'message_size',
-                                        'num_threads'],
-                            'aggregations': {
-                                'norm_byte': ['max', 'avg',
-                                    { # noqa
-                                        'percentiles': {
-                                            'percents': [50]
-                                        }
-                                    }
+                "ripsaw": {
+                    "ripsaw-uperf-results": [
+                        {
+                            "filter": {"test_type.keyword": "stream"},
+                            "exclude": [{"norm_ops": 0}],
+                            "buckets": [
+                                "protocol.keyword",
+                                "message_size",
+                                "num_threads",
+                            ],
+                            "aggregations": {
+                                "norm_byte": [
+                                    "max",
+                                    "avg",
+                                    {"percentiles": {"percents": [50]}},
                                 ]
                             },
-                            'collate': [],
-                        }, {
-                            'filter': {
-                                'test_type.keyword': 'rr'
+                        },
+                        {
+                            "filter": {"test_type.keyword": "rr"},
+                            "exclude": [{"norm_ops": 0}],
+                            "buckets": [
+                                "protocol.keyword",
+                                "message_size",
+                                "num_threads",
+                            ],
+                            "aggregations": {
+                                "norm_ops": ["max", "avg"],
+                                "norm_ltcy": [
+                                    {"percentiles": {"percents": [90, 99]}},
+                                    "avg",
+                                ],
                             },
-                            'exclude': {
-                                'norm_ops': 0
-                            },
-                            'buckets': ['protocol.keyword', 'message_size',
-                                        'num_threads'],
-                            'aggregations': {
-                                'norm_ops': ['max', 'avg'],
-                                'norm_ltcy': [{
-                                    'percentiles': {
-                                        'percents': [90, 99]
-                                    }
-                                }, 'avg']
-                            },
-                            'collate': [],
-                        }]
-                    }
-                }
+                        },
+                    ],
+                },
             }
         }
+        if self.benchmark_cfg:
+            self._search_dict = self.benchmark_cfg
         self._search_map = self._build_search()
         self._search_map_metadata = self._build_search_metadata()
         self._compute_map = self._build_compute()
-        self._compare_map = self._build_compare_keys()
-        _logger.debug("Finished initializing uperf instance")
+        logger.debug("Finished initializing uperf instance")
 
     def emit_compute_map(self):
-        _logger.debug("Emitting built compute map ")
-        _logger.info("Compute map is {} in the database \
-                     {}".format(self._compute_map, self._source_type))
+        logger.debug("Emitting built compute map ")
+        logger.info(
+            "Compute map is {} in the database \
+                     {}".format(
+                self._compute_map, self._source_type
+            )
+        )
         return self._compute_map
-
-    def emit_compare_map(self):
-        _logger.debug("Emitting built compare map ")
-        _logger.info("compare map is {} in the database \
-                     {}".format(self._compare_map, self._source_type))
-        return self._compare_map
 
     def emit_indices(self):
         return self._search_map.keys()

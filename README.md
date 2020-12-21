@@ -13,6 +13,7 @@ Touchstone currently supports comparison of the following docs:
 |      Pgbench   |  Elasticsearch   |    Ripsaw     |
 |      Vegeta    |  Elasticsearch   |    Ripsaw     |
 |    Kubeburner  |  Elasticsearch   |    Ripsaw     |
+|      mb        |  Elasticsearch   |    Ripsaw     |
 
 Touchstone also supports the comparison of following data from Elasticsearch -
 - Scale up/down
@@ -38,13 +39,14 @@ You'd be running it as follows:
 ```
 touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c 70cbb0eb-8bb6-58e3-b92a-cb802a74bb52
 ```
+It's possible to use a configuration file to perform comparisons by using the `--config` flag, some examples can be found in the [examples directory](examples).
 
-Regarding metadata collection, the indices from which metadata will be collected is listed in the file of the benchmark being run. However, these indices can be overrided by including the path to a metadata config file as a command line argument. The default location of this file is examples/metadata.json.
+Regarding metadata collection, the indices from which metadata will be collected are listed in the file of the benchmark being run. However, these indices can be overrided by including the path to a metadata config file as a command line argument. The default location of this file is examples/metadata.json.
 
 Running with this argument would be run as follows:
 ```
-touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c -input-file examples/metadata.json 
-```   
+touchstone_compare uperf elasticsearch ripsaw -url marquez.perf.lab.eng.rdu2.redhat.com marquez.perf.lab.eng.rdu2.redhat.com  -u 6c5d0257-57e4-54f0-9c98-e149af8b4a5c --metadata-config examples/metadata.json
+```
 
 ### Comparing on a specific identifier
 
@@ -72,14 +74,14 @@ As a contributor, more often than not you'll be adding code to benchmarks dir.
 
 ### CodeStyling and Linting
 
-Touchstone uses [pre-commit](https://pre-commit.com) framework to maintain the code linting and python code styling.<br>
-The CI would run the pre-commit check on each pull request.<br>
-We encourage our contributors to follow the same pattern, while contributing to the code.<br>
+Touchstone uses [pre-commit](https://pre-commit.com) framework to maintain the code linting and python code styling.
+The CI would run the pre-commit check on each pull request.
+We encourage our contributors to follow the same pattern, while contributing to the code.
 
-The pre-commit configuration file is present in the repository `.pre-commit-config.yaml`<br>
+The pre-commit configuration file is present in the repository `.pre-commit-config.yaml`
 It contains the different code styling and linting guide which we use for the application.
 
-Following command can be used to run the pre-commit:<br>
+Following command can be used to run the pre-commit:
 `pre-commit run --all-files`
 
 If pre-commit is not installed in your system, it can be install with : `pip install pre-commit`
@@ -92,7 +94,6 @@ To add a new benchmark, you'll create your the class and define three member fun
 2. Bucket: To facilitate apple to apple comparison, touchstone will put records into buckets
 3. Aggregation: Apply aggregation and the type on the keys
 4. Compare: Compare the keys that help characterize the SUT/benchmark run
-5. Collate: Collates the keys after applying filters, buckets and aggregations.
 5. Exclude: Excludes entries which passes this filter.
 
 The member functions are:
@@ -108,64 +109,58 @@ The member functions are:
 
     d. 'exclude': excludes documents from the query that meet these conditions. For uperf we exclude documents with zero norm_ops metrics with {'norm_ops': 0}
 
-2. emit_compare_map(): This should emit a dictionary where key is the index and the value is a list of keys to compare
-
-3. emit_indices(): This should emit a list of indices to search against.
+2. emit_indices(): This should emit a list of indices to search against.
 
 And you'll need to create the above for all the indices in the database choice, so for example in Uperf we look up in the dict and build which looks like:
 
 
 ```
 {
-      'elasticsearch': {
-        'ripsaw': {
-          'ripsaw-uperf-results': {
-            'compare': ['uuid', 'user', 'cluster_name',
-              'hostnetwork', 'service_ip'
-            ],
-            'compute': [{
-              'filter': {
-                'test_type.keyword': 'stream'
-              },
-              'exclude': {
-                'norm_ops': 0
-              },
-              'buckets': ['protocol.keyword',
-                'message_size', 'num_threads'
-              ],
-              'aggregations': {
-                'norm_byte': ['max', 'avg',
-                  {'percentiles': {
-                    'percents': [50]
-                  }}]
-              }
-            }, {
-              'filter': {
-                'test_type.keyword': 'rr'
-              },
-              'exclude': {
-                'norm_ops': 0
-              },
-              'buckets': ['protocol.keyword',
-                'message_size', 'num_threads'
-              ],
-              'aggregations': {
-                'norm_ops': ['max', 'avg'],
-                'norm_ltcy': [{
-                  'percentiles': {
-                    'percents': [90, 99]
-                  }
-                }, 'avg']
-              },
-            }]
-          }
-        }
-      }
+  'elasticsearch': {
+    'ripsaw': {
+      'ripsaw-uperf-results': [
+       {
+         'filter': {
+           'test_type.keyword': 'stream'
+         },
+         'exclude': {
+           'norm_ops': 0
+         },
+         'buckets': ['protocol.keyword',
+           'message_size', 'num_threads'
+         ],
+         'aggregations': {
+           'norm_byte': ['max', 'avg',
+             {'percentiles': {
+               'percents': [50]
+             }}]
+         }
+       },{
+         'filter': {
+           'test_type.keyword': 'rr'
+         },
+         'exclude': {
+           'norm_ops': 0
+         },
+         'buckets': ['protocol.keyword',
+           'message_size', 'num_threads'
+         ],
+         'aggregations': {
+           'norm_ops': ['max', 'avg'],
+           'norm_ltcy': [{
+             'percentiles': {
+               'percents': [90, 99]
+             }
+           }, 'avg']
+         },
+      }]
     }
+  }
+}
 ```
 
 The highest level is the database type, and then comes the harness, then the dictionary is of the indices ( in this case only one index )
-This dictionary has 2 keys - compare and compute.
+This dictionary has 1 key - compare
 
 
 ### Databases
@@ -173,32 +168,7 @@ This dictionary has 2 keys - compare and compute.
 If you're looking at adding databases please take a look at the elasticsearch class.
 
 The main interfaces that will need to be added are as follows:
-1. emit_compare_dict: This needs to be a dictionary where the keys are the keys in compare map for the benchmark,
-while the value is another dictionary where the sub dictionary's key is the uuid and the value is the associated value.
-
-So an example for uperf's compare is as follows:
-
-```
-{
-    "uuid": {
-        "6c5d0257-57e4-54f0-9c98-e149af8b4a5c": "6c5d0257-57e4-54f0-9c98-e149af8b4a5c"
-    },
-    "user": {
-        "6c5d0257-57e4-54f0-9c98-e149af8b4a5c": "aakarsh"
-    },
-    "cluster_name": {
-        "6c5d0257-57e4-54f0-9c98-e149af8b4a5c": "cnvcluster"
-    },
-    "hostnetwork": {
-        "6c5d0257-57e4-54f0-9c98-e149af8b4a5c": "False"
-    },
-    "service_ip": {
-        "6c5d0257-57e4-54f0-9c98-e149af8b4a5c": "172.16.12.12"
-    }
-}
-```
-
-2. emit_compute_dict: This dictionary is going to be a nested dictionary with a depth of
+1. emit_compute_dict: This dictionary is going to be a nested dictionary with a depth of
 2 * len(buckets) in the compute map, where first level key will be the first key in the list of bucket
 and then the value is a dictionary with keys being the potential values for the bucket and then the value then being
 a dictionary where the key will be the second level key and so on until we reach a depth of 2 * len(buckets) at which case

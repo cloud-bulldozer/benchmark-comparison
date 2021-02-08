@@ -82,7 +82,7 @@ class Elasticsearch(DatabaseBaseClass):
         a = A("terms", field=buckets[0], size=10000)
         x = s.aggs.bucket(buckets[0].split(".keyword")[0], a)
         for bucket in buckets[1:]:
-            a = A("terms", field=bucket)
+            a = A("terms", field=bucket, size=10000)
             # Create bucket with and trimming characters after .
             x = x.bucket(bucket.split(".keyword")[0], a)
         logger.debug("Finished adding buckets to query")

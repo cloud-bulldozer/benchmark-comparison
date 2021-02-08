@@ -52,8 +52,6 @@ class Uperf(BenchmarkBaseClass):
                                 "protocol.keyword",
                                 "message_size",
                                 "num_threads",
-                                "density",
-                                "nodes_in_iter",
                             ],
                             "aggregations": {
                                 "norm_byte": [
@@ -70,8 +68,6 @@ class Uperf(BenchmarkBaseClass):
                                 "protocol.keyword",
                                 "message_size",
                                 "num_threads",
-                                "density",
-                                "nodes_in_iter",
                             ],
                             "aggregations": {
                                 "norm_ops": ["max", "avg"],

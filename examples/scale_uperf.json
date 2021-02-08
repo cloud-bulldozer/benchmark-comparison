@@ -35,7 +35,8 @@
             "protocol.keyword",
             "message_size",
             "read_message_size",
-            "num_threads"
+            "num_threads",
+            "pod_id"
           ],
           "aggregations": {
             "norm_byte": [

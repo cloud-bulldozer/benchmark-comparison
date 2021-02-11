@@ -54,10 +54,15 @@
             }
           ],
           "buckets": [
+            "density",
+            "nodes_in_iter",
+            "client_node.keyword",
+            "client_ips.keyword",
             "protocol.keyword",
             "message_size",
             "read_message_size",
-            "num_threads"
+            "num_threads",
+            "pod_id"
           ],
           "aggregations": {
             "norm_ops": [

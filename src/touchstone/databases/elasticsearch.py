@@ -59,6 +59,10 @@ class Elasticsearch(DatabaseBaseClass):
         Returns the normalized data from the ES query
         """
         output_dict = {}
+        if "buckets" and "aggregations" and "filter" not in compute_map:
+            logger.critical(f"Incorrect JSON data: nested dictionaries buckets, aggregations and filter \
+fields are required in {compute_map}")
+            exit(1)
         buckets = compute_map["buckets"]
         aggregations = compute_map["aggregations"]
         filters = compute_map["filter"]
@@ -132,27 +136,23 @@ class Elasticsearch(DatabaseBaseClass):
         )
         return output_dict
 
-    def emit_compare_metadata_dict(
-        self, uuid=None, compare_map=None, index=None, input_dict=None
-    ):
+    def emit_compare_metadata_dict(self, uuid=None, compare_map=None, index=None):
         logger.debug("Initializing metadata search object")
-        s = Search(using=self._conn_object, index=index).query(
-            "match", **{"uuid.keyword": uuid}
-        )
+        metadata_dict = {}
+        s = Search(using=self._conn_object, index=index).query("match", **{"uuid.keyword": uuid})
         response = s.execute()
         for hit in response.hits.hits:
-            compare_by = self.access_nested_field(
-                hit["_source"], compare_map["element"]
-            )
-            if compare_by not in input_dict:
-                input_dict[compare_by] = {}
+            compare_by = None
+            if "element" in compare_map and compare_map["element"] in hit["_source"]:
+                compare_by = hit["_source"][compare_map["element"]]
+                metadata_dict[compare_by] = {}
             for compare in compare_map["compare"]:
                 value = self.access_nested_field(hit["_source"], compare)
-                if value:
-                    input_dict[compare_by][compare] = hit["_source"]["value"][
-                        compare
-                    ] = value
-        return input_dict
+                if value and compare_by:
+                    metadata_dict[compare_by][compare] = value
+                elif value:
+                    metadata_dict["NA"] = {compare: value}
+        return metadata_dict
 
     def access_nested_field(self, d, fields):
         tmp_dict = d

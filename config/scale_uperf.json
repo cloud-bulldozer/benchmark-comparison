@@ -14,6 +14,11 @@
         "compare": [
           "value.MemTotal"
         ]
+      },
+      "k8s_cluster_info-metadata": {
+        "compare": [
+          "value.cluster_version"
+        ]
       }
     },
     "ripsaw": {
@@ -86,4 +91,3 @@
     }
   }
 }
-

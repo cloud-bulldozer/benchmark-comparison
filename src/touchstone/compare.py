@@ -154,17 +154,18 @@ def main(args):
             # Adding emit_compare_metadata_dict to elasticsearch class
             database_instance.get_metadata(uuid, metadata_search_map[index], index, metadata_dict)
         headers = metadata_search_map[index].get("additional_fields", []) + ["metadata", args.identifier, "value"]
-        if args.output == "csv":
-            row_list = [headers]
-            flatten_and_discard(metadata_dict, headers, row_list)
-            writer = csv.writer(output_file, delimiter=",")
-            list(map(writer.writerow, row_list))
-            metadata_dict = {}
-        elif not args.output:
-            row_list = []
-            flatten_and_discard(metadata_dict, headers, row_list)
-            print(tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file)
-            metadata_dict = {}
+        if metadata_dict:
+            if args.output == "csv":
+                row_list = [headers]
+                flatten_and_discard(metadata_dict, headers, row_list)
+                writer = csv.writer(output_file, delimiter=",")
+                list(map(writer.writerow, row_list))
+                metadata_dict = {}
+            elif not args.output:
+                row_list = []
+                flatten_and_discard(metadata_dict, headers, row_list)
+                print(tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file)
+                metadata_dict = {}
 
     # Iterate through indexes
     for index in benchmark_instance.get_indices():

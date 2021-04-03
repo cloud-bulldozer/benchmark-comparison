@@ -46,14 +46,12 @@ def parse_args(args):
         dest="identifier",
         help="identifier key name(default: uuid)",
         type=str,
-        metavar="identifier",
         default="uuid",
     )
     parser.add_argument(
         "-u",
         "--uuid",
         required=True,
-        dest="uuid",
         help="identifier values to fetch results and compare",
         type=str,
         nargs="+",
@@ -61,14 +59,12 @@ def parse_args(args):
     parser.add_argument(
         "-o",
         "--output",
-        dest="output",
         help="How should touchstone output the result",
         type=str,
         choices=["json", "yaml", "csv"],
     )
     parser.add_argument(
         "--config",
-        dest="config",
         help="Touchstone configuration file",
         required=True,
         type=argparse.FileType("r", encoding="utf-8"),
@@ -119,16 +115,6 @@ def setup_logging(loglevel):
     )
 
 
-def update(dict1, dict2):
-    copy = dict1.copy()
-    for key in dict2:
-        if key in dict1:
-            copy[key].update(dict2[key])
-        else:
-            copy[key] = dict2[key]
-    return copy
-
-
 def main(args):
     """Main entry point allowing external calls
 
@@ -143,7 +129,7 @@ def main(args):
     if len(args.conn_url) < len(args.uuid):
         args.conn_url = [args.conn_url[0]] * len(args.uuid)
     output_file = args.output_file if args.output_file else sys.stdout
-    # Indices from metadata map
+    # Get indices from metadata map
     metadata_search_map = benchmark_instance.search_map_metadata
     metadata_dict = {}
     for index in metadata_search_map.keys():
@@ -205,13 +191,11 @@ def main(args):
                 elif not args.output:
                     flatten_and_discard(index_json, compute_header, row_list)
                     print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
+    if metadata_dict:
+        main_json["metadata"] = metadata_dict
     if args.output == "json":
-        if metadata_dict:
-            output_file.write(json.dumps(metadata_dict, indent=4))
         output_file.write(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
-        if metadata_dict:
-            output_file.write(yaml.dump(metadata_dict, allow_unicode=True))
         output_file.write(yaml.dump(main_json, allow_unicode=True))
     logger.info("Script ends here")
 

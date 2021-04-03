@@ -137,57 +137,37 @@ def main(args):
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    metadata_json = {}
     main_json = {}
-    compare_uuid_dict_metadata = {}
     logger.debug("Instantiating the benchmark instance")
     benchmark_instance = Benchmark(args.config, args.database)
     if len(args.conn_url) < len(args.uuid):
         args.conn_url = [args.conn_url[0]] * len(args.uuid)
     output_file = args.output_file if args.output_file else sys.stdout
     # Indices from metadata map
-    for uuid_index, uuid in enumerate(args.uuid):
-        super_header = "\n{} UUID: {} {}".format(("=" * 67), uuid, ("=" * 67))
-        compare_uuid_dict_metadata[uuid] = {}
-        # Create database connection instance
-        database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
+    metadata_search_map = benchmark_instance.search_map_metadata
+    metadata_dict = {}
+    for index in metadata_search_map.keys():
         # Set metadata search map
-        metadata_search_map = benchmark_instance.search_map_metadata
-        for index in metadata_search_map.keys():
-            index_dict = {}
+        for uuid_index, uuid in enumerate(args.uuid):
+            # Create database connection instance
+            database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
             # Adding emit_compare_metadata_dict to elasticsearch class
-            metadata_dict = database_instance.emit_compare_metadata_dict(uuid, metadata_search_map[index], index)
-            compare_uuid_dict_metadata[uuid] = metadata_dict
-            index_dict = update(metadata_dict, index_dict)
-            stockpile_metadata = {}
-            stockpile_metadata["where"] = []
-            for where in index_dict.keys():
-                # Skip if there is no associated metadata
-                if not index_dict[where].items():
-                    continue
-                stockpile_metadata["where"].append(where)
-                for k, v in index_dict[where].items():
-                    if k not in stockpile_metadata:
-                        stockpile_metadata[k] = []
-                    stockpile_metadata[k].append(v)
-            # Check that metadata exists to be printed
-            if stockpile_metadata["where"]:
-                if args.output in ["csv"]:
-                    # Print to output file if argument present
-                    row_list = [["uuid", "where", "field", "value"]]
-                    flatten_and_discard(compare_uuid_dict_metadata, [], row_list)
-                    writer = csv.writer(output_file, delimiter=",")
-                    list(map(writer.writerow, row_list))
-                elif args.output in ["json", "yaml"]:
-                    mergedicts(compare_uuid_dict_metadata, metadata_json)
-                else:
-                    print(super_header, file=output_file)
-                    print(tabulate(stockpile_metadata, headers="keys", tablefmt="pretty"), file=output_file)
+            database_instance.get_metadata(uuid, metadata_search_map[index], index, metadata_dict)
+        headers = metadata_search_map[index].get("additional_fields", []) + ["metadata", args.identifier, "value"]
+        if args.output == "csv":
+            row_list = [headers]
+            flatten_and_discard(metadata_dict, headers, row_list)
+            writer = csv.writer(output_file, delimiter=",")
+            list(map(writer.writerow, row_list))
+            metadata_dict = {}
+        elif not args.output:
+            row_list = []
+            flatten_and_discard(metadata_dict, headers, row_list)
+            print(tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file)
+            metadata_dict = {}
 
-    # I    ndices from entered harness (ex: ripsaw)
+    # Iterate through indexes
     for index in benchmark_instance.get_indices():
-        if index == "metadata":
-            continue
         for compute in benchmark_instance.compute_map[index]:
             # index_json is used for csv and standard output. Since the heeader may be different in each index
             # we need to print csv or stdout for each index
@@ -212,7 +192,7 @@ def main(args):
                     compute_header.append(key.split(".keyword")[0])
                 for bucket in compute["buckets"]:
                     compute_header.append(bucket.split(".keyword")[0])
-                for extra_h in ["key", "uuid", "value"]:
+                for extra_h in ["key", args.identifier, "value"]:
                     compute_header.append(extra_h)
             if index_json:
                 row_list = []
@@ -221,16 +201,16 @@ def main(args):
                     flatten_and_discard(index_json, compute_header, row_list)
                     writer = csv.writer(output_file, delimiter=",")
                     list(map(writer.writerow, row_list))
-                elif args.output not in ["json", "yaml"]:
+                elif not args.output:
                     flatten_and_discard(index_json, compute_header, row_list)
-                    print( tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
+                    print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
     if args.output == "json":
-        if metadata_json:
-            output_file.write(json.dumps(metadata_json, indent=4))
+        if metadata_dict:
+            output_file.write(json.dumps(metadata_dict, indent=4))
         output_file.write(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
-        if metadata_json:
-            output_file.write(yaml.dump(metadata_json, allow_unicode=True))
+        if metadata_dict:
+            output_file.write(yaml.dump(metadata_dict, allow_unicode=True))
         output_file.write(yaml.dump(main_json, allow_unicode=True))
     logger.info("Script ends here")
 

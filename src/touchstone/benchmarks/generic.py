@@ -17,7 +17,7 @@ class Benchmark():
         self._search_map = self.benchmark_config[self.source_type]
         self.search_map_metadata = {}
         if "metadata" in self.benchmark_config[self.source_type]:
-            self.search_map_metadata = self.benchmark_config[self.source_type]["metadata"]
+            self.search_map_metadata = self.benchmark_config[self.source_type].pop("metadata")
         self.compute_map = self._build_compute()
 
     def _build_compute(self):

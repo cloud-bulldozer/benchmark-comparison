@@ -1,8 +1,8 @@
 {
   "metadata": {
     "cpuinfo-metadata": {
-      "element": "pod_name",
-      "compare": [
+      "additional_fields": ["pod_name"],
+      "fields": [
         "value.Model name",
         "value.Architecture",
         "value.CPU(s)"

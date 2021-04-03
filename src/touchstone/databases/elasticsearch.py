@@ -136,26 +136,29 @@ fields are required in {compute_map}")
         )
         return output_dict
 
-    def emit_compare_metadata_dict(self, uuid=None, compare_map=None, index=None):
+    def get_metadata(self, uuid, compare_map, index, metadata_dict):
         logger.debug("Initializing metadata search object")
-        metadata_dict = {}
         s = Search(using=self._conn_object, index=index).query("match", **{"uuid.keyword": uuid})
         response = s.execute()
-        for hit in response.hits.hits:
-            compare_by = None
-            if "element" in compare_map and compare_map["element"] in hit["_source"]:
-                compare_by = hit["_source"][compare_map["element"]]
-                metadata_dict[compare_by] = {}
-            for compare in compare_map["compare"]:
-                value = self.access_nested_field(hit["_source"], compare)
-                if value and compare_by:
-                    metadata_dict[compare_by][compare] = value
-                elif value:
-                    metadata_dict["NA"] = {compare: value}
-        return metadata_dict
+        def build_dict(input_dict):
+            for hit in response.hits.hits:
+                tmp_dict = input_dict
+                for additional_field in compare_map.get("additional_fields", []):
+                    field_value = self.access_dotted_field(hit["_source"], additional_field)
+                    if additional_field not in input_dict:
+                        input_dict[additional_field] = {}
+                    if field_value not in input_dict[additional_field]:
+                        input_dict[additional_field][field_value] = {}
+                    tmp_dict = input_dict[additional_field][field_value]
+                for field in compare_map.get("fields", []):
+                    if field not in tmp_dict:
+                        tmp_dict[field] = {}
+                    tmp_dict[field][uuid] = self.access_dotted_field(hit["_source"], field)
+        build_dict(metadata_dict)
 
-    def access_nested_field(self, d, fields):
-        tmp_dict = d
+
+    def access_dotted_field(self, input_dict, fields):
+        tmp_dict = input_dict
         for field in fields.split("."):
             if field in tmp_dict:
                 tmp_dict = tmp_dict[field]

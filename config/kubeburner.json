@@ -2,7 +2,7 @@
   "elasticsearch": {
     "metadata": {
       "k8s_cluster_info-metadata": {
-        "compare": [
+        "fields": [
           "value.cluster_version"
         ]
       }

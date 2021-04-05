@@ -9,6 +9,7 @@ from tabulate import tabulate
 
 from touchstone import __version__
 from touchstone.benchmarks.generic import Benchmark
+from touchstone import decision_maker
 from . import databases
 from .utils.lib import mergedicts, flatten_and_discard
 
@@ -74,6 +75,11 @@ def parse_args(args):
         dest="output_file",
         help="Redirect output of json/csv/yaml to file",
         type=argparse.FileType("w"),
+    )
+    parser.add_argument(
+        "--tolerancy-rules",
+        help="Path to tolerancy rules configuration",
+        type=argparse.FileType("r", encoding="utf-8"),
     )
     parser.add_argument(
         "-url",
@@ -198,6 +204,8 @@ def main(args):
     elif args.output == "yaml":
         output_file.write(yaml.dump(main_json, allow_unicode=True))
     logger.info("Script ends here")
+    if args.tolerancy_rules:
+        decision_maker.run(args.uuid[0], main_json, args.tolerancy_rules, args.output)
 
 
 def render():

@@ -2,7 +2,9 @@
   "elasticsearch": {
     "metadata": {
       "cpuinfo-metadata": {
-        "additional_fields": ["pod_name"],
+        "additional_fields": [
+          "pod_name"
+        ],
         "fields": [
           "value.Model name",
           "value.Architecture",
@@ -10,7 +12,9 @@
         ]
       },
       "meminfo-metadata": {
-        "additional_fields": ["pod_name"],
+        "additional_fields": [
+          "pod_name"
+        ],
         "fields": [
           "value.MemTotal"
         ]
@@ -26,11 +30,9 @@
         "filter": {
           "test_type.keyword": "stream"
         },
-        "exclude": [
-          {
-            "norm_ops": 0
-          }
-        ],
+        "exclude": {
+          "norm_ops": 0
+        },
         "buckets": [
           "protocol.keyword",
           "message_size",
@@ -54,11 +56,9 @@
         "filter": {
           "test_type.keyword": "rr"
         },
-        "exclude": [
-          {
-            "norm_ops": 0
-          }
-        ],
+        "exclude": {
+          "norm_ops": 0
+        },
         "buckets": [
           "protocol.keyword",
           "message_size",

@@ -1,7 +1,9 @@
 {
   "metadata": {
     "cpuinfo-metadata": {
-      "additional_fields": ["pod_name"],
+      "additional_fields": [
+        "pod_name"
+      ],
       "fields": [
         "value.Model name",
         "value.Architecture",

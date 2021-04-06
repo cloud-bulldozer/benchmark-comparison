@@ -181,9 +181,9 @@ def main(args):
                 mergedicts(result, main_json)
                 mergedicts(result, index_json)
                 compute_header = []
-                for key in compute["filter"]:
+                for key in compute.get("filter", []):
                     compute_header.append(key.split(".keyword")[0])
-                for bucket in compute["buckets"]:
+                for bucket in compute.get("buckets", []):
                     compute_header.append(bucket.split(".keyword")[0])
                 for extra_h in ["key", args.identifier, "value"]:
                     compute_header.append(extra_h)

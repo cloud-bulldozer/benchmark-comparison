@@ -22,21 +22,9 @@
         }
       },
       {
-        "filter": {},
-        "exclude": [
-          {
-            "metricName.keyword": "podLatencyMeasurement"
-          },
-          {
-            "metricName.keyword": "podLatencyQuantilesMeasurement"
-          },
-          {
-            "metricName.keyword": "jobSummary"
-          },
-          {
-            "metricName.keyword": "nodeRoles"
-          }
-        ],
+        "exclude": {
+          "metricName.keyword": "nodeRoles"
+        },
         "buckets": [
           "metricName.keyword"
         ],

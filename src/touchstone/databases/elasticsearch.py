@@ -59,13 +59,13 @@ class Elasticsearch(DatabaseBaseClass):
         Returns the normalized data from the ES query
         """
         output_dict = {}
-        if "buckets" and "aggregations" and "filter" not in compute_map:
-            logger.critical(f"Incorrect JSON data: nested dictionaries buckets, aggregations and filter \
+        if "aggregations" not in compute_map:
+            logger.critical(f"Incorrect JSON data: nested dictionaries aggregations \
 fields are required in {compute_map}")
             exit(1)
-        buckets = compute_map["buckets"]
+        buckets = compute_map.get("buckets", [])
         aggregations = compute_map["aggregations"]
-        filters = compute_map["filter"]
+        filters = compute_map.get("filter", {})
 
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
@@ -78,18 +78,19 @@ fields are required in {compute_map}")
             s = s.filter("term", **{key: value})
 
         # Apply excludes
-        if "exclude" in compute_map:
-            for exclude in compute_map["exclude"]:
-                s = s.exclude("match", **exclude)
-
-        logger.debug("Building buckets")
-        a = A("terms", field=buckets[0], size=10000)
-        x = s.aggs.bucket(buckets[0].split(".keyword")[0], a)
-        for bucket in buckets[1:]:
-            a = A("terms", field=bucket, size=10000)
-            # Create bucket with and trimming characters after .
-            x = x.bucket(bucket.split(".keyword")[0], a)
-        logger.debug("Finished adding buckets to query")
+        for key, value in compute_map.get("exclude", {}).items():
+            s = s.exclude("match", **{key: value})
+        if buckets:
+            logger.debug("Building buckets")
+            a = A("terms", field=buckets[0], size=10000)
+            x = s.aggs.bucket(buckets[0].split(".keyword")[0], a)
+            for bucket in buckets[1:]:
+                a = A("terms", field=bucket, size=10000)
+                # Create bucket with and trimming characters after .
+                x = x.bucket(bucket.split(".keyword")[0], a)
+            logger.debug("Finished adding buckets to query")
+        else:
+            a =  a = A("terms")
         logger.debug("Adding aggregations to query")
         for key, agg_list in aggregations.items():
             for aggs in agg_list:
@@ -109,9 +110,7 @@ fields are required in {compute_map}")
                 else:
                     logger.warn("Ignoring aggregation {}".format(aggs))
         logger.debug("Finished adding aggregations to query")
-        logger.debug(
-            "Built the following query: {}".format(json.dumps(s.to_dict(), indent=4))
-        )
+        logger.debug("Built the following query: {}".format(json.dumps(s.to_dict(), indent=4)))
         response = s.execute()
         logger.debug("Succesfully executed the search query")
 

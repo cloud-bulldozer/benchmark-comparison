@@ -1,12 +1,17 @@
+# -*- coding: utf-8 -*-
 import json
 import yaml
+import logging
+import csv
+from tabulate import tabulate
+from ..utils.lib import flatten_and_discard
+
+logger = logging.getLogger("touchstone")
 
 
-class Compare():
-
+class Compare:
     def __init__(self, baseline_uuid, json_data):
         self.json_data = json_data
-        self.json_path = []
         self.baseline_uuid = baseline_uuid
         self.tolerancy = 0
         self.compare_dict = {}
@@ -14,21 +19,25 @@ class Compare():
 
     def _compare(self, input_dict, compare_dict):
         if self.baseline_uuid not in input_dict:
-            print(f"Missing baseline UUID in input dict: {input_dict}")
+            logger.error(f"Missing baseline UUID in input dict: {input_dict}")
             return
         # baseline value is the current value plus the tolerancy
         base_val = input_dict[self.baseline_uuid] + input_dict[self.baseline_uuid] * self.tolerancy / 100
         for u, v in input_dict.items():
-            if self.tolerancy >= 0 and v > base_val:
-                compare_dict[self.baseline_uuid] = input_dict[self.baseline_uuid]
-                compare_dict[u] = v
+            if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
+                compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "baseline"}
+                compare_dict[u] = {v: f"failed: {self.tolerancy}%"}
                 self.rc = 1
-            elif self.tolerancy < 0 and v < base_val:
-                compare_dict[self.baseline_uuid] = input_dict[self.baseline_uuid]
-                compare_dict[u] = v
-                self.rc = 1
+            else:
+                compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "baseline"}
+                compare_dict[u] = {v: "ok"}
 
     def compare(self, json_path, tolerancy):
+        """
+        compare evaluates the tolerancy in the given json_path
+        :param json_path JSON path to look for metrics
+        :param tolerancy Tolerancy value
+        """
         # Split json path
         self.json_path = json_path.split("/")
         self.tolerancy = tolerancy
@@ -47,7 +56,9 @@ class Compare():
                         recurse(data[k], json_path[1::], parent[k])
                 else:
                     if json_path[0] not in data:
-                        print(f"Key {json_path[0]} not found in the keys from the current dict level: {list(data.keys())}")
+                        logger.error(
+                            f"Key {json_path[0]} key not found in current dict level: {list(data.keys())}"
+                        )
                         return
                     parent[json_path[0]] = {}
                     recurse(data[json_path[0]], json_path[1::], parent[json_path[0]])
@@ -61,16 +72,37 @@ class Compare():
         return self.rc
 
 
-def run(baseline_uuid, results_data, rule_fd, output):
+def run(baseline_uuid, results_data, rule_fd, output, compute_header, output_file):
+    """
+    run evaluates toleration thresholds against comparison data
+    :param baseline_uuid UUID to use as baseline
+    :param results_data comparison data
+    :param rule_fd rule file descritor
+    :param compute_header headers to use in CSV and tabulate outputs
+    :param output_file Output file
+    """
     rc = 0
-    json_paths = yaml.load(rule_fd, Loader=yaml.FullLoader)
+    compute_header.append("tolerancy")
+    try:
+        json_paths = yaml.load(rule_fd, Loader=yaml.FullLoader)
+    except Exception as err:
+        logger.error(f"Error loading tolerations rules: {err}")
     c = Compare(baseline_uuid, results_data)
     for json_path in json_paths:
         r = c.compare(json_path["json_path"], json_path["tolerancy"])
         if r:
             rc = r
             if output == "yaml":
-                print(yaml.dump(c.compare_dict, indent=1))
+                print(yaml.dump({"tolerations": c.compare_dict}, indent=1), file=output_file)
             elif output == "json":
-                print(json.dumps(c.compare_dict, indent=4))
-    exit(rc)
+                print(json.dumps({"tolerations": c.compare_dict}, indent=4), file=output_file)
+            elif output == "csv":
+                row_list = [compute_header]
+                flatten_and_discard(c.compare_dict, compute_header, row_list)
+                writer = csv.writer(output_file, delimiter=",")
+                list(map(writer.writerow, row_list))
+            else:
+                row_list = []
+                flatten_and_discard(c.compare_dict, compute_header, row_list)
+                print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
+    return rc

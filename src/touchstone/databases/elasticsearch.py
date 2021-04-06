@@ -60,8 +60,10 @@ class Elasticsearch(DatabaseBaseClass):
         """
         output_dict = {}
         if "aggregations" not in compute_map:
-            logger.critical(f"Incorrect JSON data: nested dictionaries aggregations \
-fields are required in {compute_map}")
+            logger.critical(
+                f"Incorrect JSON data: nested dictionaries aggregations \
+fields are required in {compute_map}"
+            )
             exit(1)
         buckets = compute_map.get("buckets", [])
         aggregations = compute_map["aggregations"]
@@ -69,9 +71,7 @@ fields are required in {compute_map}")
 
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
-        s = Search(using=self._conn_object, index=str(index)).query(
-            "match", **{kw_identifier: uuid}
-        )
+        s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
 
         # Apply filters
         for key, value in filters.items():
@@ -90,7 +90,7 @@ fields are required in {compute_map}")
                 x = x.bucket(bucket.split(".keyword")[0], a)
             logger.debug("Finished adding buckets to query")
         else:
-            a =  a = A("terms")
+            a = a = A("terms")
         logger.debug("Adding aggregations to query")
         for key, agg_list in aggregations.items():
             for aggs in agg_list:
@@ -129,9 +129,7 @@ fields are required in {compute_map}")
         else:
             output_dict = _output_dict
         logger.debug(
-            "output compute dictionary with summaries is: {}".format(
-                json.dumps(output_dict, indent=4)
-            )
+            "output compute dictionary with summaries is: {}".format(json.dumps(output_dict, indent=4))
         )
         return output_dict
 
@@ -139,6 +137,7 @@ fields are required in {compute_map}")
         logger.debug("Initializing metadata search object")
         s = Search(using=self._conn_object, index=index).query("match", **{"uuid.keyword": uuid})
         response = s.execute()
+
         def build_dict(input_dict):
             for hit in response.hits.hits:
                 tmp_dict = input_dict
@@ -153,8 +152,8 @@ fields are required in {compute_map}")
                     if field not in tmp_dict:
                         tmp_dict[field] = {}
                     tmp_dict[field][uuid] = self.access_dotted_field(hit["_source"], field)
-        build_dict(metadata_dict)
 
+        build_dict(metadata_dict)
 
     def access_dotted_field(self, input_dict, fields):
         tmp_dict = input_dict

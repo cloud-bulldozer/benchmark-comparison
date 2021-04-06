@@ -31,9 +31,7 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(description="compare results from benchmarks")
     parser.add_argument(
-        "--version",
-        action="version",
-        version="touchstone {ver}".format(ver=__version__),
+        "--version", action="version", version="touchstone {ver}".format(ver=__version__),
     )
     parser.add_argument(
         "--database",
@@ -116,9 +114,7 @@ def setup_logging(loglevel):
       loglevel (int): minimum loglevel for emitting messages
     """
     logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
-    logging.basicConfig(
-        level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    logging.basicConfig(level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S")
 
 
 def main(args):
@@ -145,7 +141,11 @@ def main(args):
             database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
             # Adding emit_compare_metadata_dict to elasticsearch class
             database_instance.get_metadata(uuid, metadata_search_map[index], index, metadata_dict)
-        headers = metadata_search_map[index].get("additional_fields", []) + ["metadata", args.identifier, "value"]
+        headers = metadata_search_map[index].get("additional_fields", []) + [
+            "metadata",
+            args.identifier,
+            "value",
+        ]
         if metadata_dict:
             if args.output == "csv":
                 row_list = [headers]
@@ -156,7 +156,9 @@ def main(args):
             elif not args.output:
                 row_list = []
                 flatten_and_discard(metadata_dict, headers, row_list)
-                print(tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file)
+                print(
+                    tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file,
+                )
                 metadata_dict = {}
 
     # Iterate through indexes
@@ -168,15 +170,10 @@ def main(args):
             # Iterate through UUIDs
             for uuid_index, uuid in enumerate(args.uuid):
                 # Create database connection instance
-                database_instance = databases.grab(
-                    args.database, conn_url=args.conn_url[uuid_index]
-                )
+                database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
                 # Add method emit_compute_dict to the elasticsearch class
                 result = database_instance.emit_compute_dict(
-                    uuid=uuid,
-                    compute_map=compute,
-                    index=index,
-                    identifier=args.identifier,
+                    uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
                 )
                 mergedicts(result, main_json)
                 mergedicts(result, index_json)
@@ -196,7 +193,9 @@ def main(args):
                     list(map(writer.writerow, row_list))
                 elif not args.output:
                     flatten_and_discard(index_json, compute_header, row_list)
-                    print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
+                    print(
+                        tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file,
+                    )
     if metadata_dict:
         main_json["metadata"] = metadata_dict
     if args.output == "json":
@@ -205,7 +204,11 @@ def main(args):
         output_file.write(yaml.dump(main_json, allow_unicode=True))
     logger.info("Script ends here")
     if args.tolerancy_rules:
-        decision_maker.run(args.uuid[0], main_json, args.tolerancy_rules, args.output)
+        sys.exit(
+            decision_maker.run(
+                args.uuid[0], main_json, args.tolerancy_rules, args.output, compute_header, output_file,
+            )
+        )
 
 
 def render():

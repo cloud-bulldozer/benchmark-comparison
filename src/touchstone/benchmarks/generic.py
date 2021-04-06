@@ -5,8 +5,7 @@ import json
 logger = logging.getLogger("touchstone")
 
 
-class Benchmark():
-
+class Benchmark:
     def __init__(self, config, source_type):
         try:
             self.benchmark_config = json.load(config)

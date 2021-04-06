@@ -21,6 +21,7 @@ def flatten_and_discard(data, discard_keys=[], row_list=[]):
     :arg discard_keys: List of keys to discard
     :arg row_list: List to append the flattened dictionary
     """
+
     def inner_function(input_data, row=[]):
         if isinstance(input_data, dict):
             for k in input_data:
@@ -31,4 +32,5 @@ def flatten_and_discard(data, discard_keys=[], row_list=[]):
         else:
             row.append(input_data)
             row_list.append(row)
+
     inner_function(data)

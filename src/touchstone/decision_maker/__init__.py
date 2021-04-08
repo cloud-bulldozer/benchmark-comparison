@@ -19,18 +19,21 @@ class Compare:
 
     def _compare(self, input_dict, compare_dict):
         if self.baseline_uuid not in input_dict:
-            logger.error(f"Missing baseline UUID in input dict: {input_dict}")
+            logger.error(f"Missing UUID in input dict: {input_dict}")
             return
         # baseline value is the current value plus the tolerancy
         base_val = input_dict[self.baseline_uuid] + input_dict[self.baseline_uuid] * self.tolerancy / 100
         for u, v in input_dict.items():
+            metric_percent = v * 100 / input_dict[self.baseline_uuid]
+            # If percentage is greater than 100, sustract 100 from it else substract it from 100
+            deviation = metric_percent - 100 if metric_percent > 100 else 100 - metric_percent
+            deviation = -deviation if v < input_dict[self.baseline_uuid] else deviation
+            compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "baseline"}
             if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
-                compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "baseline"}
-                compare_dict[u] = {v: f"failed: {self.tolerancy}%"}
+                compare_dict[u] = {v: "failed: {:.2f}%".format(deviation)}
                 self.rc = 1
             else:
-                compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "baseline"}
-                compare_dict[u] = {v: "ok"}
+                compare_dict[u] = {v: "ok: {:.2f}%".format(deviation)}
 
     def compare(self, json_path, tolerancy):
         """

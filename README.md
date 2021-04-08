@@ -202,24 +202,23 @@ By default `touchstone` takes the first UUID passed as baseline. When `touchston
 When tolerancy evaluation is enabled, touchstone will output the results of the evaluation after the results:
 
 ```shell
-$ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-fe277d7cb1f3 ec7f0cfb-0812-57ab-8905-fd6ddaacf593 --config config/uperf.json --tolerancy-rules tolerancy-configs/uperf.yaml
+$ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-fe277d7cb1f3 ec7f0cfb-0812-57ab-8905-fd6ddaacf593 --config config/uperf.json --tolerancy-rules tolerancy-configs/mb.yaml
 <truncated output>
-+-----------+----------+--------------+-------------+----------------------------+--------------------------------------+--------------------+-------------+
-| test_type | protocol | message_size | num_threads |            key             |                 uuid                 |       value        |  tolerancy  |
-+-----------+----------+--------------+-------------+----------------------------+--------------------------------------+--------------------+-------------+
-|    rr     |   tcp    |      64      |      1      | 99.0percentiles(norm_ltcy) | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 346.40508117675773 |  baseline   |
-|    rr     |   tcp    |      64      |      1      | 99.0percentiles(norm_ltcy) | 975fa650-aeb2-5042-8517-fe277d7cb1f3 |  382.039562988281  |     ok      |
-|    rr     |   tcp    |     1024     |      1      | 99.0percentiles(norm_ltcy) | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 351.03181762695306 |  baseline   |
-|    rr     |   tcp    |     1024     |      1      | 99.0percentiles(norm_ltcy) | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 403.37683166503865 |     ok      |
-|    rr     |   tcp    |    16384     |      1      | 99.0percentiles(norm_ltcy) | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 392.5337493896483  |  baseline   |
-|    rr     |   tcp    |    16384     |      1      | 99.0percentiles(norm_ltcy) | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 469.6159927368153  | failed: 15% |
-|    rr     |   udp    |      64      |      1      | 99.0percentiles(norm_ltcy) | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 361.8567254638668  |  baseline   |
-|    rr     |   udp    |      64      |      1      | 99.0percentiles(norm_ltcy) | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 433.91663391113224 | failed: 15% |
-|    rr     |   udp    |     1024     |      1      | 99.0percentiles(norm_ltcy) | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 331.14006347656243 |  baseline   |
-|    rr     |   udp    |     1024     |      1      | 99.0percentiles(norm_ltcy) | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 391.8874816894531  | failed: 15% |
-|    rr     |   udp    |    16384     |      1      | 99.0percentiles(norm_ltcy) | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 392.8086782836913  |  baseline   |
-|    rr     |   udp    |    16384     |      1      | 99.0percentiles(norm_ltcy) | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 445.84954132080077 |     ok      |
-+-----------+----------+--------------+-------------+----------------------------+--------------------------------------+--------------------+-------------+
++-------------+--------+----------------------+-----------+--------------------------+--------------------------------------+----------+----------------+
+|  test_type  | routes | conn_per_targetroute | keepalive |           key            |                 uuid                 |  value   |   tolerancy    |
++-------------+--------+----------------------+-----------+--------------------------+--------------------------------------+----------+----------------+
+|    http     |  500   |          1           |     0     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 191160.0 |    baseline    |
+|    http     |  500   |          1           |     0     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 199434.0 |       ok       |
+|    http     |  500   |          1           |     1     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 12892.5  |    baseline    |
+|    http     |  500   |          1           |     1     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 11559.0  |       ok       |
+|    http     |  500   |          1           |    50     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 170566.0 |    baseline    |
+|    http     |  500   |          1           |    50     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 172050.5 |       ok       |
+|    http     |  500   |          20          |     0     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 66229.0  |    baseline    |
+|    http     |  500   |          20          |     0     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 72479.0  |       ok       |
+|    http     |  500   |          20          |     1     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 12097.5  |    baseline    |
+|    http     |  500   |          20          |     1     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 11075.0  |       ok       |
+|    http     |  500   |          20          |    50     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 75213.0  |    baseline    |
+|    http     |  500   |          20          |    50     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 89248.0  |       ok       |
 $ echo $?
 1
 ```

@@ -41,14 +41,7 @@
         "aggregations": {
           "norm_byte": [
             "max",
-            "avg",
-            {
-              "percentiles": {
-                "percents": [
-                  99
-                ]
-              }
-            }
+            "avg"
           ]
         }
       },

@@ -16,8 +16,12 @@
           "pod_name"
         ],
         "fields": [
-          "value.MemTotal",
-          "value.Active"
+          "value.MemTotal"
+        ]
+      },
+      "k8s_cluster_info-metadata": {
+        "fields": [
+          "value.cluster_version"
         ]
       }
     },

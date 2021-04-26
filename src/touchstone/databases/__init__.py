@@ -16,9 +16,7 @@ def grab(database_input_type, *args, **kwargs):
         else:
             module_name = database_input_type
             class_name = database_input_type.capitalize()
-        database_module = import_module(
-            "touchstone.databases." + module_name, package="databases"
-        )
+        database_module = import_module("touchstone.databases." + module_name, package="databases")
         database_input_class = getattr(database_module, class_name)
         instance = database_input_class(*args, **kwargs)
 

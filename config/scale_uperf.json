@@ -2,17 +2,26 @@
   "elasticsearch": {
     "metadata": {
       "cpuinfo-metadata": {
-        "element": "pod_name",
-        "compare": [
+        "additional_fields": [
+          "pod_name"
+        ],
+        "fields": [
           "value.Model name",
           "value.Architecture",
           "value.CPU(s)"
         ]
       },
       "meminfo-metadata": {
-        "element": "pod_name",
-        "compare": [
+        "additional_fields": [
+          "pod_name"
+        ],
+        "fields": [
           "value.MemTotal"
+        ]
+      },
+      "k8s_cluster_info-metadata": {
+        "fields": [
+          "value.cluster_version"
         ]
       }
     },
@@ -22,11 +31,9 @@
           "filter": {
             "test_type.keyword": "stream"
           },
-          "exclude": [
-            {
-              "norm_ops": 0
-            }
-          ],
+          "exclude": {
+            "norm_ops": 0
+          },
           "buckets": [
             "density",
             "nodes_in_iter",
@@ -48,11 +55,9 @@
           "filter": {
             "test_type.keyword": "rr"
           },
-          "exclude": [
-            {
-              "norm_ops": 0
-            }
-          ],
+          "exclude": {
+            "norm_ops": 0
+          },
           "buckets": [
             "density",
             "nodes_in_iter",
@@ -86,4 +91,3 @@
     }
   }
 }
-

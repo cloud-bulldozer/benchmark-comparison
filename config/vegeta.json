@@ -1,0 +1,63 @@
+{
+  "elasticsearch": {
+    "metadata": {
+      "cpuinfo-metadata": {
+        "additional_fields": [
+          "pod_name"
+        ],
+        "fields": [
+          "value.Model name",
+          "value.Architecture",
+          "value.CPU(s)"
+        ]
+      },
+      "meminfo-metadata": {
+        "additional_fields": [
+          "pod_name"
+        ],
+        "fields": [
+          "value.MemTotal"
+        ]
+      }
+    },
+    "ripsaw-vegeta-results": {
+      "compute": [
+        {
+          "filter": {},
+          "buckets": [
+            "targets.keyword"
+          ],
+          "aggregations": {
+            "rps": [
+              "avg"
+            ],
+            "throughput": [
+              "avg"
+            ],
+            "req_latency": [
+              "avg"
+            ],
+            "p95_latency": [
+              "avg"
+            ],
+            "p99_latency": [
+              "avg"
+            ],
+            "max_latency": [
+              "avg"
+            ],
+            "min_latency": [
+              "avg"
+            ],
+            "bytes_in": [
+              "avg"
+            ],
+            "bytes_out": [
+              "avg"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

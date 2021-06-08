@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import argparse
-import sys
 import logging
 import json
 import yaml
+import sys
 import csv
 from tabulate import tabulate
 
@@ -175,6 +175,9 @@ def main(args):
                 result = database_instance.emit_compute_dict(
                     uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
                 )
+                if not result:
+                    print("Error: Issue capturing results from {}".format(args.database))
+                    sys.exit(1)
                 mergedicts(result, main_json)
                 mergedicts(result, index_json)
 

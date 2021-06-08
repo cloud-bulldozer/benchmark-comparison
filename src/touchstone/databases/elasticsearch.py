@@ -64,7 +64,7 @@ class Elasticsearch(DatabaseBaseClass):
                 f"Incorrect JSON data: nested dictionaries aggregations \
 fields are required in {compute_map}"
             )
-            exit(1)
+            return output_dict
         buckets = compute_map.get("buckets", [])
         aggregations = compute_map["aggregations"]
         filters = compute_map.get("filter", {})

@@ -34,3 +34,19 @@ def flatten_and_discard(data, discard_keys=[], row_list=[]):
             row_list.append(row)
 
     inner_function(data)
+
+
+def extract_headers(compute_config, identifier):
+    """
+    Extracts the headers from a compute configuration
+    :arg compute_config: Input compute configuration
+    :arg identifier: Key identifier
+    """
+    compute_header = []
+    for key in compute_config.get("filter", []):
+        compute_header.append(key.split(".keyword")[0])
+    for bucket in compute_config.get("buckets", []):
+        compute_header.append(bucket.split(".keyword")[0])
+    for extra_h in ["key", identifier, "value"]:
+        compute_header.append(extra_h)
+    return compute_header

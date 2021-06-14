@@ -11,7 +11,7 @@ from touchstone import __version__
 from touchstone.benchmarks.generic import Benchmark
 from touchstone import decision_maker
 from . import databases
-from .utils.lib import mergedicts, flatten_and_discard
+from .utils.lib import mergedicts, flatten_and_discard, extract_headers
 
 __author__ = "red-hat-perfscale"
 __copyright__ = "red-hat-perfscale"
@@ -177,13 +177,9 @@ def main(args):
                 )
                 mergedicts(result, main_json)
                 mergedicts(result, index_json)
-                compute_header = []
-                for key in compute.get("filter", []):
-                    compute_header.append(key.split(".keyword")[0])
-                for bucket in compute.get("buckets", []):
-                    compute_header.append(bucket.split(".keyword")[0])
-                for extra_h in ["key", args.identifier, "value"]:
-                    compute_header.append(extra_h)
+
+                compute_header = extract_headers(compute, args.identifier)
+
             if index_json:
                 row_list = []
                 if args.output == "csv":

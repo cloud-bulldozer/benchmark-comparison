@@ -15,7 +15,7 @@ from .utils.lib import mergedicts, flatten_and_discard
 
 __author__ = "red-hat-perfscale"
 __copyright__ = "red-hat-perfscale"
-__license__ = "mit"
+__license__ = "Apache License 2.0"
 
 logger = logging.getLogger("touchstone")
 

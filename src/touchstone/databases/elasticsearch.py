@@ -72,7 +72,7 @@ fields are required in {compute_map}"
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
         #s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
-         s= elasticsearch.helpers.scan.(self._conn_object, query={"query": {"match", **{kw_identifier: uuid}}}, index=str(index), scroll='1m')    
+        s= elasticsearch.helpers.scan.(self._conn_object, query={"query": {"match", **{kw_identifier: uuid}}}, index=str(index), scroll='1m')    
            
         # Apply filters
         for key, value in filters.items():

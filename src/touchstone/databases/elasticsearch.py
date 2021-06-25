@@ -71,8 +71,8 @@ fields are required in {compute_map}"
 
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
-        #s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
-        s= elasticsearch.helpers.scan.(self._conn_object, query={"query": {"match", **{kw_identifier: uuid}}}, index=str(index), scroll='1m')    
+        s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
+        
            
         # Apply filters
         for key, value in filters.items():
@@ -83,10 +83,10 @@ fields are required in {compute_map}"
             s = s.exclude("match", **{key: value})
         if buckets:
             logger.debug("Building buckets")
-            a = A("terms", field=buckets[0], size=10000)
+            a = A("terms", field=buckets[0], size=1000000)
             x = s.aggs.bucket(buckets[0].split(".keyword")[0], a)
             for bucket in buckets[1:]:
-                a = A("terms", field=bucket, size=10000)
+                a = A("terms", field=bucket, size=1000000)
                 # Create bucket with and trimming characters after .
                 x = x.bucket(bucket.split(".keyword")[0], a)
             logger.debug("Finished adding buckets to query")
@@ -164,5 +164,60 @@ fields are required in {compute_map}"
             else:
                 return None
         return tmp_dict
+
+    def gen_filterResults_dict(self, reponse, filters, uuid):
+        output_dict = {}
+        input_dict = reponse.aggs.__dict__
+        # Remove .keyword from filter names
+        filters = [e.split(".keyword")[0] for e in filters]
+
+        def build_dict(input_dict, output_dict):
+            # Iterate through filters check if that filter exists in input_dict
+            for f in filters:
+                # If the fitler exists, add it
+                if f in input_dict:
+                    output_dict[f] = {}
+                    # Iterate through bucket values and recurse with each nested bucket
+                    for filter in input_dict[f]["filters"]:
+                        output_dict[f][filter["key"]] = {}
+                        build_dict(filter, output_dict[f][filter["key"]])
+            # This is supposed to run in the last level
+            
+
+        build_dict(input_dict["_d_"], output_dict)
+        return output_dict
+
+    def get_timeseries_result(self, uuid, compute_map, index, identifier):
+
+        #not aggreated data 
+        aggregations = compute_map["not-aggregated"]
+        filters = compute_map.get("filter", {})
+
+        logger.debug("Initializing search object")
+        kw_identifier = identifier + ".keyword" 
+
+        s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
+
+        # Apply filters
+        for key, value in filters.items():
+            s = s.filter("term", **{key: value})
+
+        logger.debug("Finished adding filters")
+        logger.debug("Built the following query: {}".format(json.dumps(s.to_dict(), indent=4)))
+        response = s.execute()
+        logger.debug("Succesfully executed the search query")
+
+        if len(response.hits.hits) == 0:
+            return {}
+        _output_dict = self.gen_filterResults_dict(response, filters, uuid)
+        logger.debug(
+            "output compute dictionary with summaries is: {}".format(json.dumps(_output_dict, indent=4))
+        )
+        return _output_dict
+        
+
+
+
+
 
     

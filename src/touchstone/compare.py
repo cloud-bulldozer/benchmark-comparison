@@ -171,21 +171,30 @@ def main(args):
             index_json = {}
             # Iterate through UUIDs
             for uuid_index, uuid in enumerate(args.uuid):
+
                 # Create database connection instance
                 database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
-                # Add method emit_compute_dict to the elasticsearch class
-                result = database_instance.emit_compute_dict(
-                    uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
-                )
-                if not result:
-                    logger.error(
-                        f"Error: Issue capturing results from {args.database} using config {compute}"
+                #Add method emit_compute_dict to the elasticsearch class
+                if "aggregations" in benchmark_instance.compute_map[index]:
+                    result = database_instance.emit_compute_dict(
+                        uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
                     )
-                mergedicts(result, main_json)
-                mergedicts(result, index_json)
-
-                compute_header = extract_headers(compute, args.identifier)
-
+                    if not result:
+                        logger.error(
+                            f"Error: Issue capturing results from {args.database} using config {compute}"
+                        )
+                    mergedicts(result, main_json)
+                    mergedicts(result, index_json)
+                    compute_header = []
+                    for key in compute.get("filter", []):
+                        compute_header.append(key.split(".keyword")[0])
+                    for bucket in compute.get("buckets", []):
+                        compute_header.append(bucket.split(".keyword")[0])
+                    for extra_h in ["key", args.identifier, "value"]:
+                        compute_header.append(extra_h)
+                elif "not-aggregated" in benchmark_instance.compute_map[index]:
+                    pass
+                else: logger.error("Not Supported configutation")
             if index_json:
                 row_list = []
                 if args.output == "csv":
@@ -220,3 +229,5 @@ def render():
 
 if __name__ == "__main__":
     render()
+
+

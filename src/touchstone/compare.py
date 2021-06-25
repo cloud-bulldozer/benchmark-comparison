@@ -193,7 +193,18 @@ def main(args):
                     for extra_h in ["key", args.identifier, "value"]:
                         compute_header.append(extra_h)
                 elif "not-aggregated" in benchmark_instance.compute_map[index]:
-                    pass
+                    result = database_instance.get_timeseries_results(uuid=uuid,compute_map=compute, index=index, identifier=args.identifier,
+                    )
+                    if not result:
+                        logger.error(
+                            f"Error: Issue capturing results from {args.database} using config {compute}"
+                        )
+                    mergedicts(result, main_json)
+                    mergedicts(result, index_json)
+                    compute_header = []
+                    for key in compute.get("filter", []):
+                        compute_header.append(key.split(".keyword")[0])
+
                 else: logger.error("Not Supported configutation")
             if index_json:
                 row_list = []

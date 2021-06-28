@@ -83,10 +83,10 @@ fields are required in {compute_map}"
             s = s.exclude("match", **{key: value})
         if buckets:
             logger.debug("Building buckets")
-            a = A("terms", field=buckets[0], size=1000000)
+            a = A("terms", field=buckets[0], size=10000)
             x = s.aggs.bucket(buckets[0].split(".keyword")[0], a)
             for bucket in buckets[1:]:
-                a = A("terms", field=bucket, size=1000000)
+                a = A("terms", field=bucket, size=10000)
                 # Create bucket with and trimming characters after .
                 x = x.bucket(bucket.split(".keyword")[0], a)
             logger.debug("Finished adding buckets to query")
@@ -187,7 +187,7 @@ fields are required in {compute_map}"
         build_dict(input_dict["_d_"], output_dict)
         return output_dict
 
-    def get_timeseries_result(self, uuid, compute_map, index, identifier):
+    def get_timeseries_results(self, uuid, compute_map, index, identifier):
 
         #not aggreated data 
         aggregations = compute_map["not-aggregated"]

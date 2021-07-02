@@ -188,8 +188,14 @@ def main(args):
                         compute_header.append(extra_h)
 
                 elif "not-aggregated" in compute:
-                    result = database_instance.get_timeseries_results(uuid=uuid,compute_map=compute, index=index, identifier=args.identifier,
+                    
+                    result = database_instance.get_timeseries_results(uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
                     )
+                    
+                    #went through elasticsearch file
+
+                    print('elasticsearch complete \n')
+                    
                     mergedicts(result, main_json)
                     mergedicts(result, index_json)
                     compute_header = []
@@ -197,7 +203,8 @@ def main(args):
                         compute_header.append(key.split(".keyword")[0])
 
                 else: 
-                    logger.error("Not Supported configutation")
+                    
+                    logger.error("else -Not Supported configutation")
             if index_json:
                 row_list = []
                 if args.output == "csv":

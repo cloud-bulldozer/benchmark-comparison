@@ -165,55 +165,87 @@ fields are required in {compute_map}"
                 return None
         return tmp_dict
 
-    def gen_filterResults_dict(self, reponse, filters, uuid):
+    def gen_filterResults_dict(self, reponse, buckets, uuid):
         output_dict = {}
         input_dict = reponse.aggs.__dict__
         # Remove .keyword from filter names
-        filters = [e.split(".keyword")[0] for e in filters]
+        buckets = [e.split(".keyword")[0] for e in buckets]
+
+        print(input_dict, "\n")
 
         def build_dict(input_dict, output_dict):
-            # Iterate through filters check if that filter exists in input_dict
-            for f in filters:
-                # If the fitler exists, add it
-                if f in input_dict:
-                    output_dict[f] = {}
+            for b in buckets:
+                # If the bucket exists, add it
+                if b in input_dict:
+                    output_dict[b] = {}
                     # Iterate through bucket values and recurse with each nested bucket
-                    for filter in input_dict[f]["filters"]:
-                        output_dict[f][filter["key"]] = {}
-                        build_dict(filter, output_dict[f][filter["key"]])
-            # This is supposed to run in the last level
-            
+                    for bucket in input_dict[b]["buckets"]:
+                        output_dict[b][bucket["key"]] = {}
+                        build_dict(bucket, output_dict[b][bucket["key"]])
+            else:
+                a = a = A("terms")
+            logger.debug("Adding aggregations to query")
 
         build_dict(input_dict["_d_"], output_dict)
+        
         return output_dict
 
     def get_timeseries_results(self, uuid, compute_map, index, identifier):
 
         #not aggreated data 
-        aggregations = compute_map["not-aggregated"]
+        
         filters = compute_map.get("filter", {})
+        buckets = compute_map.get("buckets", [])
+        print('This is the filtered results: ', filter, '\n')
 
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword" 
 
+        
         s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
-
+        
+        
         # Apply filters
         for key, value in filters.items():
             s = s.filter("term", **{key: value})
+        if buckets:
+            logger.debug("Building buckets")
+            a = A("terms", field=buckets[0], size=10000)
+            x = s.aggs.bucket(buckets[0].split(".keyword")[0], a)
+            for bucket in buckets[1:]:
+                a = A("terms", field=bucket, size=10000)
+                # Create bucket with and trimming characters after .
+                x = x.bucket(bucket.split(".keyword")[0], a)
+            logger.debug("Finished adding buckets to query")
+
+        
 
         logger.debug("Finished adding filters")
         logger.debug("Built the following query: {}".format(json.dumps(s.to_dict(), indent=4)))
         response = s.execute()
         logger.debug("Succesfully executed the search query")
 
+        print(response, "going into the responces: \n")
+
         if len(response.hits.hits) == 0:
             return {}
-        _output_dict = self.gen_filterResults_dict(response, filters, uuid)
+
+        _output_dict = self.gen_filterResults_dict(response, buckets, uuid)
+        if filters:
+            output_dict = _output_dict
+            filter_list = []
+            for key, value in filters.items():
+                filter_list.append(key)
+                filter_list.append(value)
+            # Include all k,v from filters as keys in the output dictionary
+            for key in reversed(filter_list):
+                output_dict = {key.split(".keyword")[0]: output_dict}
+        else:
+            output_dict = _output_dict
         logger.debug(
             "output compute dictionary with summaries is: {}".format(json.dumps(_output_dict, indent=4))
         )
-        return _output_dict
+        return output_dict
         
 
 

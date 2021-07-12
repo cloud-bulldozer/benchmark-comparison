@@ -10,11 +10,11 @@ from touchstone import __version__
 from touchstone.benchmarks.generic import Benchmark
 from touchstone import decision_maker
 from . import databases
-from .utils.lib import mergedicts, flatten_and_discard
+from .utils.lib import mergedicts, flatten_and_discard, extract_headers
 
 __author__ = "red-hat-perfscale"
 __copyright__ = "red-hat-perfscale"
-__license__ = "mit"
+__license__ = "Apache License 2.0"
 
 logger = logging.getLogger("touchstone")
 

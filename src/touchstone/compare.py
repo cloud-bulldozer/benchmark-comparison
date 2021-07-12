@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import argparse
 import sys
 import logging
@@ -22,10 +21,8 @@ logger = logging.getLogger("touchstone")
 
 def parse_args(args):
     """Parse command line parameters
-
     Args:
       args ([str]): command line parameters as list of strings
-
     Returns:
       :obj:`argparse.Namespace`: command line parameters namespace
     """
@@ -109,7 +106,6 @@ def parse_args(args):
 
 def setup_logging(loglevel):
     """Setup basic logging
-
     Args:
       loglevel (int): minimum loglevel for emitting messages
     """
@@ -119,7 +115,6 @@ def setup_logging(loglevel):
 
 def main(args):
     """Main entry point allowing external calls
-
     Args:
       args ([str]): command line parameter list
     """
@@ -187,24 +182,16 @@ def main(args):
                     for extra_h in ["key", args.identifier, "value"]:
                         compute_header.append(extra_h)
 
-                elif "not-aggregated" in compute:
-                    
-                    result = database_instance.get_timeseries_results(uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
-                    )
-                    
-                    #went through elasticsearch file
-
-                    print('elasticsearch complete \n')
-                    
-                    mergedicts(result, main_json)
-                    mergedicts(result, index_json)
-                    compute_header = []
-                    for key in compute.get("filter", []):
-                        compute_header.append(key.split(".keyword")[0])
-
-                else: 
-                    
-                    logger.error("else -Not Supported configutation")
+                elif "timeseries" in compute and compute["timeseries"]:
+                    timeseries_result = database_instance.get_timeseries_results(uuid=uuid, compute_map=compute, index=index, identifier=args.identifier)
+                else:
+                    logger.error("Not Supported configutation")
+            if timeseries_result:
+                if not args.output or args.output == "json":
+                    output_file.write(json.dumps(timeseries_result, indent=4))
+                if args.output == "yaml":
+                    output_file.write(yaml.dump(timeseries_result, allow_unicode=True))
+                return
             if index_json:
                 row_list = []
                 if args.output == "csv":
@@ -223,7 +210,7 @@ def main(args):
         output_file.write(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
         output_file.write(yaml.dump(main_json, allow_unicode=True))
-    logger.info("Script ends here")
+    logger.debug("Script ends here")
     if args.tolerancy_rules:
         sys.exit(
             decision_maker.run(
@@ -240,5 +227,3 @@ def render():
 
 if __name__ == "__main__":
     render()
-
-

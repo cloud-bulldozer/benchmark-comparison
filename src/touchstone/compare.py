@@ -10,7 +10,7 @@ from touchstone import __version__
 from touchstone.benchmarks.generic import Benchmark
 from touchstone import decision_maker
 from . import databases
-from .utils.lib import mergedicts, flatten_and_discard, extract_headers
+from .utils.lib import mergedicts, flatten_and_discard
 
 __author__ = "red-hat-perfscale"
 __copyright__ = "red-hat-perfscale"
@@ -189,7 +189,9 @@ def main(args):
                         compute_header.append(extra_h)
 
                 elif "timeseries" in compute and compute["timeseries"]:
-                    timeseries_result = database_instance.get_timeseries_results(uuid=uuid, compute_map=compute, index=index, identifier=args.identifier)
+                    timeseries_result = database_instance.get_timeseries_results(
+                        uuid=uuid, compute_map=compute, index=index, identifier=args.identifier
+                    )
                     if not timeseries_result:
                         logger.error(
                             f"Error: Issue capturing results from {args.database} using config {compute}"

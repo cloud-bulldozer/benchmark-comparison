@@ -1,20 +1,16 @@
 {
   "elasticsearch": {
-    
     "ocm-requests": [
       {
         "filter": {
-          "test_name.keyword": "create-cluster"
+          "test_name.keyword": "self-terms-review"
         },
         "buckets":[
-          
           "code",
           "latancy_nc"
         ],      
-        "not-aggregated":{
-        }
+                "timeseries": true
       }
     ]
   }
 }
-

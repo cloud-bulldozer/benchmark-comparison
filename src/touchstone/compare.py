@@ -10,7 +10,7 @@ from touchstone import __version__
 from touchstone.benchmarks.generic import Benchmark
 from touchstone import decision_maker
 from . import databases
-from .utils.lib import mergedicts, flatten_and_discard, extract_headers
+from .utils.lib import mergedicts, flatten_and_discard
 
 __author__ = "red-hat-perfscale"
 __copyright__ = "red-hat-perfscale"
@@ -167,7 +167,7 @@ def main(args):
 
                 # Create database connection instance
                 database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
-                    # Add method emit_compute_dict to the elasticsearch class
+                # Add method emit_compute_dict to the elasticsearch class
                 if "aggregations" in compute:
                     result = database_instance.emit_compute_dict(
                         uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
@@ -183,7 +183,9 @@ def main(args):
                         compute_header.append(extra_h)
 
                 elif "timeseries" in compute and compute["timeseries"]:
-                    timeseries_result = database_instance.get_timeseries_results(uuid=uuid, compute_map=compute, index=index, identifier=args.identifier)
+                    timeseries_result = database_instance.get_timeseries_results(
+                        uuid=uuid, compute_map=compute, index=index, identifier=args.identifier
+                    )
                 else:
                     logger.error("Not Supported configutation")
             if timeseries_result:

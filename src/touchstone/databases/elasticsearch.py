@@ -73,8 +73,7 @@ fields are required in {compute_map}"
         logger.debug("Initializing search object")
         kw_identifier = identifier + ".keyword"  # append .keyword
         s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
-        
-           
+
         # Apply filters
         for key, value in filters.items():
             s = s.filter("term", **{key: value})
@@ -167,19 +166,19 @@ fields are required in {compute_map}"
         return tmp_dict
 
     def gen_result_list(self, response):
-        output_list= []
+        output_list = []
         for hit in response:
             output_list.append(hit.__dict__["_d_"])
         return output_list
 
     def get_timeseries_results(self, uuid, compute_map, index, identifier):
 
-        #not aggreated data 
-        
+        # not aggreated data
+
         filters = compute_map.get("filter", {})
 
         logger.debug("Initializing search object")
-        kw_identifier = identifier + ".keyword" 
+        kw_identifier = identifier + ".keyword"
         s = Search(using=self._conn_object, index=str(index)).query("match", **{kw_identifier: uuid})
         # Apply filters
         for key, value in filters.items():
@@ -189,7 +188,7 @@ fields are required in {compute_map}"
         for hit in s.scan():
             print(hit)
         response = s.execute()
-        
+
         if len(response.hits.hits) == 0:
             return {}
         return self.gen_result_list(response)

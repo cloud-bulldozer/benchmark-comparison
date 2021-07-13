@@ -1,6 +1,10 @@
 import logging
+
+# include pandas
+import pandas as pd
 import elasticsearch
 import json
+import elasticsearch.helpers
 from elasticsearch_dsl import Search, A
 
 
@@ -165,11 +169,11 @@ fields are required in {compute_map}"
                 return None
         return tmp_dict
 
-    def gen_result_list(self, response):
-        output_list = []
-        for hit in response:
-            output_list.append(hit.__dict__["_d_"])
-        return output_list
+    # def gen_result_list(self, response):
+    #    output_list = []
+    #    for hit in response:
+    #        output_list.append(hit.__dict__["_d_"])
+    #    return output_list
 
     def get_timeseries_results(self, uuid, compute_map, index, identifier):
 
@@ -185,10 +189,11 @@ fields are required in {compute_map}"
             s = s.filter("term", **{key: value})
         logger.debug("Finished adding filters")
         logger.debug("Built the following query: {}".format(json.dumps(s.to_dict(), indent=4)))
-        for hit in s.scan():
-            print(hit)
-        response = s.execute()
 
-        if len(response.hits.hits) == 0:
-            return {}
-        return self.gen_result_list(response)
+        output_list = []
+        for hit in s.scan():
+            output_list.append(hit.__dict__["_d_"])
+        results_df = pd.DataFrame((d.to_dict() for d in s.scan()))
+        print(results_df)
+
+        return output_list

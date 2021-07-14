@@ -7,9 +7,10 @@ Touchstone is a framework written in python that provides you an apples to apple
 It is suggested to use a venv to install and run touchstone.
 
 ```shell
-$ python -m venv /path/to/new/virtual/environment
-source /path/to/new/virtual/environment/bin/activate
+python -m venv /virtual/environment
+source /virtual/environment/bin/activate
 git clone https://github.com/cloud-bulldozer/touchstone
+cd touchstone
 python setup.py develop
 touchstone_compare -h
 usage: touchstone_compare [-h] [--version] [--database {elasticsearch}] [--identifier-key IDENTIFIER] -u UUID [UUID ...] [-o {json,yaml,csv}] --config CONFIG [--output-file OUTPUT_FILE] [--tolerancy-rules TOLERANCY_RULES] -url CONN_URL

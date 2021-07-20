@@ -167,7 +167,7 @@ fields are required in {compute_map}"
 
     def get_timeseries_results(self, uuid, compute_map, index, identifier):
 
-        # not aggreated data
+        # not aggregated data
 
         filters = compute_map.get("filter", {})
 

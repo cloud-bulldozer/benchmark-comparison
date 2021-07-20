@@ -9,7 +9,7 @@
           "code",
           "latancy_nc"
         ],
-                "timeseries": true
+        "timeseries": true
       }
     ]
   }

@@ -179,7 +179,7 @@ fields are required in {compute_map}"
             s = s.filter("term", **{key: value})
         logger.debug("Finished adding filters")
         logger.debug("Built the following query: {}".format(json.dumps(s.to_dict(), indent=4)))
-
+        
         output_list = []
         for hit in s.scan():
             output_list.append(hit.__dict__["_d_"])

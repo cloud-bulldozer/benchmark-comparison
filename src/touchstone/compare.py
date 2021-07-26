@@ -196,6 +196,14 @@ def main(args):
                         logger.error(
                             f"Error: Issue capturing results from {args.database} using config {compute}"
                         )
+                    mergedicts(timeseries_result, main_json)
+                    mergedicts(timeseries_result, index_json)
+                    compute_header = []
+                    for key in compute.get("filter", []):
+                        compute_header.append(key.split(".keyword")[0])
+                    for bucket in compute.get("buckets", []):
+                        compute_header.append(bucket.split(".keyword")[0])
+
                 else:
                     logger.error("Not Supported configutation")
             if timeseries_result:

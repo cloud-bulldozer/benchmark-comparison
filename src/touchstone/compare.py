@@ -113,8 +113,10 @@ def setup_logging(loglevel):
     Args:
       loglevel (int): minimum loglevel for emitting messages
     """
-    logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
-    logging.basicConfig(level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S")
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
 def main(args):
@@ -176,8 +178,9 @@ def main(args):
                     uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
                 )
                 if not result:
-                    print("Error: Issue capturing results from {}".format(args.database))
-                    sys.exit(1)
+                    logger.error(
+                        f"Error: Issue capturing results from {args.database} using config {compute}"
+                    )
                 mergedicts(result, main_json)
                 mergedicts(result, index_json)
 
@@ -201,7 +204,6 @@ def main(args):
         output_file.write(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
         output_file.write(yaml.dump(main_json, allow_unicode=True))
-    logger.info("Script ends here")
     if args.tolerancy_rules:
         sys.exit(
             decision_maker.run(

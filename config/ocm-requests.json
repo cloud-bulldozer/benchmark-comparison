@@ -7,7 +7,7 @@
         },
         "buckets":[
           "code",
-          "latancy_nc"
+          "latancy_ns"
         ],
         "timeseries": true
       }

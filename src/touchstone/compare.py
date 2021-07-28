@@ -178,6 +178,7 @@ def main(args):
                         logger.error(
                             f"Error: Issue capturing results from {args.database} using config {compute}"
                         )
+                        return {}
                     mergedicts(result, main_json)
                     mergedicts(result, index_json)
                     compute_header = []
@@ -196,6 +197,7 @@ def main(args):
                         logger.error(
                             f"Error: Issue capturing results from {args.database} using config {compute}"
                         )
+                        return {}
                     mergedicts(timeseries_result, main_json)
                     mergedicts(timeseries_result, index_json)
                     compute_header = []
@@ -230,7 +232,7 @@ def main(args):
         output_file.write(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
         output_file.write(yaml.dump(main_json, allow_unicode=True))
-    logger.debug("Script ends here")
+
     if args.tolerancy_rules:
         sys.exit(
             decision_maker.run(

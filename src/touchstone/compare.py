@@ -166,7 +166,6 @@ def main(args):
             index_json = {}
             # Iterate through UUIDs
             for uuid_index, uuid in enumerate(args.uuid):
-
                 # Create database connection instance
                 database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
                 # Add method emit_compute_dict to the elasticsearch class

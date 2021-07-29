@@ -170,6 +170,7 @@ def main(args):
                 database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
                 # Add method emit_compute_dict to the elasticsearch class
                 if "aggregations" in compute:
+                    timeseries_result = 0
                     result = database_instance.emit_compute_dict(
                         uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
                     )

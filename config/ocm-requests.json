@@ -7,7 +7,7 @@
         },
         "buckets":[
           "code",
-          "latancy_ns"
+          "latency_ns"
         ],
         "timeseries": true
       }

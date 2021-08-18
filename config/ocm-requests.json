@@ -5,10 +5,6 @@
         "filter": {
           "test_name.keyword": "self-terms-review"
         },
-        "buckets":[
-          "code",
-          "latency_ns"
-        ],
         "timeseries": true
       }
     ]

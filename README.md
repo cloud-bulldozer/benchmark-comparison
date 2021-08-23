@@ -224,6 +224,72 @@ $ echo $?
 1
 ```
 
+### Querying for raw data
+
+Using the config file [ocm-requests.json](config/ocm-requests.json)
+
+```shell
+$ touchstone_compare -url https://my-es-instance.com:9200 -u 975fa650-aeb2-5042-8517-fe277d7cb1f3  --config config/ocm-results.json
+[
+    {
+        "test_name": "self-terms-review",
+        "uuid": "aeed6306-b7e1-11eb-b313-e86a640406b2",
+        "timestamp": "2021-05-18T19:44:08.826868032Z",
+        "code": 200,
+        "method": "POST",
+        "url": "/api/authorizations/v1/self_terms_review",
+        "latency_ns": 5153765154,
+        "bytes_out": 0,
+        "bytes_in": 139,
+        "has_error": false,
+        "has_body": true
+    },
+    {
+        "test_name": "self-terms-review",
+        "uuid": "aeed6306-b7e1-11eb-b313-e86a640406b2",
+        "timestamp": "2021-05-18T19:44:12.026910285Z",
+        "code": 200,
+        "method": "POST",
+        "url": "/api/authorizations/v1/self_terms_review",
+        "latency_ns": 3883379506,
+        "bytes_out": 0,
+        "bytes_in": 139,
+        "has_error": false,
+        "has_body": true
+    },
+    {
+        "test_name": "self-terms-review",
+        "uuid": "aeed6306-b7e1-11eb-b313-e86a640406b2",
+        "timestamp": "2021-05-18T19:44:13.3269087Z",
+        "code": 200,
+        "method": "POST",
+        "url": "/api/authorizations/v1/self_terms_review",
+        "latency_ns": 3145732320,
+        "bytes_out": 0,
+        "bytes_in": 139,
+        "has_error": false,
+        "has_body": true
+    },
+...
+...
+...
+    {
+        "test_name": "self-terms-review",
+        "uuid": "aeed6306-b7e1-11eb-b313-e86a640406b2",
+        "timestamp": "2021-05-18T19:49:09.626913447Z",
+        "code": 0,
+        "method": "POST",
+        "url": "/api/authorizations/v1/self_terms_review",
+        "latency_ns": 15068360575,
+        "bytes_out": 0,
+        "bytes_in": 0,
+        "has_error": true,
+        "has_body": false
+    }
+]
+
+```
+
 ### CodeStyling and Linting
 
 Touchstone uses [pre-commit](https://pre-commit.com) framework to maintain the code linting and python code styling.

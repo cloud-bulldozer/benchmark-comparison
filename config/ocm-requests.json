@@ -1,0 +1,12 @@
+{
+  "elasticsearch": {
+    "ocm-requests": [
+      {
+        "filter": {
+          "test_name.keyword": "self-terms-review"
+        },
+        "timeseries": true
+      }
+    ]
+  }
+}

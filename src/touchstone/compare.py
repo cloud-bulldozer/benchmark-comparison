@@ -10,7 +10,7 @@ from touchstone import __version__
 from touchstone.benchmarks.generic import Benchmark
 from touchstone import decision_maker
 from . import databases
-from .utils.lib import mergedicts, flatten_and_discard
+from .utils.lib import mergedicts, flatten_and_discard, extract_headers
 
 __author__ = "red-hat-perfscale"
 __copyright__ = "red-hat-perfscale"
@@ -158,10 +158,11 @@ def main(args):
                 )
                 metadata_dict = {}
 
+    timeseries_result = 0
     # Iterate through indexes
     for index in benchmark_instance.get_indices():
         for compute in benchmark_instance.compute_map[index]:
-            # index_json is used for csv and standard output. Since the heeader may be different in each index
+            # index_json is used for csv and standard output. Since the header may be different in each index
             # we need to print csv or stdout for each index
             index_json = {}
             # Iterate through UUIDs
@@ -170,7 +171,6 @@ def main(args):
                 database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
                 # Add method emit_compute_dict to the elasticsearch class
                 if "aggregations" in compute:
-                    timeseries_result = 0
                     result = database_instance.emit_compute_dict(
                         uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
                     )
@@ -178,16 +178,9 @@ def main(args):
                         logger.error(
                             f"Error: Issue capturing results from {args.database} using config {compute}"
                         )
-                        return {}
                     mergedicts(result, main_json)
                     mergedicts(result, index_json)
-                    compute_header = []
-                    for key in compute.get("filter", []):
-                        compute_header.append(key.split(".keyword")[0])
-                    for bucket in compute.get("buckets", []):
-                        compute_header.append(bucket.split(".keyword")[0])
-                    for extra_h in ["key", args.identifier, "value"]:
-                        compute_header.append(extra_h)
+                    compute_header = extract_headers(compute, args.identifier)
 
                 elif "timeseries" in compute and compute["timeseries"]:
                     timeseries_result = database_instance.get_timeseries_results(
@@ -200,11 +193,6 @@ def main(args):
                         return {}
                     mergedicts(timeseries_result, main_json)
                     mergedicts(timeseries_result, index_json)
-                    compute_header = []
-                    for key in compute.get("filter", []):
-                        compute_header.append(key.split(".keyword")[0])
-                    for bucket in compute.get("buckets", []):
-                        compute_header.append(bucket.split(".keyword")[0])
 
                 else:
                     logger.error("Not Supported configutation")

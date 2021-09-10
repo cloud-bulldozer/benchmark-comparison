@@ -53,6 +53,9 @@ def parse_args(args):
         nargs="+",
     )
     parser.add_argument(
+        "-a", "--aliases", help="id aliases", type=str, nargs="+",
+    )
+    parser.add_argument(
         "-o",
         "--output",
         help="How should touchstone output the result",
@@ -121,6 +124,9 @@ def main(args):
       args ([str]): command line parameter list
     """
     args = parse_args(args)
+    if args.aliases and len(args.uuid) != len(args.aliases):
+        logger.critical("Number of aliases must be equal to the number of IDs")
+        sys.exit(1)
     setup_logging(args.loglevel)
     main_json = {}
     logger.debug("Instantiating the benchmark instance")
@@ -171,8 +177,9 @@ def main(args):
                 database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
                 # Add method emit_compute_dict to the elasticsearch class
                 if "aggregations" in compute:
+                    alias = args.aliases[uuid_index] if args.aliases else None
                     result = database_instance.emit_compute_dict(
-                        uuid=uuid, compute_map=compute, index=index, identifier=args.identifier,
+                        uuid=uuid, compute_map=compute, index=index, identifier=args.identifier, alias=alias,
                     )
                     if not result:
                         logger.error(
@@ -211,9 +218,7 @@ def main(args):
                     list(map(writer.writerow, row_list))
                 elif not args.output:
                     flatten_and_discard(index_json, compute_header, row_list)
-                    print(
-                        tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file,
-                    )
+                    print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
     if metadata_dict:
         main_json["metadata"] = metadata_dict
     if args.output == "json":
@@ -222,9 +227,10 @@ def main(args):
         output_file.write(yaml.dump(main_json, allow_unicode=True))
 
     if args.tolerancy_rules:
+        baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
         sys.exit(
             decision_maker.run(
-                args.uuid[0], main_json, args.tolerancy_rules, args.output, compute_header, output_file,
+                baseline_uuid, main_json, args.tolerancy_rules, args.output, compute_header, output_file,
             )
         )
 

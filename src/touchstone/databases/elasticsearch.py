@@ -23,9 +23,11 @@ class Elasticsearch(DatabaseBaseClass):
         self._aggs_list = []
         logger.debug("Finished Initializing Elasticsearch object")
 
-    def gen_result_dict(self, reponse, buckets, aggs, uuid):
+    def gen_result_dict(self, response, buckets, aggs, uuid, alias):
+        if alias:
+            uuid = alias
         output_dict = {}
-        input_dict = reponse.aggs.__dict__
+        input_dict = response.aggs.__dict__
         # Remove .keyword from bucket names
         buckets = [e.split(".keyword")[0] for e in buckets]
 
@@ -55,7 +57,7 @@ class Elasticsearch(DatabaseBaseClass):
         build_dict(input_dict["_d_"], output_dict)
         return output_dict
 
-    def emit_compute_dict(self, uuid, compute_map, index, identifier):
+    def emit_compute_dict(self, uuid, compute_map, index, identifier, alias):
         """
         Returns the normalized data from the ES query
         """
@@ -117,7 +119,7 @@ fields are required in {compute_map}"
 
         if len(response.hits.hits) == 0:
             return {}
-        _output_dict = self.gen_result_dict(response, buckets, self._aggs_list, uuid)
+        _output_dict = self.gen_result_dict(response, buckets, self._aggs_list, uuid, alias)
         if filters:
             output_dict = _output_dict
             filter_list = []

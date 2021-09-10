@@ -149,7 +149,7 @@ def main(args):
             args.identifier,
             "value",
         ]
-        if metadata_dict:
+        if metadata_dict and not args.tolerancy_rules:
             if args.output == "csv":
                 row_list = [headers]
                 flatten_and_discard(metadata_dict, headers, row_list)
@@ -209,7 +209,7 @@ def main(args):
                 if args.output == "yaml":
                     output_file.write(yaml.dump(timeseries_result, allow_unicode=True))
                 return
-            if index_json:
+            if index_json and not args.tolerancy_rules:
                 row_list = []
                 if args.output == "csv":
                     row_list.append(compute_header)
@@ -219,13 +219,13 @@ def main(args):
                 elif not args.output:
                     flatten_and_discard(index_json, compute_header, row_list)
                     print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
-    if metadata_dict:
-        main_json["metadata"] = metadata_dict
-    if args.output == "json":
-        output_file.write(json.dumps(main_json, indent=4))
-    elif args.output == "yaml":
-        output_file.write(yaml.dump(main_json, allow_unicode=True))
-
+    if not args.tolerancy_rules:
+        if metadata_dict:
+            main_json["metadata"] = metadata_dict
+        if args.output == "json":
+            output_file.write(json.dumps(main_json, indent=4))
+        elif args.output == "yaml":
+            output_file.write(yaml.dump(main_json, allow_unicode=True))
     if args.tolerancy_rules:
         baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
         sys.exit(

@@ -30,10 +30,10 @@ class Compare:
             deviation = -deviation if v < input_dict[self.baseline_uuid] else deviation
             compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "baseline"}
             if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
-                compare_dict[u] = {v: "failed: {:.2f}%".format(deviation)}
+                compare_dict[u] = {v: "Fail: {:.2f}%".format(deviation)}
                 self.rc = 1
             else:
-                compare_dict[u] = {v: "ok: {:.2f}%".format(deviation)}
+                compare_dict[u] = {v: "Pass: {:.2f}%".format(deviation)}
 
     def compare(self, json_path, tolerancy):
         """
@@ -42,7 +42,7 @@ class Compare:
         :param tolerancy Tolerancy value
         """
         # Split json path
-        self.json_path = json_path.split("/")
+        self.json_path = json_path
         self.tolerancy = tolerancy
         self.compare_dict = {}
 

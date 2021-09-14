@@ -185,17 +185,17 @@ Note: If the identifier is same for 2 or more uuids, then all of the results wil
 
 ### Using tolerations
 
-`touchstone` brings a metric toleration evaluation mechanism. This functionallity allows to detect regressions in metrics.
+`touchstone` ships a metric toleration evaluation mechanism. This functionallity allows touchstone to detect regressions in metrics.
 This feature can be enabled with the flag `--tolerancy-rules` which points to a tolerancy configuration file that looks like:
 
-```ỳaml
-- json_path: "test_type/stream/protocol/*/message_size/*/num_threads/*/avg(norm_byte)"
-  tolerancy: -10
-- json_path: "test_type/rr/protocol/*/message_size/*/num_threads/*/99.0percentiles(norm_ltcy)"
+```yaml
+- json_path: ["test_type", "stream", "protocol", "*", "message_size", "*", "num_threads", "*", "avg(norm_byte)"]
+  tolerancy: -15
+- json_path: ["test_type", "rr", "protocol", "*", "message_size", "*", "num_threads", "*", "99.0percentiles(norm_ltcy)"]
   tolerancy: 15
 ```
 
-This YAML file contains a list of dictionaries, where the `json_path` key indicates the path that will allow `touchstone` finding the metrics from a comparison.
+This YAML file contains a list of dictionaries, where the `json_path` key is a list that indicates the path that will allow `touchstone` to find the metric values from a comparison.
 Wildcards can be used to match several keys at a certain level, and `tolerancy` defines the accepted tolerance percentage by the metrics matched by `json_path`.  i.e a 10 would mean any metric 10% higher than the baseline metric will be considered an error, and -10 would mean the opposite, any metric at least 10% below the baseline value will be considered an error.
 
 By default `touchstone` takes the first UUID passed as baseline. When `touchstone` finds a metric not meeting a configured tolerancy thresholds it returns 1.
@@ -209,19 +209,19 @@ $ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-
 |  test_type  | routes | conn_per_targetroute | keepalive |           key            |                 uuid                 |  value   |   tolerancy    |
 +-------------+--------+----------------------+-----------+--------------------------+--------------------------------------+----------+----------------+
 |    http     |  500   |          1           |     0     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 191160.0 |    baseline    |
-|    http     |  500   |          1           |     0     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 199434.0 |       ok       |
+|    http     |  500   |          1           |     0     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 199434.0 |      Pass      |
 |    http     |  500   |          1           |     1     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 12892.5  |    baseline    |
-|    http     |  500   |          1           |     1     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 11559.0  |       ok       |
+|    http     |  500   |          1           |     1     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 11559.0  |      Pass      |
 |    http     |  500   |          1           |    50     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 170566.0 |    baseline    |
-|    http     |  500   |          1           |    50     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 172050.5 |       ok       |
+|    http     |  500   |          1           |    50     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 172050.5 |      Pass      |
 |    http     |  500   |          20          |     0     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 66229.0  |    baseline    |
-|    http     |  500   |          20          |     0     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 72479.0  |       ok       |
+|    http     |  500   |          20          |     0     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 72479.0  |      Pass      |
 |    http     |  500   |          20          |     1     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 12097.5  |    baseline    |
-|    http     |  500   |          20          |     1     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 11075.0  |       ok       |
+|    http     |  500   |          20          |     1     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 11075.0  |      Pass      |
 |    http     |  500   |          20          |    50     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 75213.0  |    baseline    |
-|    http     |  500   |          20          |    50     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 89248.0  |       ok       |
+|    http     |  500   |          20          |    50     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 89248.0  |      Pass      |
 $ echo $?
-1
+0
 ```
 
 ### Querying for raw data

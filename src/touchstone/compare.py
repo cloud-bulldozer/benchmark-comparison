@@ -116,6 +116,7 @@ def setup_logging(loglevel):
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    logger.level = loglevel
 
 
 def main(args):
@@ -227,6 +228,7 @@ def main(args):
         elif args.output == "yaml":
             output_file.write(yaml.dump(main_json, allow_unicode=True))
     if args.tolerancy_rules:
+        logger.info("Checking tolerancies")
         baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
         sys.exit(
             decision_maker.run(

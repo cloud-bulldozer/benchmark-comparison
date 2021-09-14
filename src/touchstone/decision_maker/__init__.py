@@ -92,20 +92,18 @@ def run(baseline_uuid, results_data, rule_fd, output, compute_header, output_fil
         logger.error(f"Error loading tolerations rules: {err}")
     c = Compare(baseline_uuid, results_data)
     for json_path in json_paths:
-        r = c.compare(json_path["json_path"], json_path["tolerancy"])
-        if r:
-            rc = r
-            if output == "yaml":
-                print(yaml.dump({"tolerations": c.compare_dict}, indent=1), file=output_file)
-            elif output == "json":
-                print(json.dumps({"tolerations": c.compare_dict}, indent=4), file=output_file)
-            elif output == "csv":
-                row_list = [compute_header]
-                flatten_and_discard(c.compare_dict, compute_header, row_list)
-                writer = csv.writer(output_file, delimiter=",")
-                list(map(writer.writerow, row_list))
-            else:
-                row_list = []
-                flatten_and_discard(c.compare_dict, compute_header, row_list)
-                print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
+        rc = c.compare(json_path["json_path"], json_path["tolerancy"])
+        if output == "yaml":
+            print(yaml.dump({"tolerations": c.compare_dict}, indent=1), file=output_file)
+        elif output == "json":
+            print(json.dumps({"tolerations": c.compare_dict}, indent=4), file=output_file)
+        elif output == "csv":
+            row_list = [compute_header]
+            flatten_and_discard(c.compare_dict, compute_header, row_list)
+            writer = csv.writer(output_file, delimiter=",")
+            list(map(writer.writerow, row_list))
+        else:
+            row_list = []
+            flatten_and_discard(c.compare_dict, compute_header, row_list)
+            print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
     return rc

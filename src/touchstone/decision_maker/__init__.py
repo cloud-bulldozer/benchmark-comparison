@@ -28,12 +28,12 @@ class Compare:
             # If percentage is greater than 100, sustract 100 from it else substract it from 100
             deviation = metric_percent - 100 if metric_percent > 100 else 100 - metric_percent
             deviation = -deviation if v < input_dict[self.baseline_uuid] else deviation
-            compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "baseline"}
+            compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "Baseline"}
             if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
-                compare_dict[u] = {v: "Fail: {:.2f}%".format(deviation)}
+                compare_dict[u] = {v: {"Fail": "{:.2f}%".format(deviation)}}
                 self.rc = 1
             else:
-                compare_dict[u] = {v: "Pass: {:.2f}%".format(deviation)}
+                compare_dict[u] = {v: {"Pass": "{:.2f}%".format(deviation)}}
 
     def compare(self, json_path, tolerancy):
         """
@@ -85,7 +85,7 @@ def run(baseline_uuid, results_data, rule_fd, output, compute_header, output_fil
     :param output_file Output file
     """
     rc = 0
-    compute_header.append("tolerancy")
+    compute_header += ["result", "deviation"]
     try:
         json_paths = yaml.load(rule_fd, Loader=yaml.FullLoader)
     except Exception as err:

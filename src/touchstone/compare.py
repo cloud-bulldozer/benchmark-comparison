@@ -138,6 +138,9 @@ def main(args):
     # Get indices from metadata map
     metadata_search_map = benchmark_instance.search_map_metadata
     metadata_dict = {}
+    if args.tolerancy_rules and len(args.uuid) < 2:
+        logger.critical("At least two uuids are required when tolerancy-rules flag is passed")
+        sys.exit(1)
     for index in metadata_search_map.keys():
         # Set metadata search map
         for uuid_index, uuid in enumerate(args.uuid):
@@ -160,9 +163,7 @@ def main(args):
             elif not args.output:
                 row_list = []
                 flatten_and_discard(metadata_dict, headers, row_list)
-                print(
-                    tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file,
-                )
+                print(tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file)
                 metadata_dict = {}
 
     timeseries_result = 0

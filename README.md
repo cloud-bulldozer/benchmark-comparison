@@ -203,25 +203,23 @@ By default `touchstone` takes the first UUID passed as baseline. When `touchston
 When tolerancy evaluation is enabled, touchstone will output the results of the evaluation after the results:
 
 ```shell
-$ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-fe277d7cb1f3 ec7f0cfb-0812-57ab-8905-fd6ddaacf593 --config config/uperf.json --tolerancy-rules tolerancy-configs/mb.yaml
-<truncated output>
-+-------------+--------+----------------------+-----------+--------------------------+--------------------------------------+----------+----------------+
-|  test_type  | routes | conn_per_targetroute | keepalive |           key            |                 uuid                 |  value   |   tolerancy    |
-+-------------+--------+----------------------+-----------+--------------------------+--------------------------------------+----------+----------------+
-|    http     |  500   |          1           |     0     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 191160.0 |    baseline    |
-|    http     |  500   |          1           |     0     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 199434.0 |      Pass      |
-|    http     |  500   |          1           |     1     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 12892.5  |    baseline    |
-|    http     |  500   |          1           |     1     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 11559.0  |      Pass      |
-|    http     |  500   |          1           |    50     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 170566.0 |    baseline    |
-|    http     |  500   |          1           |    50     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 172050.5 |      Pass      |
-|    http     |  500   |          20          |     0     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 66229.0  |    baseline    |
-|    http     |  500   |          20          |     0     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 72479.0  |      Pass      |
-|    http     |  500   |          20          |     1     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 12097.5  |    baseline    |
-|    http     |  500   |          20          |     1     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 11075.0  |      Pass      |
-|    http     |  500   |          20          |    50     | avg(requests_per_second) | 6503a15d-ca27-4483-90d9-7116840aef87 | 75213.0  |    baseline    |
-|    http     |  500   |          20          |    50     | avg(requests_per_second) | fb9d3fb0-1050-48b7-8e6d-8e7d6b0ba319 | 89248.0  |      Pass      |
+$ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-fe277d7cb1f3 ec7f0cfb-0812-57ab-8905-fd6ddaacf593 --config config/uperf.json --tolerancy-rules tolerancy-configs/mb.yaml --alias OpenShiftSDN OVN
++-------------+--------+----------------------+-----------+--------------------------+--------------+----------+----------+-----------+
+|  test_type  | routes | conn_per_targetroute | keepalive |           key            |     uuid     |  value   |  result  | deviation |
++-------------+--------+----------------------+-----------+--------------------------+--------------+----------+----------+-----------+
+|    http     |  100   |          1           |     0     | avg(requests_per_second) | OpenShiftSDN | 59251.0  | Baseline |           |
+|    http     |  100   |          1           |     0     | avg(requests_per_second) |     OVN      | 51141.5  |   Pass   |  -13.69%  |
+|    http     |  100   |          1           |     1     | avg(requests_per_second) | OpenShiftSDN | 21802.5  | Baseline |           |
+|    http     |  100   |          1           |     1     | avg(requests_per_second) |     OVN      | 20414.5  |   Pass   |  -6.37%   |
+|    http     |  100   |          1           |    50     | avg(requests_per_second) | OpenShiftSDN | 56382.5  | Baseline |           |
+|    http     |  100   |          1           |    50     | avg(requests_per_second) |     OVN      | 46628.5  |   Fail   |  -17.30%  |
+|    http     |  100   |          40          |     0     | avg(requests_per_second) | OpenShiftSDN | 104666.5 | Baseline |           |
+|    http     |  100   |          40          |     0     | avg(requests_per_second) |     OVN      | 131030.5 |   Pass   |  25.19%   |
+|    http     |  100   |          40          |     1     | avg(requests_per_second) | OpenShiftSDN | 41068.5  | Baseline |           |
+|    http     |  100   |          40          |     1     | avg(requests_per_second) |     OVN      | 29573.5  |   Fail   |  -27.99%  |
++-------------+--------+----------------------+-----------+--------------------------+--------------+----------+----------+-----------+
 $ echo $?
-0
+1
 ```
 
 ### Querying for raw data

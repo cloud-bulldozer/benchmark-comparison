@@ -80,6 +80,9 @@ def parse_args(args):
         type=argparse.FileType("r", encoding="utf-8"),
     )
     parser.add_argument(
+        "--rc", help="Return code if tolerancy check fails", required=False, type=int, default=1,
+    )
+    parser.add_argument(
         "-url",
         "--connection-url",
         required=True,
@@ -231,11 +234,7 @@ def main(args):
     if args.tolerancy_rules:
         logger.info("Checking tolerancies")
         baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
-        sys.exit(
-            decision_maker.run(
-                baseline_uuid, main_json, args.tolerancy_rules, args.output, compute_header, output_file,
-            )
-        )
+        sys.exit(decision_maker.run(baseline_uuid, main_json, compute_header, output_file, args))
 
 
 def render():

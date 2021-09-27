@@ -13,9 +13,9 @@ class Compare:
     def __init__(self, baseline_uuid, json_data):
         self.json_data = json_data
         self.baseline_uuid = baseline_uuid
+        self.passed = True
         self.tolerancy = 0
         self.compare_dict = {}
-        self.rc = 0
 
     def _compare(self, input_dict, compare_dict):
         if self.baseline_uuid not in input_dict:
@@ -31,7 +31,7 @@ class Compare:
             compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "Baseline"}
             if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
                 compare_dict[u] = {v: {"Fail": "{:.2f}%".format(deviation)}}
-                self.rc = 1
+                self.passed = False
             else:
                 compare_dict[u] = {v: {"Pass": "{:.2f}%".format(deviation)}}
 
@@ -72,32 +72,31 @@ class Compare:
                 self._compare(data[json_path[0]], parent[json_path[0]])
 
         recurse(self.json_data, self.json_path, self.compare_dict)
-        return self.rc
+        return self.passed
 
 
-def run(baseline_uuid, results_data, rule_fd, output, compute_header, output_file):
+def run(baseline_uuid, results_data, compute_header, output_file, args):
     """
     run evaluates toleration thresholds against comparison data
     :param baseline_uuid UUID to use as baseline
     :param results_data comparison data
-    :param rule_fd rule file descritor
     :param compute_header headers to use in CSV and tabulate outputs
-    :param output_file Output file
+    :param args benchmark-comparison arguments
     """
-    rc = 0
+    passed = True
     compute_header += ["result", "deviation"]
     try:
-        json_paths = yaml.load(rule_fd, Loader=yaml.FullLoader)
+        json_paths = yaml.load(args.tolerancy_rules, Loader=yaml.FullLoader)
     except Exception as err:
         logger.error(f"Error loading tolerations rules: {err}")
     c = Compare(baseline_uuid, results_data)
     for json_path in json_paths:
-        rc = c.compare(json_path["json_path"], json_path["tolerancy"])
-        if output == "yaml":
+        passed = c.compare(json_path["json_path"], json_path["tolerancy"])
+        if args.output == "yaml":
             print(yaml.dump({"tolerations": c.compare_dict}, indent=1), file=output_file)
-        elif output == "json":
+        elif args.output == "json":
             print(json.dumps({"tolerations": c.compare_dict}, indent=4), file=output_file)
-        elif output == "csv":
+        elif args.output == "csv":
             row_list = [compute_header]
             flatten_and_discard(c.compare_dict, compute_header, row_list)
             writer = csv.writer(output_file, delimiter=",")
@@ -106,4 +105,4 @@ def run(baseline_uuid, results_data, rule_fd, output, compute_header, output_fil
             row_list = []
             flatten_and_discard(c.compare_dict, compute_header, row_list)
             print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
-    return rc
+    return 0 if passed else args.rc

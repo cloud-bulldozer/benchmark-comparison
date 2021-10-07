@@ -224,17 +224,16 @@ def main(args):
                 elif not args.output:
                     flatten_and_discard(index_json, compute_header, row_list)
                     print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
-    if not args.tolerancy_rules:
-        if metadata_dict:
-            main_json["metadata"] = metadata_dict
-        if args.output == "json":
-            output_file.write(json.dumps(main_json, indent=4))
-        elif args.output == "yaml":
-            output_file.write(yaml.dump(main_json, allow_unicode=True))
     if args.tolerancy_rules:
         logger.info("Checking tolerancies")
         baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
         sys.exit(decision_maker.run(baseline_uuid, main_json, compute_header, output_file, args))
+    if metadata_dict:
+        main_json["metadata"] = metadata_dict
+    if args.output == "json":
+        output_file.write(json.dumps(main_json, indent=4))
+    elif args.output == "yaml":
+        output_file.write(yaml.dump(main_json, allow_unicode=True))
 
 
 def render():

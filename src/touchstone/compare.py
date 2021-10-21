@@ -80,6 +80,9 @@ def parse_args(args):
         type=argparse.FileType("r", encoding="utf-8"),
     )
     parser.add_argument(
+        "--rc", help="Return code if tolerancy check fails", required=False, type=int, default=1,
+    )
+    parser.add_argument(
         "-url",
         "--connection-url",
         required=True,
@@ -116,6 +119,7 @@ def setup_logging(loglevel):
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+    logger.level = loglevel
 
 
 def main(args):
@@ -137,6 +141,9 @@ def main(args):
     # Get indices from metadata map
     metadata_search_map = benchmark_instance.search_map_metadata
     metadata_dict = {}
+    if args.tolerancy_rules and len(args.uuid) < 2:
+        logger.critical("At least two uuids are required when tolerancy-rules flag is passed")
+        sys.exit(1)
     for index in metadata_search_map.keys():
         # Set metadata search map
         for uuid_index, uuid in enumerate(args.uuid):
@@ -149,7 +156,7 @@ def main(args):
             args.identifier,
             "value",
         ]
-        if metadata_dict:
+        if metadata_dict and not args.tolerancy_rules:
             if args.output == "csv":
                 row_list = [headers]
                 flatten_and_discard(metadata_dict, headers, row_list)
@@ -159,9 +166,7 @@ def main(args):
             elif not args.output:
                 row_list = []
                 flatten_and_discard(metadata_dict, headers, row_list)
-                print(
-                    tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file,
-                )
+                print(tabulate(row_list, headers=headers, tablefmt="pretty"), file=output_file)
                 metadata_dict = {}
 
     timeseries_result = 0
@@ -209,7 +214,7 @@ def main(args):
                 if args.output == "yaml":
                     output_file.write(yaml.dump(timeseries_result, allow_unicode=True))
                 return
-            if index_json:
+            if index_json and not args.tolerancy_rules:
                 row_list = []
                 if args.output == "csv":
                     row_list.append(compute_header)
@@ -219,20 +224,16 @@ def main(args):
                 elif not args.output:
                     flatten_and_discard(index_json, compute_header, row_list)
                     print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
+    if args.tolerancy_rules:
+        logger.info("Checking tolerancies")
+        baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
+        sys.exit(decision_maker.run(baseline_uuid, main_json, compute_header, output_file, args))
     if metadata_dict:
         main_json["metadata"] = metadata_dict
     if args.output == "json":
         output_file.write(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
         output_file.write(yaml.dump(main_json, allow_unicode=True))
-
-    if args.tolerancy_rules:
-        baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
-        sys.exit(
-            decision_maker.run(
-                baseline_uuid, main_json, args.tolerancy_rules, args.output, compute_header, output_file,
-            )
-        )
 
 
 def render():

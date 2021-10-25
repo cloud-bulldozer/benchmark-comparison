@@ -19,6 +19,9 @@
 #  base_sample -- file containing baseline performance throughput samples, 1 per line
 #  current_sample -- file containing current performance throughput samples, 1 per line
 #
+# environment variable inputs:
+#  USE_TTEST - if defined, use T-test, else use Mann-Whitney U test
+#
 # recommendation: make max_pct_dev 1/2 of regression threshold, so that you can detect small regressions.
 #
 # return status codes and their meanings are described below in the code.
@@ -44,7 +47,7 @@ from sys import argv, exit
 import math
 import numpy
 import scipy
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, mannwhitneyu
 from numpy import array
 
 # process status codes returned to shell
@@ -139,9 +142,15 @@ else:
 # FAIL the test if sample sets are accurate enough and 
 # current sample set is statistically worse than baseline sample set
 
-(t, same_mean_probability) = ttest_ind(baseline_sample_array, current_sample_array)
-print('t-test t-statistic = %f probability = %f'%(t,same_mean_probability))
-print('t-test says that mean of two sample sets differs with probability %6.2f%%'%\
+if os.getenv('USE_TTEST'):
+    print('using T-test')
+    (t, same_mean_probability) = ttest_ind(baseline_sample_array, current_sample_array)
+else:
+    print('using Mann-Whitney U test')
+    (t, same_mean_probability) = mannwhitneyu(baseline_sample_array, current_sample_array)
+
+print('statistic = %f probability = %f'%(t,same_mean_probability))
+print('test says that mean of two sample sets differs with probability %6.2f%%'%\
         ((1.0-same_mean_probability)*100.0))
 
 pb_threshold = (100.0 - confidence_threshold)/100.0

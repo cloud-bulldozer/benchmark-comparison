@@ -231,7 +231,7 @@ When tolerancy evaluation is enabled, touchstone will output the results of the 
 
 ```shell
 $ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-fe277d7cb1f3 ec7f0cfb-0812-57ab-8905-fd6ddaacf593 --config=config/mb.json --tolerancy-rules=tolerancy-configs/mb.yaml --alias OpenShiftSDN OVN --rc=1
- --tolerancy-rules tolerancy-configs/mb.yaml                                                                            
+ --tolerancy-rules tolerancy-configs/mb.yaml
  +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+----------+
  | test_type | routes | conn_per_targetroute | keepalive |          metric          | result | deviation | OpenShiftSDN |   OVN    |
  +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+----------+

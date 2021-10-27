@@ -28,7 +28,7 @@ class Compare:
                 continue
             metric_percent = v * 100 / input_dict[self.baseline_uuid]
             # If percentage is greater than 100, sustract 100 from it else substract it from 100
-            deviation = metric_percent - 100 if metric_percent > 100 else 100 -metric_percent
+            deviation = metric_percent - 100 if metric_percent > 100 else 100 - metric_percent
             deviation = -deviation if v < input_dict[self.baseline_uuid] else deviation
             if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
                 result = "Fail"
@@ -38,10 +38,7 @@ class Compare:
             if result not in compare_dict:
                 compare_dict[result] = {}
             compare_dict[result] = {
-                "{:.2f}%".format(deviation): {
-                    self.baseline_uuid: input_dict[self.baseline_uuid],
-                    u: v
-                }
+                "{:.2f}%".format(deviation): {self.baseline_uuid: input_dict[self.baseline_uuid], u: v}
             }
 
     def compare(self, json_path, tolerancy):

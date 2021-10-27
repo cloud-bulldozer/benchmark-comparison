@@ -141,8 +141,8 @@ def main(args):
     # Get indices from metadata map
     metadata_search_map = benchmark_instance.search_map_metadata
     metadata_dict = {}
-    if args.tolerancy_rules and len(args.uuid) < 2:
-        logger.critical("At least two uuids are required when tolerancy-rules flag is passed")
+    if args.tolerancy_rules and (len(args.uuid) < 2 or len(args.uuid) > 2):
+        logger.critical("Two uuids exactly are required when tolerancy-rules flag is passed")
         sys.exit(1)
     for index in metadata_search_map.keys():
         # Set metadata search map
@@ -151,11 +151,12 @@ def main(args):
             database_instance = databases.grab(args.database, conn_url=args.conn_url[uuid_index])
             # Adding emit_compare_metadata_dict to elasticsearch class
             database_instance.get_metadata(uuid, metadata_search_map[index], index, metadata_dict)
-        headers = metadata_search_map[index].get("additional_fields", []) + [
-            "metadata",
-            args.identifier,
-            "value",
-        ]
+        headers = [metadata_search_map[index].get("additional_fields", []), "metadata"]
+        if args.aliases:
+            headers += args.aliases
+        else:
+            headers += args.uuid
+        headers.append("value")
         if metadata_dict and not args.tolerancy_rules:
             if args.output == "csv":
                 row_list = [headers]
@@ -192,7 +193,7 @@ def main(args):
                         )
                     mergedicts(result, main_json)
                     mergedicts(result, index_json)
-                    compute_header = extract_headers(compute, args.identifier)
+                    compute_header = extract_headers(compute, args.uuid, args.aliases)
 
                 elif "timeseries" in compute and compute["timeseries"]:
                     timeseries_result = database_instance.get_timeseries_results(
@@ -224,10 +225,11 @@ def main(args):
                 elif not args.output:
                     flatten_and_discard(index_json, compute_header, row_list)
                     print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
-    if args.tolerancy_rules:
-        logger.info("Checking tolerancies")
-        baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
-        sys.exit(decision_maker.run(baseline_uuid, main_json, compute_header, output_file, args))
+            elif args.tolerancy_rules:
+                baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
+                identifiers = args.aliases if args.aliases else args.uuid
+                compute_header = extract_headers(compute) + ["result", "deviation"] + identifiers
+                decision_maker.run(baseline_uuid, index_json, compute_header, output_file, args)
     if metadata_dict:
         main_json["metadata"] = metadata_dict
     if args.output == "json":

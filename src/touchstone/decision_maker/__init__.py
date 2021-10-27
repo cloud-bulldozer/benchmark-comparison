@@ -24,16 +24,25 @@ class Compare:
         # baseline value is the current value plus the tolerancy
         base_val = input_dict[self.baseline_uuid] + input_dict[self.baseline_uuid] * self.tolerancy / 100
         for u, v in input_dict.items():
+            if u == self.baseline_uuid:
+                continue
             metric_percent = v * 100 / input_dict[self.baseline_uuid]
             # If percentage is greater than 100, sustract 100 from it else substract it from 100
-            deviation = metric_percent - 100 if metric_percent > 100 else 100 - metric_percent
+            deviation = metric_percent - 100 if metric_percent > 100 else 100 -metric_percent
             deviation = -deviation if v < input_dict[self.baseline_uuid] else deviation
-            compare_dict[self.baseline_uuid] = {input_dict[self.baseline_uuid]: "Baseline"}
             if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
-                compare_dict[u] = {v: {"Fail": "{:.2f}%".format(deviation)}}
+                result = "Fail"
                 self.passed = False
             else:
-                compare_dict[u] = {v: {"Pass": "{:.2f}%".format(deviation)}}
+                result = "Pass"
+            if result not in compare_dict:
+                compare_dict[result] = {}
+            compare_dict[result] = {
+                "{:.2f}%".format(deviation): {
+                    self.baseline_uuid: input_dict[self.baseline_uuid],
+                    u: v
+                }
+            }
 
     def compare(self, json_path, tolerancy):
         """
@@ -84,8 +93,8 @@ def run(baseline_uuid, results_data, compute_header, output_file, args):
     :param args benchmark-comparison arguments
     """
     passed = True
-    compute_header += ["result", "deviation"]
     try:
+        args.tolerancy_rules.seek(0)
         json_paths = yaml.load(args.tolerancy_rules, Loader=yaml.FullLoader)
     except Exception as err:
         logger.error(f"Error loading tolerations rules: {err}")

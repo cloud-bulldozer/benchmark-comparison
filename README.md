@@ -154,23 +154,50 @@ $ touchstone_compare -url https://my-es-instance.com:9200 -u ec7f0cfb-0812-57ab-
 | uperf-client-10.131.0.159-975fa650-lnq2k | value.MemTotal | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 32105908 kB |
 | uperf-client-10.131.0.160-975fa650-6pfhc | value.MemTotal | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 32105908 kB |
 +------------------------------------------+----------------+--------------------------------------+-------------+
-+-----------------------+--------------------------------------+-----------------------------------+
-|       metadata        |                 uuid                 |               value               |
-+-----------------------+--------------------------------------+-----------------------------------+
-| value.cluster_version | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 4.7.0-0.nightly-2021-03-27-082615 |
-| value.cluster_version | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 4.7.0-0.nightly-2021-03-27-082615 |
-+-----------------------+--------------------------------------+-----------------------------------+
-
-+-----------+----------+--------------+-------------+----------------------------+--------------------------------------+--------------------+
-| test_type | protocol | message_size | num_threads |            key             |                 uuid                 |       value        |
-+-----------+----------+--------------+-------------+----------------------------+--------------------------------------+--------------------+
-|  stream   |   udp    |     1024     |      1      |       max(norm_byte)       | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 |    196689920.0     |
-|  stream   |   udp    |     1024     |      1      |       max(norm_byte)       | 975fa650-aeb2-5042-8517-fe277d7cb1f3 |    193773568.0     |
-|  stream   |   udp    |     1024     |      1      |       avg(norm_byte)       | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 178356565.33333334 |
-|  stream   |   udp    |     1024     |      1      |       avg(norm_byte)       | 975fa650-aeb2-5042-8517-fe277d7cb1f3 | 178376094.44228095 |
-|  stream   |   udp    |     1024     |      1      | 99.0percentiles(norm_byte) | ec7f0cfb-0812-57ab-8905-fd6ddaacf593 | 193717862.39999998 |
-|  stream   |   udp    |     1024     |      1      | 99.0percentiles(norm_byte) | 975fa650-aeb2-5042-8517-fe277d7cb1f3 |    192008028.16    |
-etc.
++-----------+----------+--------------+-------------+----------------+--------------------+--------------------+
+| test_type | protocol | message_size | num_threads |     metric     |    OpenShiftSDN    |        OVN         |
++-----------+----------+--------------+-------------+----------------+--------------------+--------------------+
+|  stream   |   udp    |     1024     |      1      | max(norm_byte) |    196689920.0     |    196689920.0     |
+|  stream   |   udp    |     1024     |      1      | avg(norm_byte) | 178356565.33333334 | 178356565.33333334 |
+|  stream   |   udp    |      64      |      1      | max(norm_byte) |     12478464.0     |     12478464.0     |
+|  stream   |   udp    |      64      |      1      | avg(norm_byte) | 11226859.705146037 | 11226859.705146037 |
+|  stream   |   udp    |    16384     |      1      | max(norm_byte) |    1274544128.0    |    1274544128.0    |
+|  stream   |   udp    |    16384     |      1      | avg(norm_byte) | 1128798626.714882  | 1128798626.714882  |
+|  stream   |   tcp    |      64      |      1      | max(norm_byte) |     75060224.0     |     75060224.0     |
+|  stream   |   tcp    |      64      |      1      | avg(norm_byte) | 69679493.68888889  | 69679493.68888889  |
+|  stream   |   tcp    |    16384     |      1      | max(norm_byte) |    617873408.0     |    617873408.0     |
+|  stream   |   tcp    |    16384     |      1      | avg(norm_byte) | 316504790.22531295 | 316504790.22531295 |
+|  stream   |   tcp    |     1024     |      1      | max(norm_byte) |    619380736.0     |    619380736.0     |
+|  stream   |   tcp    |     1024     |      1      | avg(norm_byte) | 315166389.10167134 | 315166389.10167134 |
++-----------+----------+--------------+-------------+----------------+--------------------+--------------------+
++-----------+----------+--------------+-------------+----------------------------+--------------------+--------------------+
+| test_type | protocol | message_size | num_threads |           metric           |    OpenShiftSDN    |        OVN         |
++-----------+----------+--------------+-------------+----------------------------+--------------------+--------------------+
+|    rr     |   tcp    |      64      |      1      |       max(norm_ops)        |       3764.0       |       3764.0       |
+|    rr     |   tcp    |      64      |      1      |       avg(norm_ops)        | 3589.5194444444446 | 3589.5194444444446 |
+|    rr     |   tcp    |      64      |      1      | 99.0percentiles(norm_ltcy) | 346.40508117675773 | 346.40508117675773 |
+|    rr     |   tcp    |      64      |      1      |       avg(norm_ltcy)       | 280.28243395487465 | 280.28243395487465 |
+|    rr     |   tcp    |     1024     |      1      |       max(norm_ops)        |       3708.0       |       3708.0       |
+|    rr     |   tcp    |     1024     |      1      |       avg(norm_ops)        | 3529.961111111111  | 3529.961111111111  |
+|    rr     |   tcp    |     1024     |      1      | 99.0percentiles(norm_ltcy) | 351.03181762695306 | 351.03181762695306 |
+|    rr     |   tcp    |     1024     |      1      |       avg(norm_ltcy)       | 285.12439528571235 | 285.12439528571235 |
+|    rr     |   tcp    |    16384     |      1      |       max(norm_ops)        |       3318.0       |       3318.0       |
+|    rr     |   tcp    |    16384     |      1      |       avg(norm_ops)        | 3168.488888888889  | 3168.488888888889  |
+|    rr     |   tcp    |    16384     |      1      | 99.0percentiles(norm_ltcy) | 392.5337493896483  | 392.5337493896483  |
+|    rr     |   tcp    |    16384     |      1      |       avg(norm_ltcy)       | 317.63111754523385 | 317.63111754523385 |
+|    rr     |   udp    |      64      |      1      |       max(norm_ops)        |       3788.0       |       3788.0       |
+|    rr     |   udp    |      64      |      1      |       avg(norm_ops)        | 3579.760778859527  | 3579.760778859527  |
+|    rr     |   udp    |      64      |      1      | 99.0percentiles(norm_ltcy) | 361.8567254638668  | 361.8567254638668  |
+|    rr     |   udp    |      64      |      1      |       avg(norm_ltcy)       | 281.3683704275415  | 281.3683704275415  |
+|    rr     |   udp    |     1024     |      1      |       max(norm_ops)        |       3772.0       |       3772.0       |
+|    rr     |   udp    |     1024     |      1      |       avg(norm_ops)        | 3629.2670375521557 | 3629.2670375521557 |
+|    rr     |   udp    |     1024     |      1      | 99.0percentiles(norm_ltcy) | 331.14006347656243 | 331.14006347656243 |
+|    rr     |   udp    |     1024     |      1      |       avg(norm_ltcy)       | 277.26350731776716 | 277.26350731776716 |
+|    rr     |   udp    |    16384     |      1      |       max(norm_ops)        |       3256.0       |       3256.0       |
+|    rr     |   udp    |    16384     |      1      |       avg(norm_ops)        | 3147.229485396384  | 3147.229485396384  |
+|    rr     |   udp    |    16384     |      1      | 99.0percentiles(norm_ltcy) | 392.8086782836913  | 392.8086782836913  |
+|    rr     |   udp    |    16384     |      1      |       avg(norm_ltcy)       | 319.65084329533477 | 319.65084329533477 |
++-----------+----------+--------------+-------------+----------------------------+--------------------+--------------------+
 ```
 
 ### Comparing on a specific identifier
@@ -203,21 +230,34 @@ By default `touchstone` takes the first UUID passed as baseline. When `touchston
 When tolerancy evaluation is enabled, touchstone will output the results of the evaluation after the results:
 
 ```shell
-$ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-fe277d7cb1f3 ec7f0cfb-0812-57ab-8905-fd6ddaacf593 --config config/uperf.json --tolerancy-rules tolerancy-configs/mb.yaml --alias OpenShiftSDN OVN
-+-------------+--------+----------------------+-----------+--------------------------+--------------+----------+----------+-----------+
-|  test_type  | routes | conn_per_targetroute | keepalive |           key            |     uuid     |  value   |  result  | deviation |
-+-------------+--------+----------------------+-----------+--------------------------+--------------+----------+----------+-----------+
-|    http     |  100   |          1           |     0     | avg(requests_per_second) | OpenShiftSDN | 59251.0  | Baseline |           |
-|    http     |  100   |          1           |     0     | avg(requests_per_second) |     OVN      | 51141.5  |   Pass   |  -13.69%  |
-|    http     |  100   |          1           |     1     | avg(requests_per_second) | OpenShiftSDN | 21802.5  | Baseline |           |
-|    http     |  100   |          1           |     1     | avg(requests_per_second) |     OVN      | 20414.5  |   Pass   |  -6.37%   |
-|    http     |  100   |          1           |    50     | avg(requests_per_second) | OpenShiftSDN | 56382.5  | Baseline |           |
-|    http     |  100   |          1           |    50     | avg(requests_per_second) |     OVN      | 46628.5  |   Fail   |  -17.30%  |
-|    http     |  100   |          40          |     0     | avg(requests_per_second) | OpenShiftSDN | 104666.5 | Baseline |           |
-|    http     |  100   |          40          |     0     | avg(requests_per_second) |     OVN      | 131030.5 |   Pass   |  25.19%   |
-|    http     |  100   |          40          |     1     | avg(requests_per_second) | OpenShiftSDN | 41068.5  | Baseline |           |
-|    http     |  100   |          40          |     1     | avg(requests_per_second) |     OVN      | 29573.5  |   Fail   |  -27.99%  |
-+-------------+--------+----------------------+-----------+--------------------------+--------------+----------+----------+-----------+
+$ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-fe277d7cb1f3 ec7f0cfb-0812-57ab-8905-fd6ddaacf593 --config=config/mb.json --tolerancy-rules=tolerancy-configs/mb.yaml --alias OpenShiftSDN OVN --rc=1
+ --tolerancy-rules tolerancy-configs/mb.yaml
+ +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+----------+
+ | test_type | routes | conn_per_targetroute | keepalive |          metric          | result | deviation | OpenShiftSDN |   OVN    |
+ +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+----------+
+ |   http    |  100   |          1           |     0     | avg(requests_per_second) |  Pass  |  -13.69%  |   59251.0    | 51141.5  |
+ |   http    |  100   |          1           |     1     | avg(requests_per_second) |  Pass  |  -6.37%   |   21802.5    | 20414.5  |
+ |   http    |  100   |          1           |    50     | avg(requests_per_second) |  Fail  |  -17.30%  |   56382.5    | 46628.5  |
+ |   http    |  100   |          40          |     0     | avg(requests_per_second) |  Pass  |  25.19%   |   104666.5   | 131030.5 |
+ |   http    |  100   |          40          |     1     | avg(requests_per_second) |  Fail  |  -27.99%  |   41068.5    | 29573.5  |
+ |   http    |  100   |          40          |    50     | avg(requests_per_second) |  Pass  |  -10.76%  |   160984.5   | 143668.0 |
+ |   http    |  100   |         200          |     0     | avg(requests_per_second) |  Pass  |  -9.86%   |   140269.0   | 126443.5 |
+ |   http    |  100   |         200          |     1     | avg(requests_per_second) |  Pass  |  30.15%   |   38852.0    | 50565.5  |
+ |   http    |  100   |         200          |    50     | avg(requests_per_second) |  Pass  |  -11.89%  |   147645.5   | 130094.5 |
+ +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+----------+
+ +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+---------+
+ | test_type | routes | conn_per_targetroute | keepalive |          metric          | result | deviation | OpenShiftSDN |   OVN   |
+ +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+---------+
+ |   edge    |  100   |          1           |     0     | avg(requests_per_second) |  Pass  |  -14.61%  |   64454.5    | 55034.5 |
+ |   edge    |  100   |          1           |     1     | avg(requests_per_second) |  Fail  |  -59.37%  |   16390.0    | 6659.0  |
+ |   edge    |  100   |          1           |    50     | avg(requests_per_second) |  Fail  |  -24.41%  |   60963.0    | 46082.5 |
+ |   edge    |  100   |          40          |     0     | avg(requests_per_second) |  Pass  |  -11.03%  |   93206.5    | 82922.5 |
+ |   edge    |  100   |          40          |     1     | avg(requests_per_second) |  Fail  |  -60.53%  |   22190.5    | 8759.5  |
+ |   edge    |  100   |          40          |    50     | avg(requests_per_second) |  Fail  |  -20.08%  |   90001.5    | 71932.5 |
+ |   edge    |  100   |         200          |     0     | avg(requests_per_second) |  Pass  |  -3.41%   |   72936.0    | 70450.0 |
+ |   edge    |  100   |         200          |     1     | avg(requests_per_second) |  Fail  |  -56.28%  |   19330.5    | 8451.5  |
+ |   edge    |  100   |         200          |    50     | avg(requests_per_second) |  Pass  |  -11.42%  |   70538.0    | 62480.5 |
+ +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+---------+
 $ echo $?
 1
 ```

@@ -229,13 +229,14 @@ def main(args):
                 baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
                 identifiers = args.aliases if args.aliases else args.uuid
                 compute_header = extract_headers(compute) + ["result", "deviation"] + identifiers
-                decision_maker.run(baseline_uuid, index_json, compute_header, output_file, args)
+                rc = decision_maker.run(baseline_uuid, index_json, compute_header, output_file, args)
     if metadata_dict:
         main_json["metadata"] = metadata_dict
     if args.output == "json":
         output_file.write(json.dumps(main_json, indent=4))
     elif args.output == "yaml":
         output_file.write(yaml.dump(main_json, allow_unicode=True))
+    exit(rc)
 
 
 def render():

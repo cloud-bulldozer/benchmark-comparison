@@ -128,6 +128,7 @@ def main(args):
       args ([str]): command line parameter list
     """
     args = parse_args(args)
+    rc = 0
     if args.aliases and len(args.uuid) != len(args.aliases):
         logger.critical("Number of aliases must be equal to the number of IDs")
         sys.exit(1)
@@ -208,7 +209,7 @@ def main(args):
                     mergedicts(timeseries_result, index_json)
 
                 else:
-                    logger.error("Not Supported configutation")
+                    logger.error("Not Supported configuration")
             if timeseries_result:
                 if not args.output or args.output == "json":
                     output_file.write(json.dumps(timeseries_result, indent=4))

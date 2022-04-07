@@ -36,7 +36,8 @@
         "buckets": [
           "protocol.keyword",
           "message_size",
-          "num_threads"
+          "num_threads",
+          "num_pairs.keyword"
         ],
         "aggregations": {
           "norm_byte": [
@@ -55,7 +56,8 @@
         "buckets": [
           "protocol.keyword",
           "message_size",
-          "num_threads"
+          "num_threads",
+          "num_pairs.keyword"
         ],
         "aggregations": {
           "norm_ops": [

@@ -83,7 +83,7 @@ fields are required in {compute_map}"
 
         # Apply filters
         for key, value in filters.items():
-            s = s.filter("term", **{key: value})
+            s = s.filter("wildcard", **{key: value})
 
         # Apply excludes
         for key, value in compute_map.get("exclude", {}).items():

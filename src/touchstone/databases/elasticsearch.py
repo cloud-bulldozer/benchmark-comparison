@@ -1,6 +1,7 @@
 import logging
 import elasticsearch
 import json
+import ssl
 from elasticsearch_dsl import Search, A
 
 
@@ -13,7 +14,11 @@ logger = logging.getLogger("touchstone")
 class Elasticsearch(DatabaseBaseClass):
     def _create_conn_object(self):
         logger.debug("Creating connection object")
-        es = elasticsearch.Elasticsearch([self._conn_url], send_get_body_as="POST")
+        ssl_ctx = ssl.create_default_context()
+        ssl_ctx.check_hostname = False
+        ssl_ctx.verify_mode = ssl.CERT_NONE
+        es = elasticsearch.Elasticsearch([self._conn_url], send_get_body_as='POST',
+                                         ssl_context=ssl_ctx, use_ssl=True)
         return es
 
     def __init__(self, conn_url=None):

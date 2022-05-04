@@ -13,9 +13,8 @@ git clone https://github.com/cloud-bulldozer/touchstone
 cd touchstone
 python setup.py develop
 touchstone_compare -h
-usage: touchstone_compare [-h] [--version] [--database {elasticsearch}] [--identifier-key IDENTIFIER] -u UUID [UUID ...] [-o {json,yaml,csv}] --config CONFIG [--output-file OUTPUT_FILE] [--tolerancy-rules TOLERANCY_RULES] -url CONN_URL
-                          [CONN_URL ...] [-v] [-vv]
-
+usage: touchstone_compare [-h] [--version] [--database {elasticsearch}] [--identifier-key IDENTIFIER] -u UUID [UUID ...] [-a ALIASES [ALIASES ...]] [-o {json,yaml,csv}] --config CONFIG [--output-file OUTPUT_FILE]
+                          [--tolerancy-rules TOLERANCY_RULES] [--rc RC] -url CONN_URL [CONN_URL ...] [-v] [-vv]
 compare results from benchmarks
 
 optional arguments:
@@ -218,12 +217,14 @@ This feature can be enabled with the flag `--tolerancy-rules` which points to a 
 ```yaml
 - json_path: ["test_type", "stream", "protocol", "*", "message_size", "*", "num_threads", "*", "avg(norm_byte)"]
   tolerancy: -15
+  max_failures: 25
 - json_path: ["test_type", "rr", "protocol", "*", "message_size", "*", "num_threads", "*", "99.0percentiles(norm_ltcy)"]
   tolerancy: 15
+  max_failures: 25
 ```
 
 This YAML file contains a list of dictionaries, where the `json_path` key is a list that indicates the path that will allow `touchstone` to find the metric values from a comparison.
-Wildcards can be used to match several keys at a certain level, and `tolerancy` defines the accepted tolerance percentage by the metrics matched by `json_path`.  i.e a 10 would mean any metric 10% higher than the baseline metric will be considered an error, and -10 would mean the opposite, any metric at least 10% below the baseline value will be considered an error.
+Wildcards can be used to match several keys at a certain level, and `tolerancy` defines the accepted tolerance percentage by the metrics matched by `json_path`.  i.e a 10 would mean any metric 10% higher than the baseline metric will be considered an error, and -10 would mean the opposite, any metric at least 10% below the baseline value will be considered an error. The optional parameter `max_failures` indicates the allowed percentage of failures permitted to consider a benchmark comparison as passed, by default is 0, meaning that only one fail will make set the comparison as failed.
 
 By default `touchstone` takes the first UUID passed as baseline. When `touchstone` finds a metric not meeting a configured tolerancy thresholds it returns 1.
 
@@ -260,6 +261,7 @@ $ touchstone_compare -url https://my-es.instance.com -u 975fa650-aeb2-5042-8517-
  +-----------+--------+----------------------+-----------+--------------------------+--------+-----------+--------------+---------+
 $ echo $?
 1
+# If for example max_failures is 50, the benchmark will fail too, because the second block, (test_type: http) has more than 50% of failures.
 ```
 
 ### Querying for raw data

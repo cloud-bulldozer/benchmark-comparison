@@ -10,6 +10,10 @@ logger = logging.getLogger("touchstone")
 
 
 class Compare:
+
+    comparisons = 0
+    fails = 0
+
     def __init__(self, baseline_uuid, json_data):
         self.json_data = json_data
         self.baseline_uuid = baseline_uuid
@@ -18,6 +22,7 @@ class Compare:
         self.compare_dict = {}
 
     def _compare(self, input_dict, compare_dict):
+        self.comparisons += 1
         if self.baseline_uuid not in input_dict:
             logger.error(f"Missing UUID in input dict: {input_dict}")
             return
@@ -33,6 +38,7 @@ class Compare:
             if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
                 result = "Fail"
                 self.passed = False
+                self.fails += 1
             else:
                 result = "Pass"
             if result not in compare_dict:
@@ -89,14 +95,15 @@ def run(baseline_uuid, results_data, compute_header, output_file, args):
     :param compute_header headers to use in CSV and tabulate outputs
     :param args benchmark-comparison arguments
     """
+    rc = 0
     passed = True
     try:
         args.tolerancy_rules.seek(0)
         json_paths = yaml.load(args.tolerancy_rules, Loader=yaml.FullLoader)
     except Exception as err:
         logger.error(f"Error loading tolerations rules: {err}")
-    c = Compare(baseline_uuid, results_data)
     for json_path in json_paths:
+        c = Compare(baseline_uuid, results_data)
         passed = c.compare(json_path["json_path"], json_path["tolerancy"])
         if args.output == "yaml":
             print(yaml.dump({"tolerations": c.compare_dict}, indent=1), file=output_file)
@@ -111,4 +118,6 @@ def run(baseline_uuid, results_data, compute_header, output_file, args):
             row_list = []
             flatten_and_discard(c.compare_dict, compute_header, row_list)
             print(tabulate(row_list, headers=compute_header, tablefmt="pretty"), file=output_file)
-    return 0 if passed else args.rc
+        if not passed and c.fails * 100 / c.comparisons > json_path.get("max_failures", 0):
+            rc = args.rc
+    return rc

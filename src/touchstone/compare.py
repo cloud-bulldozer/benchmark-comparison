@@ -28,7 +28,9 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(description="compare results from benchmarks")
     parser.add_argument(
-        "--version", action="version", version="touchstone {ver}".format(ver=__version__),
+        "--version",
+        action="version",
+        version="touchstone {ver}".format(ver=__version__),
     )
     parser.add_argument(
         "--database",
@@ -53,7 +55,11 @@ def parse_args(args):
         nargs="+",
     )
     parser.add_argument(
-        "-a", "--aliases", help="id aliases", type=str, nargs="+",
+        "-a",
+        "--aliases",
+        help="id aliases",
+        type=str,
+        nargs="+",
     )
     parser.add_argument(
         "-o",
@@ -80,7 +86,11 @@ def parse_args(args):
         type=argparse.FileType("r", encoding="utf-8"),
     )
     parser.add_argument(
-        "--rc", help="Return code if tolerancy check fails", required=False, type=int, default=1,
+        "--rc",
+        help="Return code if tolerancy check fails",
+        required=False,
+        type=int,
+        default=1,
     )
     parser.add_argument(
         "-url",
@@ -186,7 +196,11 @@ def main(args):
                 if "aggregations" in compute:
                     alias = args.aliases[uuid_index] if args.aliases else None
                     result = database_instance.emit_compute_dict(
-                        uuid=uuid, compute_map=compute, index=index, identifier=args.identifier, alias=alias,
+                        uuid=uuid,
+                        compute_map=compute,
+                        index=index,
+                        identifier=args.identifier,
+                        alias=alias,
                     )
                     if not result:
                         logger.error(
@@ -230,7 +244,8 @@ def main(args):
                 baseline_uuid = args.aliases[0] if args.aliases else args.uuid[0]
                 identifiers = args.aliases if args.aliases else args.uuid
                 compute_header = extract_headers(compute) + ["result", "deviation"] + identifiers
-                rc = decision_maker.run(baseline_uuid, index_json, compute_header, output_file, args)
+                if decision_maker.run(baseline_uuid, index_json, compute_header, output_file, args):
+                    rc = args.rc
     if metadata_dict:
         main_json["metadata"] = metadata_dict
     if args.output == "json":
@@ -241,8 +256,7 @@ def main(args):
 
 
 def render():
-    """Entry point for console_scripts
-    """
+    """Entry point for console_scripts"""
     main(sys.argv[1:])
 
 

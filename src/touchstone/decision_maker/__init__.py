@@ -71,9 +71,7 @@ class Compare:
                         recurse(data[k], json_path[1::], parent[k])
                 else:
                     if json_path[0] not in data:
-                        logger.error(
-                            f"Key {json_path[0]} key not found in current dict level: {list(data.keys())}"
-                        )
+                        self.passed = None
                         return
                     parent[json_path[0]] = {}
                     recurse(data[json_path[0]], json_path[1::], parent[json_path[0]])
@@ -105,6 +103,8 @@ def run(baseline_uuid, results_data, compute_header, output_file, args):
     for json_path in json_paths:
         c = Compare(baseline_uuid, results_data)
         passed = c.compare(json_path["json_path"], json_path["tolerancy"])
+        if passed is None:
+            continue
         if args.output == "yaml":
             print(yaml.dump({"tolerations": c.compare_dict}, indent=1), file=output_file)
         elif args.output == "json":

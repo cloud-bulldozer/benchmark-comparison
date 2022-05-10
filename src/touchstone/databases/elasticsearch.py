@@ -57,10 +57,10 @@ class Elasticsearch(DatabaseBaseClass):
                     for name, value in input_dict[agg]["values"].items():
                         agg_name = "{}{}".format(name, agg)
                         output_dict[agg_name] = {}
-                        output_dict[agg_name][uuid] = value
+                        output_dict[agg_name][uuid] = round(value, 3)
                 elif agg in input_dict:
                     output_dict[agg] = {}
-                    output_dict[agg][uuid] = input_dict[agg]["value"]
+                    output_dict[agg][uuid] = round(input_dict[agg]["value"], 3)
 
         build_dict(input_dict["_d_"], output_dict)
         return output_dict

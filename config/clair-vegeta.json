@@ -1,0 +1,103 @@
+{
+  "elasticsearch": {
+    "metadata": {
+      "cpuinfo-metadata": {
+        "additional_fields": [
+          "pod_name"
+        ],
+        "fields": [
+          "value.Model name",
+          "value.Architecture",
+          "value.CPU(s)"
+        ]
+      },
+      "meminfo-metadata": {
+        "additional_fields": [
+          "pod_name"
+        ],
+        "fields": [
+          "value.MemTotal"
+        ]
+      }
+    },
+    "clair-test-index": [
+      {
+        "filter": {},
+        "buckets": [
+          "targets.keyword"
+        ],
+        "aggregations": {
+          "rps": [
+            "avg"
+          ],
+          "throughput": [
+            "avg"
+          ],
+          "requests": [
+            "avg"
+          ],
+          "req_latency": [
+            "avg"
+          ],
+          "p95_latency": [
+            "avg"
+          ],
+          "p99_latency": [
+            "avg"
+          ],
+          "max_latency": [
+            "avg"
+          ],
+          "min_latency": [
+            "avg"
+          ],
+          "bytes_in": [
+            "avg"
+          ],
+          "bytes_out": [
+            "avg"
+          ],
+          "status_codes.0": [
+            "sum"
+          ],
+          "status_codes.200": [
+            "sum"
+          ],
+          "status_codes.201": [
+            "sum"
+          ],
+          "status_codes.204": [
+            "sum"
+          ],
+          "status_codes.400": [
+            "sum"
+          ],
+          "status_codes.401": [
+            "sum"
+          ],
+          "status_codes.403": [
+            "sum"
+          ],
+          "status_codes.404": [
+            "sum"
+          ],
+          "status_codes.408": [
+            "sum"
+          ],
+          "status_codes.500": [
+            "sum"
+          ],
+          "status_codes.502": [
+            "sum"
+          ],
+          "status_codes.503": [
+            "sum"
+          ],
+          "status_codes.504": [
+            "sum"
+          ]
+        }
+      }
+    ]
+  }
+}

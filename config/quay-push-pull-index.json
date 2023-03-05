@@ -1,0 +1,26 @@
+{
+    "elasticsearch": {
+      "quay-push-pull-index": [
+        {
+          "filter": {},
+          "buckets": [
+            "targets.keyword"
+          ],
+          "aggregations": {
+            "elapsed_time": [
+              "avg",
+              "max",
+              "min"
+            ],
+            "failures": [
+              "sum"
+            ],
+            "successes": [
+              "sum"
+            ]
+          }
+        }
+      ]
+    }
+  }
+  

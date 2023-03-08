@@ -72,8 +72,7 @@ class Elasticsearch(DatabaseBaseClass):
         output_dict = {}
         if "aggregations" not in compute_map:
             logger.critical(
-                f"Incorrect JSON data: nested dictionaries aggregations \
-fields are required in {compute_map}"
+                f"Incorrect JSON data: nested dictionaries aggregations fields are required in {compute_map}"
             )
             return output_dict
         buckets = compute_map.get("buckets", [])

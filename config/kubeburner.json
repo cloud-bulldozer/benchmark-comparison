@@ -7,7 +7,7 @@
         ]
       }
     },
-    "ripsaw-kube-burner": [
+    "ripsaw-kube-burner*": [
       {
         "filter": {
           "metricName.keyword": "podLatencyQuantilesMeasurement"

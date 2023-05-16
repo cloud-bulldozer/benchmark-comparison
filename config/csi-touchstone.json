@@ -1,0 +1,69 @@
+{
+  "elasticsearch": {
+    "perfscale-storage-csi-index": [
+      {
+        "filter": {
+          "test_type.keyword": "mixed-workload"
+        },
+        "buckets": [
+          "total_workload", 
+          "total_workernode",
+          "cluster.ocp_version.keyword",
+          "cluster.platform.keyword"
+        ],
+        "aggregations": {
+          "timestamp": ["max" ],
+          "volume_attach": ["max"],
+          "volume_detach": ["max"],
+          "volume_apply_access_control": ["max"],
+          "verify_controller_attached_volume": ["max"],
+          "volume_mount": ["max"],
+          "volume_unmount": [ "max" ],
+          "unmount_device": [ "max" ]
+	}
+      },
+      {
+        "filter": {
+          "test_type.keyword": "statefulset"
+        },
+        "buckets": [
+          "total_workload", 
+          "total_workernode",
+          "cluster.ocp_version.keyword",
+          "cluster.platform.keyword"
+        ],
+        "aggregations": {
+          "timestamp": ["max" ],
+          "volume_attach": ["max"],
+          "volume_detach": ["max"],
+          "volume_apply_access_control": ["max"],
+          "verify_controller_attached_volume": ["max"],
+          "volume_mount": ["max"],
+          "volume_unmount": [ "max" ],
+          "unmount_device": [ "max" ]
+	}
+      },
+      {
+        "filter": {
+          "test_type.keyword": "deployment"
+        },
+        "buckets": [
+          "total_workload", 
+          "total_workernode",
+          "cluster.ocp_version.keyword",
+          "cluster.platform.keyword"
+        ],
+        "aggregations": {
+          "timestamp": ["max" ],
+          "volume_attach": ["max"],
+          "volume_detach": ["max"],
+          "volume_apply_access_control": ["max"],
+          "verify_controller_attached_volume": ["max"],
+          "volume_mount": ["max"],
+          "volume_unmount": [ "max" ],
+          "unmount_device": [ "max" ]
+	}
+      }
+    ]
+  }
+}

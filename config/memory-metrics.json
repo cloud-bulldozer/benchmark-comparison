@@ -1,0 +1,120 @@
+{
+  "elasticsearch": {
+    "ripsaw-kube-burner*": [
+      {
+        "filter": {
+          "metricName.keyword": "nodeMemoryUtilization-Workers"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "nodeMemoryAvailable-Masters"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "kubeletMemory"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "crioMemory"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "containerMemory"
+        },
+        "buckets": [
+          "labels.container.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "containerNetworkSetupLatency"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

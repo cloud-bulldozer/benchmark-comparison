@@ -1,0 +1,25 @@
+{
+  "elasticsearch": {
+    "ripsaw-kube-burner*": [
+      {
+        "filter": {
+          "metricName.keyword": "nodeStatus"
+        },
+        "buckets": [
+          "labels.condition.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,99,100
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

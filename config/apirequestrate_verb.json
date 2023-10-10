@@ -1,0 +1,25 @@
+{
+  "elasticsearch": {
+    "ripsaw-kube-burner*": [
+      {
+        "filter": {
+          "metricName.keyword": "APIRequestRate"
+        },
+        "buckets": [
+          "labels.verb.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

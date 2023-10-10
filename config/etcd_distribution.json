@@ -1,0 +1,82 @@
+{
+  "elasticsearch": {
+    "ripsaw-kube-burner*": [
+      {
+        "filter": {
+          "metricName.keyword": "etcdLeaderChangesRate"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "99thEtcdDiskBackendCommitDurationSeconds"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "99thEtcdDiskWalFsyncDurationSeconds"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "99thEtcdRoundTripTimeSeconds"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

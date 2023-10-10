@@ -1,0 +1,66 @@
+{
+  "elasticsearch": {
+    "ripsaw-kube-burner*": [
+      {
+        "filter": {
+          "metricName.keyword": "APIRequestRate"
+        },
+        "buckets": [
+          "labels.verb.keyword",
+          "labels.resource.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "readOnlyAPICallsLatency"
+        },
+        "buckets": [
+          "labels.verb.keyword",
+          "labels.scope.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "mutatingAPICallsLatency"
+        },
+        "buckets": [
+          "labels.verb.keyword",
+          "labels.scope.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

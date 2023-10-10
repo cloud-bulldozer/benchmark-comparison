@@ -1,0 +1,43 @@
+{
+  "elasticsearch": {
+    "ripsaw-kube-burner": [
+      {
+        "filter": {
+          "metricName.keyword": "podLatencyMeasurement"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "podReadyLatency": [
+            {
+              "percentiles": {
+                "percents": [
+                  1,25,50,75,95,99,100
+                ]
+              }
+            }
+          ],
+          "initializedLatency": [
+            {
+              "percentiles": {
+                "percents": [
+                  1,25,50,75,95,99,100
+                ]
+              }
+            }
+          ],
+          "schedulingLatency": [
+            {
+              "percentiles": {
+                "percents": [
+                  1,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "elasticsearch": {
+    "ripsaw-kube-burner*": [
+      {
+        "filter": {
+          "metricName.keyword": "schedulingThroughput"
+        },
+        "buckets": [
+          "metricName.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "readOnlyAPICallsLatency"
+        },
+        "buckets": [
+          "labels.verb.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "mutatingAPICallsLatency"
+        },
+        "buckets": [
+          "labels.verb.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "readOnlyAPICallsLatency"
+        },
+        "buckets": [
+          "labels.scope.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "filter": {
+          "metricName.keyword": "mutatingAPICallsLatency"
+        },
+        "buckets": [
+          "labels.scope.keyword"
+        ],
+        "aggregations": {
+          "value": [
+            {
+              "percentiles": {
+                "percents": [
+                  0,1,5,25,50,75,95,99,100
+                ]
+              }
+            }
+          ]
+        }
+      }
+
+    ]
+  }
+}

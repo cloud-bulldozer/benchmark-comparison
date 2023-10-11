@@ -229,7 +229,6 @@ def main(args):
                     output_file.write(json.dumps(timeseries_result, indent=4))
                 if args.output == "yaml":
                     output_file.write(yaml.dump(timeseries_result, allow_unicode=True))
-                return
             if index_json and not args.tolerancy_rules:
                 row_list = []
                 if args.output == "csv":

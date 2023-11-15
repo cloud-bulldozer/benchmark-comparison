@@ -4,7 +4,7 @@ WORKDIR /tmp
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Install necessary libraries for subsequent commands
-RUN apt-get update && apt-get install -y podman wget git dumb-init python3.6 python3-distutils python3-pip python3-apt
+RUN apt-get update && apt-get install -y podman wget vim git dumb-init python3.6 python3-distutils python3-pip python3-apt
 
 # Install and setup snafu for storing vegeta results into ES
 RUN mkdir -p /opt/touchstone/ \

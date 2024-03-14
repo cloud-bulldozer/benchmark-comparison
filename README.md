@@ -9,8 +9,8 @@ It is suggested to use a venv to install and run touchstone.
 ```shell
 python -m venv /virtual/environment
 source /virtual/environment/bin/activate
-git clone https://github.com/cloud-bulldozer/touchstone
-cd touchstone
+git clone https://github.com/cloud-bulldozer/benchmark-comparison
+cd benchmark-comparison
 python setup.py develop
 touchstone_compare -h
 usage: touchstone_compare [-h] [--version] [--database {elasticsearch}] [--identifier-key IDENTIFIER] -u UUID [UUID ...] [-a ALIASES [ALIASES ...]] [-o {json,yaml,csv}] --config CONFIG [--output-file OUTPUT_FILE]

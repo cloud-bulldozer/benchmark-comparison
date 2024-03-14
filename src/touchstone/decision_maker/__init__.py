@@ -31,16 +31,23 @@ class Compare:
         for u, v in input_dict.items():
             if u == self.baseline_uuid:
                 continue
-            metric_percent = v * 100 / input_dict[self.baseline_uuid]
-            # If percentage is greater than 100, sustract 100 from it else substract it from 100
-            deviation = metric_percent - 100 if metric_percent > 100 else 100 - metric_percent
-            deviation = -deviation if v < input_dict[self.baseline_uuid] else deviation
-            if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
-                result = "Fail"
-                self.passed = False
-                self.fails += 1
-            else:
+            try:
+                metric_percent = v * 100 / input_dict[self.baseline_uuid]
+            # ZeroDivisionError means baseline value was 0, no comparison to be made here
+            except ZeroDivisionError:
                 result = "Pass"
+                deviation = 0
+                pass
+            else:
+                # If percentage is greater than 100, sustract 100 from it else substract it from 100
+                deviation = metric_percent - 100 if metric_percent > 100 else 100 - metric_percent
+                deviation = -deviation if v < input_dict[self.baseline_uuid] else deviation
+                if (self.tolerancy >= 0 and v > base_val) or (self.tolerancy < 0 and v < base_val):
+                    result = "Fail"
+                    self.passed = False
+                    self.fails += 1
+                else:
+                    result = "Pass"
             if result not in compare_dict:
                 compare_dict[result] = {}
             compare_dict[result] = {
